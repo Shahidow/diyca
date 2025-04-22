@@ -40,6 +40,17 @@ android {
 }
 
 dependencies {
+    implementation("androidx.navigation:navigation-compose:2.8.6")
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.1.0")
+    implementation("com.airbnb.android:lottie-compose:6.6.2")
+
+    //Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0") // Для работы с JSON
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.1") // Для логгирования запросов
+
+    //koin
+    implementation ("io.insert-koin:koin-android:3.3.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

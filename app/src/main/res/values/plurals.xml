@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="lesson_count">
+        <item quantity="one">%d урок</item>
+        <item quantity="few">%d урока</item>
+        <item quantity="many">%d уроков</item>
+        <item quantity="other">%d уроков</item>
+    </plurals>
+    <plurals name="new_words">
+        <item quantity="one">%d новое слово</item>
+        <item quantity="few">%d новых слова</item>
+        <item quantity="many">%d новых слов</item>
+        <item quantity="other">%d новых слов</item>
+    </plurals>
+</resources>

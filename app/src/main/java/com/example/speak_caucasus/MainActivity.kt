@@ -3,35 +3,35 @@ package com.example.speak_caucasus
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.speak_caucasus.di.dataModule
+import com.example.speak_caucasus.di.repositoryModule
+import com.example.speak_caucasus.di.viewModelModule
+import com.example.speak_caucasus.feature.home.screens.profile.ProfileScreen
+import com.example.speak_caucasus.feature.learning.screens.lerning.Learning
+import com.example.speak_caucasus.feature.start.screens.login.LoginScreen
+import com.example.speak_caucasus.ui.bottom_nav.MainScreen
 import com.example.speak_caucasus.ui.theme.Speak_CaucasusTheme
-import androidx.compose.ui.unit.dp as dp
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        startKoin {
+            androidContext(this@MainActivity)
+            modules(
+                listOf(
+                    dataModule,
+                    repositoryModule,
+                    viewModelModule
+                )
+            )
+        }
         setContent {
-            Column {
-                Text("Hallo!")
+            Speak_CaucasusTheme {
+                MainScreen()
             }
-
         }
     }
 }
-
