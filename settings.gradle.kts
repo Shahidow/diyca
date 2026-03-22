@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Speak_Caucasus"
+rootProject.name = "diyca"
 include(":app")
  

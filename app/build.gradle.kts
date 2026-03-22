@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.speak_caucasus"
+    namespace = "com.example.diyca"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.speak_caucasus"
+        applicationId = "com.example.diyca"
         minSdk = 29
         targetSdk = 34
         versionCode = 1

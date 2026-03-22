@@ -1,0 +1,5 @@
+package com.example.diyca.feature.root
+
+data class AppState(
+    val isAuthorized: Boolean? = null
+)
