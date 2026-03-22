@@ -3,22 +3,114 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    // ПОЛЬЗОВАТЕЛЬСКИЕ ДАННЫЕ
+    <string name="name">Имя</string>
+    <string name="mail">Почта</string>
     <string name="phone_num">Телефон</string>
-    <string name="password_label">Пароль</string>
-    <string name="button_login">Войти</string>
-    <string name="button_register">Зарегистрироваться</string>
+    <string name="password">Пароль</string>
+    <string name="username">Имя пользователя</string>
+
+    // АВТОРИЗАЦИЯ
     <string name="forgot_password">Забыли пароль?</string>
-    <string name="have_account">Уже есть аккаунт? Войти</string>
+    <string name="have_account_q">Уже есть аккаунт?</string>
+    <string name="no_account_q">Нет аккаунта?</string>
+    <string name="password_recovery">Восстановление пароля</string>
+    <string name="enter_email">Введите вашу почту\nи мы отправим код</string>
+    <string name="check_mail">Проверьте почту</string>
+    <string name="code_sent">Мы направили код\nподтверждения на ваш email</string>
+    <string name="resend_code">Отправить код повторно</string>
+    <string name="resend_code_timer">Отправить код повторно через %d сек</string>
+    <string name="enter_the_received_code">Введите полученный код</string>
+    <string name="think_password">Придумайте пароль</string>
+    <string name="another_password">Ваш новый пароль должен\nотличаться от предыдущего</string>
+    <string name="update_password">Поменять пароль</string>
+
+    // ГЛАВНАЯ И НАСТРОЙКИ
+    <string name="hallo_user">Привет, %s!</string>
+    <string name="home">Главная</string>
+    <string name="do_theory_and_practice">"Прочитай немного теории и приступи к практике "</string>
+    <string name="your_task_for_today">Твоё задание на сегодня</string>
+    <string name="awards">Награды</string>
+    <string name="account_settings">Настройки аккаунта</string>
     <string name="invite_friends">Пригласить друзей</string>
     <string name="rate_app">Оценить нас</string>
     <string name="contacts">Контакты</string>
     <string name="achievements">Достижения</string>
-    <string name="username">Имя пользователя</string>
-    <string name="account_settings">Настройки аккаунта</string>
     <string name="notifications">Уведомления</string>
-    <string name="home">Главная</string>
+    <string name="log_out">Выйти</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="change_password">Сменить пароль</string>
+    <string name="target_language">Я хочу изучать</string>
+    <string name="app_language">Мой язык</string>
+
+    // АКТИВНОСТЬ
+    <string name="activity_today">Активность за сегодня</string>
+    <string name="lessons_completed">Пройдено уроков</string>
+    <string name="tasks_completed">Выполнено заданий</string>
+    <string name="today">Сегодня</string>
+
+    // ОБУЧЕНИЕ, БИБЛИОТЕКА, ИЗБРАННОЕ
     <string name="learning">Обучение</string>
     <string name="phrasebook">Разговорник</string>
     <string name="library">Библиотека</string>
     <string name="favorites">Избранное</string>
+    <string name="search">Поиск</string>
+    <string name="study_plan">План обучения</string>
+    <string name="words">Слова</string>
+    <string name="dictionary">Словарь</string>
+    <string name="expressions">Выражения</string>
+    <string name="proverbs">Пословицы</string>
+
+    // КНОПКИ
+    <string name="action_login">Войти</string>
+    <string name="action_register">Зарегистрироваться</string>
+    <string name="action_check">Проверить</string>
+    <string name="action_skip">Пропустить</string>
+    <string name="action_send">Отправить</string>
+    <string name="action_confirm">Подтвердить</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_save">Сохранить</string>
+    <string name="action_yes">Да</string>
+
+    // ОТВЕТЫ СЕРВЕРА
+    <string name="server_error">Ошибка сервера, попробуйте позже</string>
+    <string name="no_internet">Отсутствует интернет подключение</string>
+    <string name="network_error">Network error</string>
+    <string name="invalid_credentials">Неверный логин или пароль</string>
+    <string name="invalid_name_format">Некорректный формат имени ( Имя 2–25 симв.: буквы, цифры, пробел, . \' - _ )</string>
+    <string name="invalid_email_format">Некорректный формат почты</string>
+    <string name="invalid_password_format">Некорректный формат пароля ( Пароль 6–32 симв.: мин. 1 цифра и 1 спецсимвол )</string>
+    <string name="email_already_exists">Пользователь с такой почтой уже зарегистрирован</string>
+    <string name="unknown_error">Произошла неизвестная ошибка</string>
+    <string name="fill_all_fields">Заполните все поля</string>
+    <string name="incorrect_credentials">Некорректные учётные данные</string>
+    <string name="forbidden">Ошибка доступа</string>
+    <string name="success">Успех</string>
+    <string name="registration_success_message">Регистрация успешна, подтвердите почту</string>
+    <string name="invalid_request">Неверные или недопустимые данные запроса</string>
+
+    // ДИАЛОГИ
+    <string name="logout_confirmation_message">Вы уверены, что хотите выйти?</string>
+    <string name="warning_title">Внимание!</string>
+    <string name="delete_account_confirmation_message">
+    Удаление аккаунта приведет к безвозвратной потере всех данных. Вы уверены?
+    </string>
+    <string name="change_username_prompt">Введите новое имя пользователя</string>
+    <string name="new_username_label">Новое имя</string>
+    <string name="change_password_title">Смена пароля</string>
+    <string name="new_password_label">Новый пароль</string>
+    <string name="confirmation_title">Подтверждение</string>
+    <string name="enter_password_prompt">Введите пароль</string>
+    <string name="exit_confirmation">Вы уверены, что хотите закрыть приложение?</string>
+    <string name="exit">Выход</string>
+
+    // ДАТЫ
+    <string name="mon">ПН</string>
+    <string name="tue">ВТ</string>
+    <string name="wed">СР</string>
+    <string name="thu">ЧТ</string>
+    <string name="fri">ПТ</string>
+    <string name="sat">СБ</string>
+    <string name="sun">ВС</string>
+
 </resources>

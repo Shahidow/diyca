@@ -1,5 +1,9 @@
 package com.example.speak_caucasus.feature.home.screens.profile
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,17 +20,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -39,61 +45,114 @@ import com.example.speak_caucasus.ui.theme.Dimens
 import com.example.speak_caucasus.ui.theme.Green
 import com.example.speak_caucasus.ui.theme.Grey92
 import com.example.speak_caucasus.ui.theme.SoftMint
-import com.example.speak_caucasus.ui.theme.Speak_CaucasusTheme
 import androidx.constraintlayout.compose.ConstraintLayout
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ProfileScreen(navHostController: NavHostController) {
-    Speak_CaucasusTheme {
-        var isChecked by remember { mutableStateOf(false) }
-        val scrollState = rememberScrollState()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = Dimens.Padding_16)
-                .verticalScroll(scrollState)
-        ) {
-            ProfileHeader(navHostController)
-            Spacer(modifier = Modifier.height(Dimens.Padding_32))
+    val viewModel: ProfileViewModel = koinViewModel()
+    val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
 
-            AccountSettingsButton()
-            Spacer(modifier = Modifier.height(Dimens.Padding_16))
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is ProfileEffect.InviteFriends -> {
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            "Привет! Скачай Speak Caucasus: https://play.google.com/store/apps/details?id=your.app.id"
+                        )
+                    }
+                    context.startActivity(Intent.createChooser(intent, "Поделиться через"))
+                }
 
-            NotificationsSwitch(isChecked) { isChecked = it }
-            Spacer(modifier = Modifier.height(Dimens.Padding_32))
-
-            Text(
-                stringResource(R.string.achievements),
-                modifier = Modifier.padding(start = Dimens.Padding_16)
-            )
-            Spacer(modifier = Modifier.height(Dimens.Padding_16))
-
-            AchievementSection()
-            Spacer(modifier = Modifier.height(Dimens.Padding_16))
-
-            CustomButtonColored(onClick = {}, stringResource(R.string.invite_friends), true)
-            Spacer(modifier = Modifier.height(Dimens.Padding_16))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                CustomTextButtonColored(stringResource(R.string.rate_app), onClick = { })
-                CustomTextButtonColored(stringResource(R.string.contacts), onClick = { })
+                is ProfileEffect.NavigateBack -> navHostController.popBackStack()
+                is ProfileEffect.NavigateTo -> navHostController.navigate(effect.route)
+                is ProfileEffect.RateUs -> {
+                    val uri = Uri.parse("market://details?id=your.app.id")
+                    val goToMarket = Intent(Intent.ACTION_VIEW, uri).apply {
+                        addFlags(
+                            Intent.FLAG_ACTIVITY_NO_HISTORY or
+                                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                        )
+                    }
+                    try {
+                        context.startActivity(goToMarket)
+                    } catch (e: ActivityNotFoundException) {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://play.google.com/store/apps/details?id=your.app.id")
+                            )
+                        )
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(Dimens.Padding_16))
         }
+    }
+
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = Dimens.Padding_16)
+            .verticalScroll(scrollState)
+    ) {
+        ProfileHeader(viewModel, state.pic, state.userName)
+        Spacer(modifier = Modifier.height(Dimens.Padding_32))
+
+        ProfileSettingsButton(viewModel)
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+
+        ProfileNotificationsSwitch(state.notifications) {
+            viewModel.dispatch(
+                ProfileMsg.NotificationChange(
+                    it
+                )
+            )
+        }
+        Spacer(modifier = Modifier.height(Dimens.Padding_32))
+
+        Text(
+            stringResource(R.string.achievements),
+            modifier = Modifier.padding(start = Dimens.Padding_16)
+        )
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+
+        ProfileAchievementSection()
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+
+        CustomButtonColored(
+            onClick = { viewModel.dispatch(ProfileMsg.InviteFriendsClicked) },
+            stringResource(R.string.invite_friends),
+        )
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            CustomTextButtonColored(
+                stringResource(R.string.rate_app),
+                onClick = { viewModel.dispatch(ProfileMsg.RateUsClicked) })
+            CustomTextButtonColored(stringResource(R.string.contacts), onClick = { })
+        }
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
     }
 }
 
 @Composable
-fun ProfileHeader(navHostController: NavHostController) {
+fun ProfileHeader(viewModel: ProfileViewModel, pic: Int, userName: String) {
     ConstraintLayout(
         modifier = Modifier.fillMaxWidth()
     ) {
         val (icon1, icon2, text) = createRefs()
         Icon(
-            painter = painterResource(R.drawable.ic_close),
+            painter = painterResource(R.drawable.ic_back),
             contentDescription = null,
             tint = Color.Unspecified,
             modifier = Modifier
@@ -101,10 +160,10 @@ fun ProfileHeader(navHostController: NavHostController) {
                     top.linkTo(parent.top, margin = Dimens.Padding_36)
                     start.linkTo(parent.start)
                 }
-                .clickable { navHostController.popBackStack() }
+                .clickable { viewModel.dispatch(ProfileMsg.BackClicked) }
         )
         Icon(
-            painter = painterResource(R.drawable.ic_avatar_ph),
+            painter = painterResource(pic),
             contentDescription = null,
             tint = Color.Unspecified,
             modifier = Modifier
@@ -116,7 +175,7 @@ fun ProfileHeader(navHostController: NavHostController) {
         )
 
         Text(
-            stringResource(R.string.username),
+            userName,
             modifier = Modifier
                 .constrainAs(text) {
                     top.linkTo(icon2.bottom, margin = Dimens.Padding_32)
@@ -128,8 +187,10 @@ fun ProfileHeader(navHostController: NavHostController) {
 }
 
 @Composable
-fun AccountSettingsButton() {
-    CustomBoxContainer {
+fun ProfileSettingsButton(viewModel: ProfileViewModel) {
+    CustomBoxContainer(
+        onClick = { viewModel.dispatch(ProfileMsg.GoToSettings) }
+    ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
@@ -137,7 +198,7 @@ fun AccountSettingsButton() {
             Icon(
                 painter = painterResource(R.drawable.ic_settings_button),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = Dimens.Padding_24)
             )
             Text(
@@ -154,7 +215,7 @@ fun AccountSettingsButton() {
 }
 
 @Composable
-fun NotificationsSwitch(isChecked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun ProfileNotificationsSwitch(isChecked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     CustomBoxContainer(
         modifier = Modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
@@ -195,7 +256,7 @@ fun NotificationsSwitch(isChecked: Boolean, onCheckedChange: (Boolean) -> Unit) 
 }
 
 @Composable
-fun AchievementSection() {
+fun ProfileAchievementSection() {
     Box(
         modifier = Modifier
             .fillMaxWidth()

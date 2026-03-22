@@ -1,32 +1,42 @@
 package com.example.speak_caucasus.ui.bottom_nav
 
-import android.annotation.SuppressLint
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.speak_caucasus.ui.navigation.ScreenRoutes
+import com.example.speak_caucasus.feature.root.AppViewModel
+import com.example.speak_caucasus.ui.navigation.RootNavGraph
+import org.koin.androidx.compose.koinViewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    appViewModel: AppViewModel = koinViewModel()
+) {
     val navController = rememberNavController()
-    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val showBottomBar = currentDestination?.let { dest ->
+        dest.hasRoute<ScreenRoutes.HomeRout>() ||
+                dest.hasRoute<ScreenRoutes.LearningRout>() ||
+                dest.hasRoute<ScreenRoutes.PhrasebookRout>() ||
+                dest.hasRoute<ScreenRoutes.LibraryRout>() ||
+                dest.hasRoute<ScreenRoutes.FavoritesRout>()
+    } ?: false
 
-    val screensWithBottomBar = listOf(
-        ScreenRoutes.HOME_SCREEN,
-        ScreenRoutes.LEARNING_SCREEN,
-        ScreenRoutes.PHRASEBOOK_SCREEN,
-        ScreenRoutes.LIBRARY_SCREEN,
-        ScreenRoutes.FAVORITES_SCREEN,
-    )
-
-    Scaffold (
+    Scaffold(
         bottomBar = {
-            if (currentRoute in screensWithBottomBar) {
+            if (showBottomBar) {
                 BottomNavigation(navController = navController)
             }
         }
-    ) {
-        NavGraph(navHostController = navController)
+    ) { paddingValues ->
+        RootNavGraph(
+            appViewModel = appViewModel,
+            navController = navController,
+            paddingValues = paddingValues
+        )
     }
 }
