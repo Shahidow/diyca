@@ -1,7 +1,7 @@
 package com.example.diyca.domain.dictionaries.dictionary.impl
 
 import android.annotation.SuppressLint
-import com.example.diyca.data.repository.dictionaries.DictionaryRepository
+import com.example.diyca.data.repository.dictionaries.DictionaryDataBaseRepository
 import com.example.diyca.data.repository.favorites.FavoritesRepository
 import com.example.diyca.domain.dictionaries.dictionary.DictionaryInteractor
 import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryItem
@@ -10,19 +10,18 @@ import kotlinx.coroutines.flow.Flow
 
 class DictionaryInteractorImpl(
     private val favoritesRepository: FavoritesRepository,
-    private val dictionaryRepository: DictionaryRepository
+    private val dictionaryDataBaseRepository: DictionaryDataBaseRepository
 ) :
     DictionaryInteractor {
-    override suspend fun getDictionary(dictionaryType: DictionaryType): Flow<List<DictionaryItem>> {
-        return dictionaryRepository.getDictionary(dictionaryType)
-    }
+    override fun getDictionary(dictionaryType: DictionaryType): Flow<List<DictionaryItem>> =
+        dictionaryDataBaseRepository.getDictionary(dictionaryType)
 
     override suspend fun updateFavoriteItem(dictionaryItem: DictionaryItem) {
         favoritesRepository.updateFavoriteItem(dictionaryItem)
     }
 
     @SuppressLint("SuspiciousIndentation")
-    override suspend fun setDic(){
+    override suspend fun setDic() {
         val dicList = listOf(
             DictionaryItem.Expression(
                 id = 1,
@@ -80,10 +79,42 @@ class DictionaryInteractorImpl(
                 isFavorite = false,
                 audio = ""
             ),
+            DictionaryItem.PhrasebookItem(
+                parentId = 1,
+                id = 1,
+                original = "Разговорник1",
+                translation = "Разговорник1",
+                isFavorite = false,
+                audio = ""
+            ),
+            DictionaryItem.PhrasebookItem(
+                parentId = 1,
+                id = 2,
+                original = "Разговорник1",
+                translation = "Разговорник1",
+                isFavorite = false,
+                audio = ""
+            ),
+            DictionaryItem.PhrasebookItem(
+                parentId = 1,
+                id = 3,
+                original = "Разговорник1",
+                translation = "Разговорник1",
+                isFavorite = false,
+                audio = ""
+            ),
+            DictionaryItem.PhrasebookItem(
+                parentId = 2,
+                id = 4,
+                original = "Разговорник1",
+                translation = "Разговорник1",
+                isFavorite = false,
+                audio = ""
+            ),
         )
-            dicList.forEach { item->
-                dictionaryRepository.insertDictionaryItem(item)
-            }
+        dicList.forEach { item ->
+            dictionaryDataBaseRepository.insertDictionaryItem(item)
+        }
 
     }
 }

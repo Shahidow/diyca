@@ -1,6 +1,6 @@
 package com.example.diyca.data.network
 
-import com.example.diyca.data.dto.requests.RefreshRequest
+import com.example.diyca.data.dto.auth.requests.RefreshRequest
 import com.example.diyca.domain.session.SessionManager
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
@@ -9,11 +9,11 @@ import okhttp3.Route
 
 class TokenAuthenticator (
     private val sessionManager: SessionManager,
-    private val authApi: AuthApi
+    private val tokenApi: TokenApi
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: okhttp3.Response): Request? {
-        val excludedPaths = listOf("/auth/remove-profile", "/auth/change-profile")
+        val excludedPaths = listOf("/auth/login", "/auth/register")
 
         if (excludedPaths.any { response.request.url.encodedPath.contains(it) }) {
             return null
@@ -27,7 +27,7 @@ class TokenAuthenticator (
         val refreshToken = sessionManager.getRefreshToken() ?: return null
 
         val refreshResponse = runBlocking {
-            authApi.refreshToken(
+            tokenApi.refreshToken(
                 RefreshRequest(refreshToken)
             )
         }

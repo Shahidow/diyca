@@ -1,21 +1,16 @@
 package com.example.diyca.feature.learning.screens.lesson
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,126 +18,159 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.diyca.R
+import com.example.diyca.ui.coponents.CustomBackButton
+import com.example.diyca.ui.coponents.CustomButtonColored
+import com.example.diyca.ui.coponents.CustomDialog
 import com.example.diyca.ui.navigation.ScreenRoutes
+import com.example.diyca.ui.navigation.navigateSafe
+import com.example.diyca.ui.navigation.popBackStackSafe
 import com.example.diyca.ui.theme.Dimens
-import com.example.diyca.ui.theme.Green
-import com.example.diyca.ui.theme.MintGreen
-import com.example.diyca.ui.theme.diycaTheme
+import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.ui.material3.RichText
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LessonScreen(navHostController: NavHostController, lessonRout: ScreenRoutes.LessonRout) {
     val viewModel: LessonViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
-    val scrollState = rememberScrollState()
+
+    LaunchedEffect(lessonRout) {
+        viewModel.dispatch(LessonMsg.LoadLesson(lessonRout))
+    }
 
     LaunchedEffect(Unit) {
-        viewModel.effects.collect{ effect ->
-            when(effect){
-                is LessonEffect.NavigateBack -> navHostController.popBackStack()
-                is LessonEffect.NavigateToSection -> navHostController.navigate(ScreenRoutes.SectionRout)
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is LessonEffect.NavigateBack -> navHostController.popBackStackSafe()
+                is LessonEffect.NavigateToTasks -> navHostController.navigateSafe(
+                    ScreenRoutes.TasksRout(
+                        effect.topicId,
+                        effect.lessonId,
+                        effect.isContinue,
+                        effect.lessonTasksCount
+                    )
+                )
             }
         }
     }
 
-    diycaTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = Dimens.Padding_16)
-                .verticalScroll(scrollState)
-        ) {
-            LessonTitle(viewModel)
-            Spacer(modifier = Modifier.height(Dimens.Padding_16))
-            Box (
-                modifier = Modifier.fillMaxWidth().padding(Dimens.Padding_16)
-            ) {
-                Text(state.lesson?.text ?: "no data")
-            }
-            Spacer(modifier = Modifier.height(Dimens.Padding_36))
-            SectionsList(viewModel)
-        }
+    if (state.showConfirmation) {
+        CustomDialog(
+            title = stringResource(R.string.start_tasks),
+            message = stringResource(R.string.start_over_or_continue),
+            confirmButtonText = stringResource(R.string.action_continue),
+            dismissButtonText = stringResource(R.string.action_start_over),
+            onConfirm = { viewModel.dispatch(LessonMsg.StartTasks(true)) },
+            onDismiss = { viewModel.dispatch(LessonMsg.StartTasks(false)) },
+            onCloseRequest = { viewModel.dispatch(LessonMsg.DismissDialog) },
+            isLoading = state.isLoading
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(Dimens.Padding_16)
+    ) {
+        LessonHeader(state.number, viewModel)
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+
+        LessonItem(
+            text = state.text,
+            title = state.title,
+            image = state.image,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+
+        CustomButtonColored(
+            onClick = { viewModel.dispatch(LessonMsg.StartTasksClicked) },
+            text = stringResource(R.string.start_tasks),
+            isEnabled = !state.isLoading
+        )
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
     }
 }
 
 @Composable
-fun LessonTitle(viewModel: LessonViewModel) {
+fun LessonHeader(number: Int, viewModel: LessonViewModel) {
     ConstraintLayout(
         modifier = Modifier.fillMaxWidth()
     ) {
         val (icon, text) = createRefs()
-        Icon(
-            painter = painterResource(R.drawable.ic_back),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier
-                .constrainAs(icon) {
-                    top.linkTo(parent.top, margin = Dimens.Padding_8)
-                    start.linkTo(parent.start)
-                }
-                .clickable { viewModel.dispatch(LessonMsg.BackClicked) }
+        CustomBackButton(
+            onClick = { viewModel.dispatch(LessonMsg.BackClicked) },
+            modifier = Modifier.constrainAs(icon) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+            }
         )
-        Text(stringResource(R.string.account_settings), modifier = Modifier.constrainAs(text) {
-            top.linkTo(icon.top)
-            bottom.linkTo(icon.bottom)
-            start.linkTo(icon.end, margin = Dimens.Padding_16)
-        })
+        Text(
+            text = stringResource(R.string.lesson_number, number),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.constrainAs(text) {
+                top.linkTo(icon.top)
+                bottom.linkTo(icon.bottom)
+                start.linkTo(icon.end, margin = Dimens.Padding_16)
+            }
+        )
     }
 }
 
 @Composable
-fun SectionsList(viewModel: LessonViewModel) {
-    SectionItem(viewModel)
-    Spacer(modifier = Modifier.height(Dimens.Padding_8))
-    SectionItem(viewModel)
-    Spacer(modifier = Modifier.height(Dimens.Padding_8))
-    SectionItem(viewModel)
-}
-
-@Composable
-fun SectionItem(viewModel: LessonViewModel){
-    Box(
-        modifier = Modifier
+fun LessonItem(text: String, title: String, image: String?, modifier: Modifier = Modifier) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = modifier
             .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = MintGreen,
-                shape = RoundedCornerShape(Dimens.RoundedCorner_12)
-            )
-            .clickable { viewModel.dispatch(LessonMsg.StartTasks("1")) }
+            .verticalScroll(scrollState)
     ) {
-        ConstraintLayout (modifier = Modifier.fillMaxWidth()) {
-            val (progressBar, text1, text2) = createRefs()
-            CircularProgressIndicator(
-                progress = { 0.8f },
-                modifier = Modifier.size(24.dp)
-                    .constrainAs(progressBar){
-                        start.linkTo(parent.start, margin = Dimens.Padding_16)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    },
-                color = Green,
-                trackColor = MintGreen,
-                strokeWidth = 4.dp,
+        Text(
+            text = title,
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.headlineMedium
+        )
+        if (!image.isNullOrEmpty()) {
+            val painter = rememberAsyncImagePainter(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(image)
+                    .crossfade(true)
+                    .placeholder(R.drawable.ic_placeholder_image)
+                    .error(R.drawable.ic_placeholder_image)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .build()
             )
-            Text("Урок", modifier = Modifier.constrainAs(text1){
-                start.linkTo(progressBar.end, margin = Dimens.Padding_16)
-                top.linkTo(parent.top, margin = Dimens.Padding_16)
-            })
-            Text("Фонема тI", modifier = Modifier.constrainAs(text2){
-                start.linkTo(progressBar.end, margin = Dimens.Padding_16)
-                bottom.linkTo(parent.bottom, margin = Dimens.Padding_16)
-                top.linkTo(text1.bottom)
-            })
+            Spacer(modifier = Modifier.height(Dimens.Padding_12))
+            Image(
+                painter = painter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+            )
         }
-
+        Spacer(modifier = Modifier.height(Dimens.Padding_12))
+        RichText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.Padding_16)
+        ) {
+            Markdown(content = text)
+        }
     }
 }

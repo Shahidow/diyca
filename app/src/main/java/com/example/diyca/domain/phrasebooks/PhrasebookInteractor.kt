@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface PhrasebookInteractor {
     suspend fun getPhrasebooks(): Flow<List<Phrasebook>>
+    suspend fun setData()
 }

@@ -51,6 +51,13 @@ class LoginViewModel(private val loginInteractor: LoginInteractor) :
                 }
             }
 
+            is LoginMsg.DataLoaded -> {
+                _state.update { it.copy(isLoading = false) }
+                viewModelScope.launch {
+                    _effects.send(LoginEffect.NavigateToHome)
+                }
+            }
+
             is LoginMsg.RegisterClicked -> {
                 viewModelScope.launch {
                     _effects.send(LoginEffect.NavigateToRegistration)
@@ -72,13 +79,6 @@ class LoginViewModel(private val loginInteractor: LoginInteractor) :
                     else -> R.string.unknown_error
                 }
                 _state.update { it.copy(isLoading = false, error = errorMessage) }
-            }
-
-            is LoginMsg.DataLoaded -> {
-                _state.update { it.copy(isLoading = false) }
-                viewModelScope.launch {
-                    _effects.send(LoginEffect.NavigateToHome)
-                }
             }
 
             is LoginMsg.EmailChanged -> _state.update {

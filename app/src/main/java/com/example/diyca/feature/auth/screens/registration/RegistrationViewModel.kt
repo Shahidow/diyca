@@ -31,8 +31,9 @@ class RegistrationViewModel(private val registrationInteractor: RegistrationInte
                 val name = msg.name.trim()
                 val email = msg.email.trim()
                 val password = msg.password
+                val isAgreed = state.value.isAgreed
 
-                if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                if (name.isEmpty() || email.isEmpty() || password.isEmpty() || !isAgreed) {
                     _state.update { it.copy(error = R.string.fill_all_fields) }
                     return
                 }
@@ -92,6 +93,8 @@ class RegistrationViewModel(private val registrationInteractor: RegistrationInte
             is RegistrationMsg.NameChanged -> _state.update { it.copy(name = msg.name) }
             is RegistrationMsg.EmailChanged -> _state.update { it.copy(email = msg.email) }
             is RegistrationMsg.PasswordChanged -> _state.update { it.copy(password = msg.password) }
+            is RegistrationMsg.ToggleAgreement -> _state.update { it.copy(isAgreed = msg.isAgreed) }
+            is RegistrationMsg.OnPolicyClick -> viewModelScope.launch { _effects.send(RegistrationEffect.OpenPolicyUrl) }
         }
     }
 }

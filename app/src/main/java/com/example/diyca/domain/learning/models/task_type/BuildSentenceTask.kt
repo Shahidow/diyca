@@ -3,7 +3,7 @@ package com.example.diyca.domain.learning.models.task_type
 data class BuildSentenceTask(
     override val id: String,
     val correctTranslation: String,
-    val sentence: String,
+    val question: String,
     val words: List<String>
 ) : Task {
 
@@ -13,6 +13,6 @@ data class BuildSentenceTask(
             ?.joinToString(" ")
             ?: return false
 
-        return userSentence == correctTranslation
+        return userSentence.equals(correctTranslation, ignoreCase = true)
     }
 }

@@ -4,6 +4,7 @@ data class RegistrationState(
     val name: String = "",
     val email: String = "",
     val password: String = "",
+    val isAgreed: Boolean = false,
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val error: Int? = null

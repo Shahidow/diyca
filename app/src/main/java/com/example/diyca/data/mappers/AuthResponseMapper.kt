@@ -1,7 +1,7 @@
 package com.example.diyca.data.mappers
 
-import com.example.diyca.data.dto.responses.LoginResponse
-import com.example.diyca.data.dto.responses.VerifyResetCodeResponse
+import com.example.diyca.data.dto.auth.responses.LoginResponse
+import com.example.diyca.data.dto.auth.responses.VerifyResetCodeResponse
 import com.example.diyca.domain.auth.models.UserData
 import com.example.diyca.domain.auth.recovery.models.VerifyResetCodeData
 

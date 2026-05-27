@@ -1,7 +1,10 @@
 package com.example.diyca.domain.home.profile
 
-import com.example.diyca.domain.home.models.UserProfileData
+import com.example.diyca.domain.home.models.Reward
+import kotlinx.coroutines.flow.Flow
 
 interface ProfileInteractor {
-    fun getUserData(): UserProfileData
+    fun getUserAvatar(): Flow<String>
+    fun getUserName(): Flow<String>
+    suspend fun getRewards(): List<Reward>
 }

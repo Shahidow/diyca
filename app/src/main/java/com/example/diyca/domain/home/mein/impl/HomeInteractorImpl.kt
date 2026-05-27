@@ -1,35 +1,83 @@
 package com.example.diyca.domain.home.mein.impl
 
-import com.example.diyca.data.repository.userdata.UserDataRepository
+import com.example.diyca.data.repository.learning.LearningRepository
+import com.example.diyca.data.repository.userdata.UserDataBaseRepository
+import com.example.diyca.domain.home.mein.CurrentLessonState
 import com.example.diyca.domain.home.mein.HomeInteractor
 import com.example.diyca.domain.home.models.Reward
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.domain.learning.models.LessonSection
-import com.example.diyca.util.DateUtils
+import com.example.diyca.util.Resource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import java.util.Calendar
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.combine
+import java.time.LocalDate
+import kotlin.collections.groupBy
+import kotlin.collections.mapValues
+import kotlin.collections.sortedBy
 
-class HomeInteractorImpl(private val userDataRepository: UserDataRepository) : HomeInteractor {
+class HomeInteractorImpl(
+    private val userDataBaseRepository: UserDataBaseRepository,
+    private val learningRepository: LearningRepository
+) : HomeInteractor {
 
-    override fun getUserName(): Flow<String> = userDataRepository.getUserName()
+    override fun getUserAvatar(): Flow<String> = userDataBaseRepository.getUserAvatar()
 
-    override suspend fun getLesson(): LessonSection {
-        return LessonSection( // Доделать, после добавления запроса на получение тем и уроков
-            id = 1,
-            section = "Урок 1",
-            title = "Фонема П1",
-            text = "",
-            tasksList = emptyList()
-        )
+    override fun getUserName(): Flow<String> = userDataBaseRepository.getUserName()
+
+    private val retrySignal =
+        MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+
+    override fun retryGetLesson() {
+        retrySignal.tryEmit(Unit)
     }
+
+    override fun getLesson(languageId: String): Flow<CurrentLessonState> {
+        return combine(
+            userDataBaseRepository.getAllProgress(),
+            retrySignal
+        ) { allProgress, _ ->
+            val topics = when (val topicsResource = learningRepository.getTopics(languageId)) {
+                is Resource.Success -> topicsResource.data
+                is Resource.Error -> return@combine CurrentLessonState.Error(
+                    topicsResource.errorType,
+                    topicsResource.resultCode
+                )
+            } ?: return@combine CurrentLessonState.CourseFinished
+            val validTopics = topics.filter { it.lessonsCount > 0 && it.tasksCount > 0 }
+            val progressMap = allProgress.groupBy { it.lessonId }
+                .mapValues { it.value.size }
+            for (topic in validTopics) {
+                val lessons = when (val lessonsResource = learningRepository.getLessons(topic.id)) {
+                    is Resource.Success -> lessonsResource.data?.sortedBy { it.number }
+                    is Resource.Error -> return@combine CurrentLessonState.Error(
+                        lessonsResource.errorType,
+                        lessonsResource.resultCode
+                    )
+                } ?: continue
+                for (lesson in lessons) {
+                    val completedTasksCount = progressMap[lesson.id] ?: 0
+                    if (completedTasksCount < lesson.tasksCount) {
+                        val currentLesson = lesson.copy(
+                            progress = if (lesson.tasksCount > 0)
+                                completedTasksCount.toFloat() / lesson.tasksCount
+                            else 0f
+                        )
+                        return@combine CurrentLessonState.Active(
+                            lesson = currentLesson,
+                            topicId = topic.id
+                        )
+                    }
+                }
+            }
+            CurrentLessonState.CourseFinished
+        }
+    }
+
 
     override fun getDailyActivity(): Flow<DailyActivity?> {
-        val startOfDay = DateUtils.getStartOfDayTimestamp()
-        return userDataRepository.getTodayActivity(startOfDay)
+        val today = LocalDate.now().toString()
+        return userDataBaseRepository.getTodayActivity(today)
     }
 
-    override fun getRewards(): Flow<List<Reward>> = userDataRepository.getAllRewards()
+    override fun getRewards(): Flow<List<Reward>> = userDataBaseRepository.getAllRewards()
 }

@@ -6,10 +6,10 @@
         <item quantity="many">%d уроков</item>
         <item quantity="other">%d уроков</item>
     </plurals>
-    <plurals name="new_words">
-        <item quantity="one">%d новое слово</item>
-        <item quantity="few">%d новых слова</item>
-        <item quantity="many">%d новых слов</item>
-        <item quantity="other">%d новых слов</item>
+    <plurals name="task_count">
+        <item quantity="one">%d задание</item>
+        <item quantity="few">%d задания</item>
+        <item quantity="many">%d заданий</item>
+        <item quantity="other">%d заданий</item>
     </plurals>
 </resources>

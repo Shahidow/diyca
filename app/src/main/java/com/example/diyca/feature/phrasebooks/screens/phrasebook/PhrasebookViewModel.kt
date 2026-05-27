@@ -19,32 +19,34 @@ class PhrasebookViewModel(private val phrasebookInteractor: PhrasebookInteractor
     val effects = _effects.receiveAsFlow()
 
     init {
+        start()
         dispatch(PhrasebookMsg.LoadData)
+    }
+
+    private fun start(){
+        viewModelScope.launch {
+            phrasebookInteractor.setData()
+        }
     }
 
     fun dispatch(msg: PhrasebookMsg) {
         when (msg) {
             is PhrasebookMsg.LoadData -> {
-                _state.update { it.copy(isLoading = true) }
                 viewModelScope.launch {
                     phrasebookInteractor.getPhrasebooks().collect {
-                        try {
-                            dispatch(PhrasebookMsg.DataLoaded(it))
-                        } catch (e: Exception) {
-                            TODO()
-                        }
+                        dispatch(PhrasebookMsg.DataLoaded(it))
                     }
                 }
             }
 
             is PhrasebookMsg.DataLoaded -> {
-                _state.update { it.copy(
-                    isLoading = false,
-                    phrasebookList = msg.phrasebookList
-                ) }
+                _state.update { it.copy(phrasebookList = msg.phrasebookList) }
             }
+
             is PhrasebookMsg.PhrasebookOpen -> {
-                TODO()
+                viewModelScope.launch {
+                    _effects.send(PhrasebookEffect.NavigateToPhrasebook(msg.id))
+                }
             }
         }
     }

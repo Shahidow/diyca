@@ -1,20 +1,20 @@
 package com.example.diyca.feature.home.screens.activity
 
-import android.icu.util.Calendar
 import java.util.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.diyca.domain.home.activity.ActivityInteractor
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.util.DateUtils
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 class ActivityViewModel(private val activityInteractor: ActivityInteractor) : ViewModel() {
     private val _state = MutableStateFlow(ActivityState())
@@ -29,13 +29,13 @@ class ActivityViewModel(private val activityInteractor: ActivityInteractor) : Vi
 
     fun dispatch(msg: ActivityMsg) {
         when (msg) {
-            is ActivityMsg.GoBack -> {
+            is ActivityMsg.BackClicked -> {
                 viewModelScope.launch {
                     _effects.send(ActivityEffect.NavigateBack)
                 }
             }
 
-            is ActivityMsg.GoToActivityCalendar -> {
+            is ActivityMsg.ActivityCalendarClicked -> {
                 viewModelScope.launch {
                     _effects.send(ActivityEffect.NavigateToActivityCalendar)
                 }
@@ -51,11 +51,11 @@ class ActivityViewModel(private val activityInteractor: ActivityInteractor) : Vi
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             updateDate()
-            val mondayTimestamp = getMondayTimestamp()
-            val rawActivities = activityInteractor.getWeeklyActivities(mondayTimestamp)
-            val sortedWeek = fillWeeklyGaps(rawActivities, mondayTimestamp)
-            val todayStart = DateUtils.getStartOfDayTimestamp()
-            val todayActivity = sortedWeek.find { it?.date == todayStart }
+            val mondayDate = getMondayDate()
+            val rawActivities = activityInteractor.getWeeklyActivities(mondayDate.toString())
+            val sortedWeek = fillWeeklyGaps(rawActivities, mondayDate)
+            val todayStr = LocalDate.now().toString()
+            val todayActivity = sortedWeek.find { it?.date == todayStr }
             _state.update { it.copy(
                 activities = sortedWeek,
                 todayActivity = todayActivity,
@@ -66,34 +66,21 @@ class ActivityViewModel(private val activityInteractor: ActivityInteractor) : Vi
 
     private fun updateDate() {
         val now = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern(
-            "dd MMM yyyy",
-            Locale.getDefault()
-        )
-        val dateString = now.format(formatter)
-        _state.update { it.copy(todayDate = dateString) }
+        val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale("ru"))
+        _state.update { it.copy(todayDate = now.format(formatter)) }
     }
 
-    private fun getMondayTimestamp(): Long {
-        val calendar = Calendar.getInstance()
-        calendar.firstDayOfWeek = Calendar.MONDAY
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-        return DateUtils.getStartOfDayFromTimestamp(calendar.timeInMillis)
+    private fun getMondayDate(): LocalDate {
+        return LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     }
 
     private fun fillWeeklyGaps(
         activities: List<DailyActivity>,
-        mondayTimestamp: Long
+        monday: LocalDate
     ): List<DailyActivity?> {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = mondayTimestamp
-        return List(7) { _ ->
-            val currentDayStart = DateUtils.getStartOfDayFromTimestamp(calendar.timeInMillis)
-            val activityForDay = activities.find {
-                DateUtils.getStartOfDayFromTimestamp(it.date) == currentDayStart
-            }
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
-            activityForDay
+        return List(7) { i ->
+            val currentDay = monday.plusDays(i.toLong()).toString()
+            activities.find { it.date == currentDay }
         }
     }
 }

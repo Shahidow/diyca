@@ -1,30 +1,48 @@
 package com.example.diyca.ui.navigation
 
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavOptionsBuilder
 
-// Навигация для BottomBar.
 fun NavController.navigateToTab(route: Any) {
-    this.navigate(route) {
-        popUpTo<ScreenRoutes.HomeRout> {
-            saveState = true
-            inclusive = false
+    if (this.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+        this.navigate(route) {
+            popUpTo(this@navigateToTab.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
         }
-        launchSingleTop = true
-        restoreState = true
     }
 }
 
-//Навигация с полной очисткой стека.
+fun NavController.navigateSafe(route: Any, builder: NavOptionsBuilder.() -> Unit = {}) {
+    if (this.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+        this.navigate(route) {
+            launchSingleTop = true
+            builder()
+        }
+    }
+}
+
+fun NavController.popBackStackSafe() {
+    if (this.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+        this.popBackStack()
+    }
+}
+
 fun NavController.navigateAndClearStack(route: Any) {
-    this.navigate(route) { popUpTo(0) { inclusive = true } }
+    this.navigate(route) {
+        popUpTo(this@navigateAndClearStack.graph.id) { inclusive = true }
+        launchSingleTop = true
+    }
 }
 
-//Навигация к конкретному экрану с возможностью удаления текущего из стека.
-fun NavController.navigateSingleTop(route: Any) {
-    this.navigate(route) { launchSingleTop = true }
-}
-
-//Очистка стека до определенного экрана (не включая его или включая).
-fun NavController.popUpToRoute(route: Any, inclusive: Boolean = false) {
-    this.popBackStack(route, inclusive)
+fun NavController.navigateAndPopSelf(route: Any) {
+    val currentRoute = this.currentBackStackEntry?.destination?.route
+    this.navigate(route) {
+        if (currentRoute != null) {
+            popUpTo(currentRoute) { inclusive = true }
+        }
+        launchSingleTop = true
+    }
 }

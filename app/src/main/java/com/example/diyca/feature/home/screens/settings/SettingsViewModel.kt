@@ -5,23 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.diyca.R
 import com.example.diyca.domain.home.settings.SettingsInteractor
 import com.example.diyca.domain.home.settings.models.ChangeProfileData
-import com.example.diyca.domain.home.settings.models.RemoveProfileData
-import com.example.diyca.domain.session.SessionManager
+import com.example.diyca.domain.home.settings.models.UserAvatar
+import com.example.diyca.feature.home.screens.settings.models.SettingsDialog
 import com.example.diyca.util.ErrorType
 import com.example.diyca.util.Resource
 import com.example.diyca.util.Validator
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val settingsInteractor: SettingsInteractor,
-    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsState())
@@ -31,71 +28,51 @@ class SettingsViewModel(
     val effects = _effects.receiveAsFlow()
 
     init {
-        observeUserData()
         dispatch(SettingsMsg.LoadData)
-    }
-
-    private fun observeUserData() {
-        viewModelScope.launch {
-            val userEmail = settingsInteractor.getUserEmail()
-            settingsInteractor.getUserName().collect { newName ->
-                _state.update { it.copy(userName = newName, userEmail = userEmail) }
-            }
-        }
     }
 
     fun dispatch(msg: SettingsMsg) {
         when (msg) {
             is SettingsMsg.LoadData -> {
                 viewModelScope.launch {
-                    val userSettings = settingsInteractor.getUserSettings()
-                    dispatch(
-                        SettingsMsg.DataLoaded(
-                            pic = userSettings.pic,
-                            targetLanguage = userSettings.targetLanguage,
-                            appLanguage = userSettings.appLanguage
-                        )
-                    )
+                    launch {
+                        settingsInteractor.getUserAvatar().collect { avatar ->
+                            _state.update { it.copy(avatar = UserAvatar.fromKey(avatar)) }
+                        }
+                    }
+                    launch {
+                        val userEmail = settingsInteractor.getUserEmail()
+                        settingsInteractor.getUserName().collect { newName ->
+                            _state.update { it.copy(userName = newName, userEmail = userEmail) }
+                        }
+                    }
                 }
             }
 
-            is SettingsMsg.DataLoaded -> {
-                _state.update {
-                    it.copy(
-                        pic = msg.pic,
-                        targetLanguage = msg.targetLanguage,
-                        appLanguage = msg.appLanguage
-                    )
-                }
+            is SettingsMsg.NavigateBack -> viewModelScope.launch { _effects.send(SettingsEffect.NavigateBack) }
+
+            is SettingsMsg.ShowDialog -> {
+                if (state.value.isLoading) return
+                _state.update { it.copy(activeDialog = msg.dialog) }
             }
 
-            is SettingsMsg.NavigateBack -> {
-                viewModelScope.launch {
-                    _effects.send(SettingsEffect.NavigateBack)
-                }
-            }
+            is SettingsMsg.UserNameChanged -> _state.update { it.copy(changeNameInput = msg.text) }
+            is SettingsMsg.ChangePassChanged -> _state.update { it.copy(changePasswordInput = msg.password) }
+            is SettingsMsg.ConfirmPasswordChanged -> _state.update { it.copy(confirmPasswordInput = msg.text) }
 
-            // ВЫХОД
-            is SettingsMsg.LogOutClicked -> _state.update { it.copy(showLogoutDialog = true) }
             is SettingsMsg.LogOut -> {
                 viewModelScope.launch {
-                    sessionManager.logout()
+                    dispatch(SettingsMsg.DismissDialogs)
+                    settingsInteractor.logout()
                     _effects.send(SettingsEffect.NavigateToLogin)
                 }
             }
 
-            // ИЗМЕНЕНИЕ ИМЕНИ
-            is SettingsMsg.UserNameChangeClicked -> {
-                if (state.value.isLoading) return
-                _state.update { it.copy(showChangeNameDialog = true) }
-            }
-
-            is SettingsMsg.UserNameChanged -> _state.update { it.copy(changeNameInput = msg.text) }
             is SettingsMsg.UserNameChangeConfirmed -> {
                 if (Validator.isValidName(state.value.changeNameInput)) {
                     _state.update {
                         it.copy(
-                            showChangeNameDialog = false, showPasswordDialog = true,
+                            activeDialog = SettingsDialog.PasswordDialog,
                             pendingAction = PendingAction.CHANGE_NAME, error = null
                         )
                     }
@@ -104,18 +81,11 @@ class SettingsViewModel(
                 }
             }
 
-            // ИЗМЕНЕНИЕ ПАРОЛЯ
-            is SettingsMsg.PassChangeClicked -> {
-                if (state.value.isLoading) return
-                _state.update { it.copy(showChangePassDialog = true) }
-            }
-
-            is SettingsMsg.ChangePassChanged -> _state.update { it.copy(changePasswordInput = msg.password) }
             is SettingsMsg.PassChangeConfirmed -> {
                 if (Validator.isValidPassword(state.value.changePasswordInput)) {
                     _state.update {
                         it.copy(
-                            showChangePassDialog = false, showPasswordDialog = true,
+                            activeDialog = SettingsDialog.PasswordDialog,
                             pendingAction = PendingAction.CHANGE_PASSWORD, error = null
                         )
                     }
@@ -124,21 +94,12 @@ class SettingsViewModel(
                 }
             }
 
-            // УДАЛЕНИЕ ПРОФИЛЯ
-            is SettingsMsg.RemoveProfileClicked -> {
-                if (state.value.isLoading) return
-                _state.update { it.copy(showDeleteWarningDialog = true) }
-            }
-
             is SettingsMsg.RemoveProfileConfirmed -> _state.update {
                 it.copy(
-                    showDeleteWarningDialog = false, showPasswordDialog = true,
+                    activeDialog = SettingsDialog.PasswordDialog,
                     pendingAction = PendingAction.DELETE_PROFILE
                 )
             }
-
-            // ОСТАЛЬНОЕ
-            is SettingsMsg.ConfirmPasswordChanged -> _state.update { it.copy(confirmPasswordInput = msg.text) }
 
             is SettingsMsg.FinalActionConfirmed -> {
                 if (state.value.isLoading) return
@@ -149,10 +110,7 @@ class SettingsViewModel(
                 viewModelScope.launch {
                     val result = when (action) {
                         PendingAction.NONE -> Resource.Error(ErrorType.Unknown)
-                        PendingAction.DELETE_PROFILE -> {
-                            val token = sessionManager.getRefreshToken() ?: ""
-                            settingsInteractor.removeProfile(RemoveProfileData(password, token))
-                        }
+                        PendingAction.DELETE_PROFILE -> settingsInteractor.removeProfile(password)
 
                         PendingAction.CHANGE_NAME -> {
                             settingsInteractor.changeProfile(
@@ -192,11 +150,7 @@ class SettingsViewModel(
 
             is SettingsMsg.DismissDialogs -> _state.update {
                 it.copy(
-                    showLogoutDialog = false,
-                    showDeleteWarningDialog = false,
-                    showPasswordDialog = false,
-                    showChangeNameDialog = false,
-                    showChangePassDialog = false,
+                    activeDialog = null,
                     confirmPasswordInput = "",
                     changeNameInput = "",
                     changePasswordInput = "",
@@ -205,9 +159,6 @@ class SettingsViewModel(
             }
 
             is SettingsMsg.Error -> {
-                if (msg.errorType is ErrorType.NotFound) {
-                    dispatch(SettingsMsg.LogOut)
-                }
                 val errorMessage = when (msg.errorType) {
                     ErrorType.NetworkError -> R.string.no_internet
                     ErrorType.ServerError -> R.string.server_error
@@ -215,6 +166,12 @@ class SettingsViewModel(
                     else -> R.string.unknown_error
                 }
                 _state.update { it.copy(error = errorMessage) }
+            }
+
+            is SettingsMsg.AvatarPickerClicked -> _state.update { it.copy(isAvatarPickerVisible = true) }
+            is SettingsMsg.AvatarPickerDismissed -> _state.update { it.copy(isAvatarPickerVisible = false) }
+            is SettingsMsg.AvatarSelected -> viewModelScope.launch {
+                settingsInteractor.insertAvatar(msg.avatarKey)
             }
         }
     }

@@ -24,17 +24,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.diyca.R
 import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomTextButtonColored
 import com.example.diyca.ui.coponents.CustomTextField
 import com.example.diyca.ui.navigation.ScreenRoutes
-import com.example.diyca.ui.coponents.ImageBorder
+import com.example.diyca.ui.navigation.navigateAndClearStack
+import com.example.diyca.ui.navigation.navigateSafe
 import com.example.diyca.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
 
@@ -42,24 +41,13 @@ import org.koin.androidx.compose.koinViewModel
 fun LoginScreen(navHostController: NavHostController) {
     val viewModel: LoginViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
-    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is LoginEffect.NavigateToHome -> navHostController.navigate(ScreenRoutes.HomeRout) {
-                    popUpTo(ScreenRoutes.LoginRout) {
-                        inclusive = true
-                    }
-                }
-
-                is LoginEffect.NavigateToRegistration -> navHostController.navigate(ScreenRoutes.RegistrationRout) {
-                    launchSingleTop = true
-                }
-
-                is LoginEffect.NavigateToRecovery -> navHostController.navigate(ScreenRoutes.RecoveryRout) {
-                    launchSingleTop = true
-                }
+                is LoginEffect.NavigateToRegistration -> navHostController.navigateSafe(ScreenRoutes.RegistrationRout)
+                is LoginEffect.NavigateToRecovery -> navHostController.navigateSafe(ScreenRoutes.RecoveryRout)
+                is LoginEffect.NavigateToHome -> navHostController.navigateAndClearStack(ScreenRoutes.HomeRout)
             }
         }
     }
@@ -71,21 +59,21 @@ fun LoginScreen(navHostController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .blur(if (state.isLoading) 10.dp else 0.dp)
+                .blur(if (state.isLoading) Dimens.Size_10 else Dimens.ZeroSize)
                 .padding(horizontal = Dimens.Padding_16),
         ) {
             Spacer(modifier = Modifier.weight(0.5f))
 
             Image(
-                painter = painterResource(R.drawable.ic_logo_hadiyca),
+                painter = painterResource(R.drawable.ic_logo_diyca),
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth(0.75f)
             )
             Spacer(modifier = Modifier.height(Dimens.Padding_8))
 
             Text(
-                text = state.error?.let { context.getString(it) } ?: "",
-                fontSize = Dimens.TextSize_10,
+                text = state.error?.let { stringResource(it) } ?: "",
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier
                     .align(Alignment.Start)
@@ -125,7 +113,11 @@ fun LoginScreen(navHostController: NavHostController) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(text = stringResource(R.string.no_account_q))
+                Text(
+                    text = stringResource(R.string.no_account_q),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
                 Spacer(modifier = Modifier.width(Dimens.Padding_8))
                 CustomTextButtonColored(
                     stringResource(R.string.action_register),

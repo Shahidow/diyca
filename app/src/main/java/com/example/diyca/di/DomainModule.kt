@@ -26,30 +26,40 @@ import com.example.diyca.domain.home.activity.ActivityInteractor
 import com.example.diyca.domain.home.activity.impl.ActivityInteractorImpl
 import com.example.diyca.domain.learning.tasks.TasksInteractor
 import com.example.diyca.domain.learning.tasks.impl.TasksInteractorImpl
+import com.example.diyca.domain.learning.tasks_result.TasksResultInteractor
+import com.example.diyca.domain.learning.tasks_result.TasksResultInteractorImpl
+import com.example.diyca.domain.phrasebooks.PhrasebookItemsInteractor
+import com.example.diyca.domain.phrasebooks.impl.PhrasebookItemsInteractorImpl
 import com.example.diyca.domain.session.SessionManager
 import com.example.diyca.domain.session.impl.SessionManagerImpl
+import com.example.diyca.domain.startup.StartupInteractor
+import com.example.diyca.domain.startup.StartupInteractorImpl
 import org.koin.dsl.module
 
 val domainModule = module {
     single<SessionManager> { SessionManagerImpl(get()) }
 
-    single<LoginInteractor> { LoginInteractorImpl(get()) }
+    single<StartupInteractor> { StartupInteractorImpl(get(), get()) }
+
+    single<LoginInteractor> { LoginInteractorImpl(get(), get(), get(), get()) }
     single<RegistrationInteractor> { RegistrationInteractorImpl(get()) }
     single<RecoveryInteractor> { RecoveryInteractorImpl(get()) }
 
-    single<HomeInteractor> { HomeInteractorImpl(get()) }
-    single<ProfileInteractor> { ProfileInteractorImpl() }
-    single<SettingsInteractor> { SettingsInteractorImpl(get(), get()) }
+    single<HomeInteractor> { HomeInteractorImpl(get(), get()) }
+    single<ProfileInteractor> { ProfileInteractorImpl(get()) }
+    single<SettingsInteractor> { SettingsInteractorImpl(get(), get(), get()) }
 
     single<ActivityInteractor> { ActivityInteractorImpl(get()) }
 
-    single<StudyPlanInteractor> { StudyPlanInteractorImpl() }
-    single<LessonInteractor> { LessonInteractorImpl() }
-    single<TasksInteractor> { TasksInteractorImpl() }
+    single<StudyPlanInteractor> { StudyPlanInteractorImpl(get(), get()) }
+    single<LessonInteractor> { LessonInteractorImpl(get(), get()) }
+    single<TasksInteractor> { TasksInteractorImpl(get(), get()) }
+    single<TasksResultInteractor> { TasksResultInteractorImpl(get(), get()) }
 
     single<FavoritesInteractor> { FavoritesInteractorImpl(get()) }
 
     single<DictionaryInteractor> { DictionaryInteractorImpl(get(), get()) }
 
     single<PhrasebookInteractor> { PhrasebookInteractorImpl(get()) }
+    single<PhrasebookItemsInteractor> { PhrasebookItemsInteractorImpl(get(), get()) }
 }

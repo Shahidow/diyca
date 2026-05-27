@@ -8,5 +8,5 @@ sealed class DictionaryItemMsg {
     data class DataLoaded(val items: List<DictionaryItem>): DictionaryItemMsg()
     data class UpdateFavorite(val item: DictionaryItem) : DictionaryItemMsg()
     data class ChangeCurrentItem(val item: DictionaryItem) : DictionaryItemMsg()
-    object CloseClicked: DictionaryItemMsg()
+    data object CloseClicked: DictionaryItemMsg()
 }

@@ -11,7 +11,6 @@ class UserDataConverter {
 
     fun mapUserActivity(dailyActivity: DailyActivity): ActivityEntity {
         return ActivityEntity(
-            id = dailyActivity.id,
             date = dailyActivity.date,
             lessonsCompleted = dailyActivity.lessonsCompleted,
             tasksCompleted = dailyActivity.tasksCompleted,
@@ -20,7 +19,6 @@ class UserDataConverter {
 
     fun mapUserActivity(activityEntity: ActivityEntity): DailyActivity {
         return DailyActivity(
-            id = activityEntity.id,
             date = activityEntity.date,
             lessonsCompleted = activityEntity.lessonsCompleted,
             tasksCompleted = activityEntity.tasksCompleted,
@@ -47,7 +45,7 @@ class UserDataConverter {
         return ProgressEntity(
             taskId = userProgress.taskId,
             lessonId = userProgress.lessonId,
-            themeId = userProgress.themeId
+            themeId = userProgress.topicId
         )
     }
 
@@ -55,7 +53,7 @@ class UserDataConverter {
         return UserProgress(
             taskId = progressEntity.taskId,
             lessonId = progressEntity.lessonId,
-            themeId = progressEntity.themeId
+            topicId = progressEntity.themeId
         )
     }
 }

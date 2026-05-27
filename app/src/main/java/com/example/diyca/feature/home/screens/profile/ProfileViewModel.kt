@@ -3,7 +3,7 @@ package com.example.diyca.feature.home.screens.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.diyca.domain.home.profile.ProfileInteractor
-import com.example.diyca.ui.navigation.ScreenRoutes
+import com.example.diyca.domain.home.settings.models.UserAvatar
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,34 +20,31 @@ class ProfileViewModel(private val profileInteractor: ProfileInteractor) : ViewM
     val effects = _effects.receiveAsFlow()
 
     init {
+        observeUserData()
         dispatch(ProfileMsg.LoadData)
+    }
+
+    private fun observeUserData() {
+        viewModelScope.launch {
+            launch {
+                profileInteractor.getUserAvatar().collect { avatar ->
+                    _state.update { it.copy(avatar = UserAvatar.fromKey(avatar)) }
+                }
+            }
+            launch {
+                profileInteractor.getUserName().collect { name ->
+                    _state.update { it.copy(userName = name) }
+                }
+            }
+        }
     }
 
     fun dispatch(msg: ProfileMsg) {
         when (msg) {
             is ProfileMsg.LoadData -> {
                 viewModelScope.launch {
-                    val data = profileInteractor.getUserData()
-                    viewModelScope.launch {
-                        dispatch(
-                            ProfileMsg.DataLoaded(
-                                pic = data.pic,
-                                userName = data.userName,
-                                notification = data.notifications
-                            )
-                        )
-                    }
-                }
-
-            }
-
-            is ProfileMsg.DataLoaded -> {
-                _state.update {
-                    it.copy(
-                        pic = msg.pic,
-                        userName = msg.userName,
-                        notifications = msg.notification
-                    )
+                    val rewards = profileInteractor.getRewards()
+                    _state.update { it.copy(rewards = rewards) }
                 }
             }
 
@@ -65,7 +62,7 @@ class ProfileViewModel(private val profileInteractor: ProfileInteractor) : ViewM
 
             is ProfileMsg.GoToSettings -> {
                 viewModelScope.launch {
-                    _effects.send(ProfileEffect.NavigateTo(ScreenRoutes.SettingsRout))
+                    _effects.send(ProfileEffect.NavigateToSettings)
                 }
             }
 
@@ -73,10 +70,6 @@ class ProfileViewModel(private val profileInteractor: ProfileInteractor) : ViewM
                 viewModelScope.launch {
                     _effects.send(ProfileEffect.NavigateBack)
                 }
-            }
-
-            is ProfileMsg.NotificationChange -> {
-                _state.update { it.copy(notifications = msg.isEnabled) }
             }
         }
     }

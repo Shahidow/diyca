@@ -1,10 +1,10 @@
 package com.example.diyca.data.mappers
 
-import com.example.diyca.data.dto.requests.ChangeProfileRequest
-import com.example.diyca.data.dto.requests.LoginRequest
-import com.example.diyca.data.dto.requests.RegistrationRequest
-import com.example.diyca.data.dto.requests.RemoveProfileRequest
-import com.example.diyca.data.dto.requests.ResetPasswordRequest
+import com.example.diyca.data.dto.auth.requests.ChangeProfileRequest
+import com.example.diyca.data.dto.auth.requests.LoginRequest
+import com.example.diyca.data.dto.auth.requests.RegistrationRequest
+import com.example.diyca.data.dto.auth.requests.RemoveProfileRequest
+import com.example.diyca.data.dto.auth.requests.ResetPasswordRequest
 import com.example.diyca.domain.auth.models.LoginData
 import com.example.diyca.domain.auth.models.RegistrationData
 import com.example.diyca.domain.auth.recovery.models.ResetPasswordData
@@ -30,7 +30,7 @@ class AuthRequestMapper {
     fun removeProfileRequestToData(removeProfileData: RemoveProfileData): RemoveProfileRequest {
         return RemoveProfileRequest(
             password = removeProfileData.password,
-            refreshToken = removeProfileData.refreshToken
+            refresh = removeProfileData.refreshToken
         )
     }
 

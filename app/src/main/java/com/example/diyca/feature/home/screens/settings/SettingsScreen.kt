@@ -2,15 +2,23 @@ package com.example.diyca.feature.home.screens.settings
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,19 +29,27 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.diyca.R
+import com.example.diyca.domain.home.settings.models.UserAvatar
+import com.example.diyca.feature.home.screens.settings.models.SettingsDialog
+import com.example.diyca.ui.coponents.CustomBackButton
 import com.example.diyca.ui.navigation.ScreenRoutes
 import com.example.diyca.ui.coponents.CustomBoxContainer
 import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomDialog
 import com.example.diyca.ui.coponents.CustomTextButtonColored
 import com.example.diyca.ui.coponents.CustomTextField
+import com.example.diyca.ui.coponents.shimmerBrush
+import com.example.diyca.ui.navigation.navigateAndClearStack
+import com.example.diyca.ui.navigation.popBackStackSafe
 import com.example.diyca.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
 
@@ -46,15 +62,10 @@ fun SettingsScreen(navHostController: NavHostController) {
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is SettingsEffect.NavigateBack -> navHostController.popBackStack()
-                is SettingsEffect.NavigateToLogin -> {
-                    navHostController.navigate(ScreenRoutes.LoginRout) {
-                        popUpTo(0) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                    }
-                }
+                is SettingsEffect.NavigateBack -> navHostController.popBackStackSafe()
+                is SettingsEffect.NavigateToLogin -> navHostController.navigateAndClearStack(
+                    ScreenRoutes.LoginRout
+                )
 
                 is SettingsEffect.ShowToast -> {
                     Toast.makeText(
@@ -67,84 +78,17 @@ fun SettingsScreen(navHostController: NavHostController) {
         }
     }
 
-    // 1. Диалог выхода
-    if (state.showLogoutDialog) {
-        CustomDialog(
-            title = stringResource(R.string.log_out),
-            message = stringResource(R.string.logout_confirmation_message),
-            confirmButtonText = stringResource(R.string.action_yes),
-            onConfirm = { viewModel.dispatch(SettingsMsg.LogOut) },
-            dismissButtonText = stringResource(R.string.action_cancel),
-            onDismiss = { viewModel.dispatch(SettingsMsg.DismissDialogs) }
+    SettingsDialogs(state, viewModel)
+
+    if (state.isAvatarPickerVisible) {
+        AvatarSelectionDialog(
+            onDismiss = { viewModel.dispatch(SettingsMsg.AvatarPickerDismissed) },
+            onAvatarClick = { avatar ->
+                viewModel.dispatch(SettingsMsg.AvatarSelected(avatar.key))
+                viewModel.dispatch(SettingsMsg.AvatarPickerDismissed)
+            }
         )
     }
-
-    // 2. Диалог-предупреждение об удалении
-    if (state.showDeleteWarningDialog) {
-        CustomDialog(
-            title = stringResource(R.string.warning_title),
-            message = stringResource(R.string.delete_account_confirmation_message),
-            confirmButtonText = stringResource(R.string.action_yes),
-            onConfirm = { viewModel.dispatch(SettingsMsg.RemoveProfileConfirmed) },
-            dismissButtonText = stringResource(R.string.action_cancel),
-            onDismiss = { viewModel.dispatch(SettingsMsg.DismissDialogs) }
-        )
-    }
-
-    // 3. Диалог смены имени
-    if (state.showChangeNameDialog) {
-        CustomDialog(
-            title = stringResource(R.string.username),
-            message = stringResource(R.string.change_username_prompt),
-            confirmButtonText = stringResource(R.string.action_save),
-            onConfirm = { viewModel.dispatch(SettingsMsg.UserNameChangeConfirmed) },
-            dismissButtonText = stringResource(R.string.action_cancel),
-            onDismiss = { viewModel.dispatch(SettingsMsg.DismissDialogs) },
-            showTextField = true,
-            textFieldValue = state.changeNameInput,
-            onValueChange = { viewModel.dispatch(SettingsMsg.UserNameChanged(it)) },
-            textFieldLabel = stringResource(R.string.new_username_label),
-            isPassword = false,
-            error = state.error?.let { stringResource(it) },
-        )
-    }
-
-    // 4. Диалог смены пароля
-    if (state.showChangePassDialog) {
-        CustomDialog(
-            title = stringResource(R.string.change_password),
-            message = stringResource(R.string.think_password),
-            confirmButtonText = stringResource(R.string.action_save),
-            onConfirm = { viewModel.dispatch(SettingsMsg.PassChangeConfirmed) },
-            dismissButtonText = stringResource(R.string.action_cancel),
-            onDismiss = { viewModel.dispatch(SettingsMsg.DismissDialogs) },
-            showTextField = true,
-            textFieldValue = state.changePasswordInput,
-            onValueChange = { viewModel.dispatch(SettingsMsg.ChangePassChanged(it)) },
-            textFieldLabel = stringResource(R.string.new_password_label),
-            error = state.error?.let { stringResource(it) },
-        )
-    }
-
-    // 5. Диалог подтверждения паролем
-    if (state.showPasswordDialog) {
-        CustomDialog(
-            title = stringResource(R.string.confirmation_title),
-            message = stringResource(R.string.enter_password_prompt),
-            confirmButtonText = stringResource(R.string.action_confirm),
-            onConfirm = { viewModel.dispatch(SettingsMsg.FinalActionConfirmed) },
-            dismissButtonText = stringResource(R.string.action_cancel),
-            onDismiss = { viewModel.dispatch(SettingsMsg.DismissDialogs) },
-            showTextField = true,
-            textFieldValue = state.confirmPasswordInput,
-            onValueChange = { viewModel.dispatch(SettingsMsg.ConfirmPasswordChanged(it)) },
-            textFieldLabel = stringResource(R.string.password),
-            error = state.error?.let { stringResource(it) },
-            isLoading = state.isLoading
-        )
-    }
-
-    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -152,30 +96,30 @@ fun SettingsScreen(navHostController: NavHostController) {
             .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = Dimens.Padding_16)
     ) {
-        SettingsTitle(viewModel)
+        SettingsHeader(viewModel)
         Spacer(modifier = Modifier.height(Dimens.Padding_8))
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(scrollState)
+                .verticalScroll(rememberScrollState())
         ) {
 
-            SettingsUserData(state.pic, state.userName, viewModel)
+            SettingsUserData(state.avatar, state.userName, viewModel)
             Spacer(modifier = Modifier.height(Dimens.Padding_32))
             CustomTextField(
                 value = state.userEmail,
                 onValueChange = {},
                 label = stringResource(R.string.mail),
                 borderColor = MaterialTheme.colorScheme.outline,
-                backgroundColor = MaterialTheme.colorScheme.surface,
+                backgroundColor = MaterialTheme.colorScheme.secondary,
                 isBorder = true,
                 isEnabled = false
             )
             Spacer(modifier = Modifier.height(Dimens.Padding_8))
             CustomButtonColored(
-                onClick = { viewModel.dispatch(SettingsMsg.PassChangeClicked) },
+                onClick = { viewModel.dispatch(SettingsMsg.ShowDialog(SettingsDialog.ChangePassDialog)) },
                 text = stringResource(R.string.change_password),
                 isOutlined = true,
             )
@@ -183,14 +127,14 @@ fun SettingsScreen(navHostController: NavHostController) {
             SettingsLanguage()
             Spacer(modifier = Modifier.height(Dimens.Padding_24))
             CustomButtonColored(
-                onClick = { viewModel.dispatch(SettingsMsg.LogOutClicked) },
+                onClick = { viewModel.dispatch(SettingsMsg.ShowDialog(SettingsDialog.LogOut)) },
                 text = stringResource(R.string.log_out),
                 isOutlined = true,
             )
             Spacer(modifier = Modifier.height(Dimens.Padding_32))
             CustomTextButtonColored(
                 text = stringResource(R.string.delete_account),
-                onClick = { viewModel.dispatch(SettingsMsg.RemoveProfileClicked) },
+                onClick = { viewModel.dispatch(SettingsMsg.ShowDialog(SettingsDialog.DeleteWarningDialog)) },
                 color = MaterialTheme.colorScheme.error
             )
             Spacer(modifier = Modifier.height(Dimens.Padding_32))
@@ -199,51 +143,74 @@ fun SettingsScreen(navHostController: NavHostController) {
 }
 
 @Composable
-fun SettingsTitle(viewModel: SettingsViewModel) {
+fun SettingsHeader(viewModel: SettingsViewModel) {
     ConstraintLayout(
         modifier = Modifier.fillMaxWidth()
     ) {
         val (icon, text) = createRefs()
-        Icon(
-            painter = painterResource(R.drawable.ic_back),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .constrainAs(icon) {
-                    top.linkTo(parent.top, margin = Dimens.Padding_36)
-                    start.linkTo(parent.start)
-                }
-                .clickable { viewModel.dispatch(SettingsMsg.NavigateBack) }
+        CustomBackButton(
+            onClick = { viewModel.dispatch(SettingsMsg.NavigateBack) },
+            modifier = Modifier.constrainAs(icon) {
+                top.linkTo(parent.top, margin = Dimens.Padding_36)
+                start.linkTo(parent.start)
+            }
         )
-        Text(stringResource(R.string.account_settings), modifier = Modifier.constrainAs(text) {
-            top.linkTo(icon.top)
-            bottom.linkTo(icon.bottom)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-        })
+        Text(text = stringResource(R.string.account_settings),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.constrainAs(text) {
+                top.linkTo(icon.top)
+                bottom.linkTo(icon.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            }
+        )
     }
 }
 
 @Composable
-fun SettingsUserData(pic: Int, userName: String, viewModel: SettingsViewModel) {
+fun SettingsUserData(avatar: UserAvatar?, userName: String, viewModel: SettingsViewModel) {
     ConstraintLayout(
         modifier = Modifier.fillMaxWidth()
     ) {
         val (icon1, text, icon2) = createRefs()
-        Icon(
-            painter = painterResource(pic),
-            contentDescription = null,
-            tint = Color.Unspecified,
+        Box(
             modifier = Modifier
+                .size(Dimens.Size_100)
                 .constrainAs(icon1) {
                     top.linkTo(parent.top, margin = Dimens.Padding_36)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
-        )
+                .clip(CircleShape)
+                .clickable { viewModel.dispatch(SettingsMsg.AvatarPickerClicked) }
+                .then(
+                    if (avatar == null) {
+                        Modifier.background(shimmerBrush(showShimmer = true))
+                    } else {
+                        Modifier.border(
+                            width = Dimens.Size_2,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = CircleShape
+                        )
+                    }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            avatar?.let {
+                Icon(
+                    painter = painterResource(it.resId),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
 
         Text(
-            userName,
+            text = userName,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .constrainAs(text) {
                     top.linkTo(icon1.bottom, margin = Dimens.Padding_32)
@@ -262,7 +229,7 @@ fun SettingsUserData(pic: Int, userName: String, viewModel: SettingsViewModel) {
                     bottom.linkTo(text.bottom)
                     start.linkTo(text.end)
                 }
-                .clickable { viewModel.dispatch(SettingsMsg.UserNameChangeClicked) }
+                .clickable { viewModel.dispatch(SettingsMsg.ShowDialog(SettingsDialog.ChangeNameDialog)) }
         )
     }
 }
@@ -271,7 +238,7 @@ fun SettingsUserData(pic: Int, userName: String, viewModel: SettingsViewModel) {
 fun SettingsLanguage() {
     CustomBoxContainer(
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.secondary,
         borderColor = MaterialTheme.colorScheme.outline
     ) {
         Column(
@@ -303,27 +270,144 @@ fun LanguageSelectorPlaceholder(
             .height(Dimens.Size_56)
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(Dimens.Padding_12)
+                shape = RoundedCornerShape(Dimens.Padding_12)
             )
-            .clickable(enabled = false) { onClick() } // Пока выключено
+            .clickable(enabled = false) { onClick() } // Turned off for now
             .padding(horizontal = Dimens.Padding_16),
         contentAlignment = Alignment.CenterStart
     ) {
-        androidx.compose.foundation.layout.Row(
+        Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = currentValue,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_down),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f)
             )
+        }
+    }
+}
+
+@Composable
+fun SettingsDialogs(state: SettingsState, viewModel: SettingsViewModel) {
+    val dialog = state.activeDialog ?: return
+
+    CustomDialog(
+        title = stringResource(dialog.title),
+        message = stringResource(dialog.message),
+        confirmButtonText = stringResource(dialog.confirmButtonText),
+        dismissButtonText = dialog.dismissButtonText?.let { dismissText ->
+            stringResource(dismissText)
+        },
+        onConfirm = {
+            val msg = when (dialog) {
+                is SettingsDialog.LogOut -> SettingsMsg.LogOut
+                is SettingsDialog.DeleteWarningDialog -> SettingsMsg.RemoveProfileConfirmed
+                is SettingsDialog.ChangeNameDialog -> SettingsMsg.UserNameChangeConfirmed
+                is SettingsDialog.ChangePassDialog -> SettingsMsg.PassChangeConfirmed
+                is SettingsDialog.PasswordDialog -> SettingsMsg.FinalActionConfirmed
+            }
+            viewModel.dispatch(msg)
+        },
+        onDismiss = { viewModel.dispatch(SettingsMsg.DismissDialogs) },
+        showTextField = dialog.showTextField,
+
+        textFieldValue = when (dialog) {
+            is SettingsDialog.ChangeNameDialog -> state.changeNameInput
+            is SettingsDialog.ChangePassDialog -> state.changePasswordInput
+            is SettingsDialog.PasswordDialog -> state.confirmPasswordInput
+            else -> ""
+        },
+
+        onValueChange = { text ->
+            val msg = when (dialog) {
+                is SettingsDialog.ChangeNameDialog -> SettingsMsg.UserNameChanged(text)
+                is SettingsDialog.ChangePassDialog -> SettingsMsg.ChangePassChanged(text)
+                is SettingsDialog.PasswordDialog -> SettingsMsg.ConfirmPasswordChanged(text)
+                else -> null
+            }
+            msg?.let { viewModel.dispatch(it) }
+        },
+
+        textFieldLabel = if (dialog.textFieldLabel != null) stringResource(dialog.textFieldLabel) else "",
+        isPassword = dialog.isPassword,
+        error = state.error?.let { message -> stringResource(message) },
+        isLoading = state.isLoading
+    )
+}
+
+@Composable
+fun AvatarSelectionDialog(
+    onDismiss: () -> Unit,
+    onAvatarClick: (UserAvatar) -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                    shape = RoundedCornerShape(Dimens.Padding_24)
+                )
+                .padding(Dimens.Padding_16)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Dimens.Padding_24)
+            ) {
+                Text(
+                    text = stringResource(R.string.choose_avatar),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.Padding_12),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.Padding_12),
+                ) {
+                    items(UserAvatar.all.size) { index ->
+                        val avatar = UserAvatar.all[index]
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(Dimens.Size_80)
+                                    .clip(CircleShape)
+                                    .border(
+                                        width = Dimens.Size_1,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        shape = CircleShape
+                                    )
+                                    .clickable { onAvatarClick(avatar) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(avatar.resId),
+                                    contentDescription = null,
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
+                    }
+                }
+                CustomButtonColored(
+                    text = stringResource(R.string.action_cancel),
+                    onClick = onDismiss,
+                    isOutlined = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    height = Dimens.Size_48
+                )
+            }
         }
     }
 }

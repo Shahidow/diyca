@@ -1,19 +1,23 @@
 package com.example.diyca.ui.coponents
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,7 +37,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -45,15 +52,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.diyca.ui.theme.BlackText
+import com.example.diyca.R
 import com.example.diyca.ui.theme.Dimens
 import com.example.diyca.ui.theme.Grey92
 import com.example.diyca.ui.theme.MediumGray
-import com.example.diyca.ui.theme.PrimaryTeal
+import com.example.diyca.util.ErrorType
 
-@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun CustomTextField(
     value: String,
@@ -65,8 +72,11 @@ fun CustomTextField(
     isCode: Boolean = false,
     isBorder: Boolean = false,
     backgroundColor: Color = Color.Transparent,
-    borderColor: Color = Grey92,
+    borderColor: Color = MaterialTheme.colorScheme.outline,
     isEnabled: Boolean = true,
+    readOnly: Boolean = false,
+    showDeleteButton: Boolean = false,
+    onDeleteClick: () -> Unit = {}
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -103,27 +113,50 @@ fun CustomTextField(
             )
         },
         enabled = isEnabled,
-        label = { Text(label, color = MediumGray, fontSize = Dimens.TextSize_14) },
-        textStyle = LocalTextStyle.current.copy(textAlign = if (isCode) TextAlign.Center else TextAlign.Start),
-
-        // видимость пароля
-        visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-        trailingIcon = if (isPassword) {
+        readOnly = readOnly,
+        label = if (label.isNotEmpty()) {
             {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                        contentDescription = if (passwordVisible) "Скрыть пароль" else "Показать пароль",
-                        tint = MediumGray
-                    )
-                }
+                Text(
+                    text = label,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
         } else null,
+        textStyle = LocalTextStyle.current.copy(textAlign = if (isCode) TextAlign.Center else TextAlign.Start),
+        visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+        trailingIcon = when {
+            isPassword -> {
+                {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = null,
+                            tint = MediumGray
+                        )
+                    }
+                }
+            }
+
+            showDeleteButton && value.isNotEmpty() -> {
+                {
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Backspace,
+                            contentDescription = null,
+                            tint = MediumGray
+                        )
+                    }
+                }
+            }
+
+            else -> null
+        },
 
         colors = TextFieldDefaults.colors(
-            focusedTextColor = BlackText,
-            unfocusedTextColor = BlackText,
-            disabledTextColor = BlackText,
+            focusedTextColor = MaterialTheme.colorScheme.onBackground,
+            unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+            disabledTextColor = MaterialTheme.colorScheme.onBackground,
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             disabledContainerColor = Color.Transparent,
@@ -147,33 +180,6 @@ fun CustomTextField(
 }
 
 @Composable
-fun CustomProgressBar(
-    progress: Float,
-    progressColor: Color,
-    backgroundColor: Color,
-    modifier: Modifier = Modifier
-) {
-    val clampedProgress = progress.coerceIn(0f, 1f)
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(10.dp)
-            .padding(horizontal = 4.dp)
-            .background(color = backgroundColor, RoundedCornerShape(4.dp))
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(clampedProgress)
-                .background(
-                    color = progressColor,
-                    shape = RoundedCornerShape(4.dp)
-                )
-        )
-    }
-}
-
-@Composable
 fun CustomDialog(
     title: String,
     message: String,
@@ -181,6 +187,7 @@ fun CustomDialog(
     dismissButtonText: String? = null,
     onConfirm: () -> Unit,
     onDismiss: (() -> Unit)? = null,
+    onCloseRequest: (() -> Unit)? = null,
     showTextField: Boolean = false,
     textFieldValue: String = "",
     onValueChange: (String) -> Unit = {},
@@ -190,7 +197,7 @@ fun CustomDialog(
     isLoading: Boolean = false
 ) {
     Dialog(
-        onDismissRequest = { if (!isLoading) onDismiss?.invoke() },
+        onDismissRequest = { if (!isLoading) (onCloseRequest ?: onDismiss)?.invoke() },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = !isLoading,
@@ -201,7 +208,7 @@ fun CustomDialog(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .background(
-                    color = MaterialTheme.colorScheme.surface,
+                    color = MaterialTheme.colorScheme.background,
                     shape = RoundedCornerShape(Dimens.Padding_24)
                 )
                 .padding(Dimens.Padding_24)
@@ -213,25 +220,25 @@ fun CustomDialog(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
 
                 if (!error.isNullOrEmpty() && !isLoading) {
                     Text(
                         text = error,
-                        fontSize = Dimens.TextSize_10,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier
                             .align(Alignment.Start)
-                            .padding(start = Dimens.Padding_16)
+                            .padding(start = Dimens.Padding_16),
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
 
@@ -240,14 +247,13 @@ fun CustomDialog(
                         value = textFieldValue,
                         onValueChange = onValueChange,
                         label = textFieldLabel,
-                        isBorder = true,
                         isPassword = isPassword,
                         isEnabled = !isLoading
                     )
                 }
 
                 if (isLoading) {
-                    androidx.compose.material3.CircularProgressIndicator(
+                    CircularProgressIndicator(
                         modifier = Modifier.padding(Dimens.Padding_16),
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -282,62 +288,96 @@ fun CustomDialog(
 }
 
 @Composable
-fun CustomCircularProgress(
-    modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.Center,
-    lessonProgress: Float,
-    taskProgress: Float,
-    size: Dp = 100.dp,
-) {
-    val strokeWidth = size * 0.085f
-    val innerCircleSize = size * 0.68f
-    Box(
-        modifier = modifier,
-        contentAlignment = contentAlignment
-    ) {
-        CircularProgressIndicator(
-            progress = { lessonProgress },
-            modifier = Modifier.size(size),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-            strokeWidth = strokeWidth,
-        )
-        CircularProgressIndicator(
-            progress = { taskProgress },
-            modifier = Modifier.size(innerCircleSize),
-            color = PrimaryTeal,
-            trackColor = PrimaryTeal.copy(alpha = 0.2f),
-            strokeWidth = strokeWidth,
-        )
-    }
-}
-
-@Composable
 fun AutoResizeText(
     text: String,
     modifier: Modifier = Modifier,
-    maxFontSize: TextUnit = Dimens.TextSize_16,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+    maxFontSize: TextUnit = style.fontSize,
     minFontSize: TextUnit = Dimens.TextSize_10
 ) {
     val textMeasurer = rememberTextMeasurer()
     var fontSize by remember { mutableStateOf(maxFontSize) }
-
-    LaunchedEffect(text) {
-        while (fontSize > minFontSize) {
+    LaunchedEffect(text, maxFontSize, minFontSize) {
+        fontSize = maxFontSize
+        var currentSize = maxFontSize
+        while (currentSize > minFontSize) {
             val result = textMeasurer.measure(
                 text = text,
-                style = TextStyle(fontSize = fontSize),
+                style = style.copy(fontSize = currentSize),
                 maxLines = 1
             )
-            if (!result.hasVisualOverflow) break
-            fontSize *= 0.9f
+            if (result.hasVisualOverflow) {
+                currentSize = (currentSize.value * 0.9f).sp
+                if (currentSize <= minFontSize) {
+                    fontSize = minFontSize
+                    break
+                }
+            } else {
+                fontSize = currentSize
+                break
+            }
+        }
+        if (currentSize <= minFontSize) {
+            fontSize = minFontSize
         }
     }
-
     Text(
         text = text,
+        style = style,
         maxLines = 1,
         fontSize = fontSize,
         modifier = modifier
     )
+}
+
+@Composable
+fun CustomErrorBox(
+    onClick: () -> Unit,
+    errorType: ErrorType,
+    modifier: Modifier = Modifier,
+    imageSize: Dp = Dimens.Size_150,
+    isButtonEnabled: Boolean = true
+) {
+    val errorMessage = when (errorType) {
+        is ErrorType.NetworkError -> R.string.no_internet
+        is ErrorType.ServerError -> R.string.server_error
+        is ErrorType.Forbidden -> R.string.forbidden
+        else -> R.string.unknown_error
+    }
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(imageSize)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.secondary),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = if (errorType is ErrorType.NetworkError) painterResource(R.drawable.ic_error_internet)
+                else painterResource(R.drawable.ic_error_server),
+                modifier = Modifier.size(imageSize * 0.7f),
+                contentDescription = null,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+        Text(
+            text = stringResource(errorMessage),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.error
+        )
+        if (isButtonEnabled) {
+            Spacer(modifier = Modifier.height(Dimens.Padding_16))
+            CustomButtonColored(
+                onClick = { onClick() },
+                text = stringResource(R.string.action_update),
+                modifier = Modifier.width(Dimens.Size_150),
+                height = Dimens.Size_32
+            )
+        }
+    }
 }

@@ -12,15 +12,18 @@ interface ProgressDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProgress(progress: ProgressEntity)
 
-    @Query("SELECT COUNT(*) FROM progress_table WHERE lessonId = :lessonId")
-    fun getLessonCount(lessonId: String): Flow<Int>
+    @Query("SELECT * FROM progress_table")
+    fun getAllProgress(): Flow<List<ProgressEntity>>
 
-    @Query("SELECT COUNT(*) FROM progress_table WHERE themeId = :themeId")
-    fun getThemeCount(themeId: String): Flow<Int>
+    @Query("SELECT * FROM progress_table WHERE lessonId = :lessonId")
+    fun getProgressByLesson(lessonId: String): Flow<List<ProgressEntity>>
 
-    @Query("SELECT taskId FROM progress_table WHERE lessonId = :lessonId")
-    fun getLessonTaskIds(lessonId: String): Flow<List<String>>
+    @Query("SELECT COUNT(taskId) FROM progress_table WHERE lessonId = :lessonId")
+    fun getLessonTasksCount(lessonId: String): Flow<Int>
 
     @Query("SELECT * FROM progress_table WHERE themeId = :themeId")
     fun getProgressByTheme(themeId: String): Flow<List<ProgressEntity>>
+
+    @Query("DELETE FROM progress_table")
+    suspend fun clearAllProgress()
 }

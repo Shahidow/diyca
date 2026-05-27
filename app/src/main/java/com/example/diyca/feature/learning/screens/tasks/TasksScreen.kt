@@ -1,13 +1,12 @@
 package com.example.diyca.feature.learning.screens.tasks
 
-
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,42 +28,120 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.diyca.R
 import com.example.diyca.domain.learning.models.task_type.BuildSentenceTask
 import com.example.diyca.domain.learning.models.task_type.BuildWordTask
-import com.example.diyca.domain.learning.models.task_type.ChooseTranslationTask
+import com.example.diyca.domain.learning.models.task_type.MultipleChoiceTask
+import com.example.diyca.domain.learning.models.task_type.SingleChoiceTask
+import com.example.diyca.domain.learning.models.task_type.Task
 import com.example.diyca.ui.coponents.CustomBoxTaskButton
 import com.example.diyca.ui.coponents.CustomButtonColored
+import com.example.diyca.ui.coponents.CustomDialog
+import com.example.diyca.ui.coponents.CustomErrorBox
 import com.example.diyca.ui.coponents.CustomProgressBar
 import com.example.diyca.ui.coponents.CustomTaskButton
 import com.example.diyca.ui.coponents.CustomTextButtonColored
 import com.example.diyca.ui.coponents.CustomTextField
+import com.example.diyca.ui.navigation.ScreenRoutes
+import com.example.diyca.ui.navigation.navigateAndPopSelf
+import com.example.diyca.ui.navigation.popBackStackSafe
 import com.example.diyca.ui.theme.Dimens
 import com.example.diyca.ui.theme.Green
-import com.example.diyca.ui.theme.Grey92
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun Tasks() {
+fun TasksScreen(navHostController: NavHostController, tasksRout: ScreenRoutes.TasksRout) {
     val viewModel: TasksViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
-    val context = LocalContext.current
     val task = state.tasks.getOrNull(state.currentTask)
+
+    LaunchedEffect(tasksRout) {
+        viewModel.dispatch(TasksMsg.LoadData(tasksRout))
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is TasksEffect.NavigateToResult -> TODO()
+                is TasksEffect.CloseTasks -> navHostController.popBackStackSafe()
+                is TasksEffect.NavigateToResult -> navHostController.navigateAndPopSelf(
+                    ScreenRoutes.TasksResultRout(
+                        effect.topicId,
+                        effect.lessonId,
+                        effect.completedTasks,
+                        effect.tasksCount,
+                        effect.lessonTasksCount
+                    )
+                )
             }
         }
     }
 
+    BackHandler {
+        viewModel.dispatch(TasksMsg.CloseClicked)
+    }
+
+    if (state.showCloseConfirmation) {
+        CustomDialog(
+            title = stringResource(R.string.terminate_tasks),
+            message = stringResource(R.string.lost_progress_confirmation),
+            confirmButtonText = stringResource(R.string.action_terminate),
+            dismissButtonText = stringResource(R.string.action_cancel),
+            onConfirm = { viewModel.dispatch(TasksMsg.CloseTasks) },
+            onDismiss = { viewModel.dispatch(TasksMsg.DismissDialogs) },
+        )
+    }
+
+    when {
+        state.isLoading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {},
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        }
+
+        state.error != null -> {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_close),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(Dimens.Padding_16)
+                        .clickable { viewModel.dispatch(TasksMsg.CloseTasks) },
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+                state.error?.let { error ->
+                    CustomErrorBox(
+                        errorType = error,
+                        onClick = { viewModel.dispatch(TasksMsg.LoadData(tasksRout)) },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+
+        else -> TasksMainContent(state, task, viewModel)
+    }
+}
+
+@Composable
+fun TasksMainContent(
+    state: TasksState,
+    task: Task?,
+    viewModel: TasksViewModel
+){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,23 +157,24 @@ fun Tasks() {
             Text("${state.currentTask + 1}/${state.tasks.size}")
             CustomProgressBar(
                 progress = state.progress,
-                progressColor = MaterialTheme.colorScheme.primary,
-                backgroundColor = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
             Icon(
-                painterResource(R.drawable.ic_close),
+                painter = painterResource(R.drawable.ic_close),
+                modifier = Modifier.clickable { viewModel.dispatch(TasksMsg.CloseClicked) },
                 contentDescription = null,
-                tint = Color.Unspecified
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
         Spacer(modifier = Modifier.height(Dimens.Padding_8))
 
         Text(
             text = when (task) {
-                is BuildSentenceTask -> "Переведи предложение"
-                is BuildWordTask -> "Переведи слово"
-                is ChooseTranslationTask -> "Выбери правильный вариант"
+                is BuildSentenceTask -> stringResource(R.string.translate_sentence)
+                is BuildWordTask -> stringResource(R.string.translate_word)
+                is SingleChoiceTask -> stringResource(R.string.choose_single_translate)
+                is MultipleChoiceTask -> stringResource(R.string.choose_multiple_translate)
                 null -> ""
             },
             fontWeight = FontWeight.Bold,
@@ -119,10 +198,18 @@ fun Tasks() {
                     answer = state.answer
                 )
 
-                is ChooseTranslationTask -> ChooseTranslationTaskScreen(
+                is SingleChoiceTask -> ChooseTranslationTaskScreen(
                     modifier = Modifier.weight(1f),
-                    chooseTranslationTask = it,
-                    selectedWord = state.selectedWord,
+                    singleChoiceTask = it,
+                    selectedWord = state.selectedSingleWord,
+                    viewModel = viewModel,
+                    answer = state.answer
+                )
+
+                is MultipleChoiceTask -> MultipleChoiceTaskScreen(
+                    modifier = Modifier.weight(1f),
+                    multipleChoiceTask = it,
+                    selectedOptions = state.selectedMultipleWords,
                     viewModel = viewModel,
                     answer = state.answer
                 )
@@ -132,9 +219,11 @@ fun Tasks() {
 
         CustomButtonColored(
             onClick = { viewModel.dispatch(TasksMsg.ActionButtonClicked("")) },
-            text = if (state.answer == null) stringResource(R.string.action_check) else "Продолжить",
+            text = if (state.answer == null) stringResource(R.string.action_check) else stringResource(
+                R.string.action_continue
+            ),
             height = Dimens.Padding_48,
-            isEnabled = !state.isLoading
+            isEnabled = !state.isLoading && (state.isAnswerNotEmpty || state.answer != null)
         )
         Spacer(modifier = Modifier.height(Dimens.Padding_16))
 
@@ -145,7 +234,6 @@ fun Tasks() {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BuildSentenceTaskScreen(
     modifier: Modifier = Modifier,
@@ -168,7 +256,7 @@ fun BuildSentenceTaskScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = buildSentenceTask.sentence,
+                text = buildSentenceTask.question,
                 textAlign = TextAlign.Center
             )
         }
@@ -179,13 +267,13 @@ fun BuildSentenceTaskScreen(
                 .clip(RoundedCornerShape(Dimens.RoundedCorner_16))
                 .background(MaterialTheme.colorScheme.surface)
                 .border(
-                    width = 2.dp, // Толщина обводки
+                    width = 2.dp,
                     color = when (answer) {
                         true -> Green
-                        false -> Color.Red
+                        false -> Red
                         null -> Color.Transparent
-                    }, // Цвет обводки
-                    shape = RoundedCornerShape(Dimens.RoundedCorner_16) // Скругление углов обводки
+                    },
+                    shape = RoundedCornerShape(Dimens.RoundedCorner_16)
                 )
                 .defaultMinSize(minHeight = 162.dp),
             horizontalArrangement = Arrangement.Center,
@@ -195,7 +283,8 @@ fun BuildSentenceTaskScreen(
                 CustomTaskButton(
                     word,
                     onClick = {
-                        viewModel.dispatch(TasksMsg.SelectedWordsChanged(selectedWords - word))
+                        if (answer == null)
+                            viewModel.dispatch(TasksMsg.SelectedWordsChanged(selectedWords - word))
                     }
                 )
             }
@@ -213,16 +302,16 @@ fun BuildSentenceTaskScreen(
                     word,
                     isSelected = selectedWords.contains(word),
                     onClick = {
-                        viewModel.dispatch(TasksMsg.SelectedWordsChanged(selectedWords + word))
-                    }
+                        if (answer == null)
+                            viewModel.dispatch(TasksMsg.SelectedWordsChanged(selectedWords + word))
+                    },
+                    color = MaterialTheme.colorScheme.surface
                 )
             }
         }
-
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BuildWordTaskScreen(
     modifier: Modifier = Modifier,
@@ -244,20 +333,25 @@ fun BuildWordTaskScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = buildWordTask.word,
+                text = buildWordTask.question,
                 fontSize = Dimens.TextSize_24,
                 textAlign = TextAlign.Center
             )
         }
         CustomTextField(
-            selectedLetters.joinToString(""),
+            value = selectedLetters.joinToString(""),
             onValueChange = {},
             isBorder = true,
-            isEnabled = false,
+            readOnly = true,
             borderColor = when (answer) {
                 true -> Green
-                false -> Color.Red
-                null -> Color.Transparent
+                false -> Red
+                null -> MaterialTheme.colorScheme.outline
+            },
+            showDeleteButton = true,
+            onDeleteClick = {
+                if (answer == null)
+                    viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters.dropLast(1)))
             }
         )
         Spacer(modifier = Modifier.height(Dimens.Padding_36))
@@ -274,21 +368,27 @@ fun BuildWordTaskScreen(
             buildWordTask.letters.forEach { letter ->
                 CustomTaskButton(
                     letter,
-                    isSelected = selectedLetters.contains(letter),
                     onClick = {
-                        viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters + letter))
+                        if (answer == null)
+                            viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters + letter))
                     }
                 )
             }
+            CustomTaskButton(
+                text = "␣",
+                onClick = {
+                    if (answer == null)
+                        viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters + " "))
+                },
+            )
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChooseTranslationTaskScreen(
     modifier: Modifier = Modifier,
-    chooseTranslationTask: ChooseTranslationTask,
+    singleChoiceTask: SingleChoiceTask,
     selectedWord: String,
     viewModel: TasksViewModel,
     answer: Boolean?
@@ -296,7 +396,6 @@ fun ChooseTranslationTaskScreen(
     Column(
         modifier = modifier
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -306,23 +405,87 @@ fun ChooseTranslationTaskScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = chooseTranslationTask.word,
+                text = singleChoiceTask.question,
                 fontSize = Dimens.TextSize_24,
                 textAlign = TextAlign.Center
             )
         }
-        FlowColumn(
+        Column(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            chooseTranslationTask.options.forEach { word ->
+            singleChoiceTask.options.forEach { word ->
                 CustomBoxTaskButton(
-                    onClick = { viewModel.dispatch(TasksMsg.SelectedWordChanged(word)) },
+                    onClick = {
+                        if (answer == null)
+                            viewModel.dispatch(TasksMsg.SelectedSingleWordChanged(word))
+                    },
                     text = word,
-                    backgroundColor = if (word == selectedWord) Grey92 else Color.Transparent,
+                    backgroundColor = if (word == selectedWord) MaterialTheme.colorScheme.surface else Color.Transparent,
                     borderColor = when (answer) {
-                        true -> if (word == selectedWord) Green else Color.Transparent
-                        false -> if (word == selectedWord) Color.Red else if (word == chooseTranslationTask.correctTranslation) Green else Color.Transparent
-                        null -> Color.Transparent
+                        true -> if (word == selectedWord) Green else MaterialTheme.colorScheme.outline
+                        false -> if (word == selectedWord) Red else if (word == singleChoiceTask.correctTranslation) Green else MaterialTheme.colorScheme.outline
+                        null -> MaterialTheme.colorScheme.outline
+                    }
+                )
+                Spacer(modifier = Modifier.height(Dimens.Padding_16))
+            }
+        }
+    }
+}
+
+@Composable
+fun MultipleChoiceTaskScreen(
+    modifier: Modifier = Modifier,
+    multipleChoiceTask: MultipleChoiceTask,
+    selectedOptions: List<String>,
+    viewModel: TasksViewModel,
+    answer: Boolean?
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = multipleChoiceTask.question,
+                fontSize = Dimens.TextSize_24,
+                textAlign = TextAlign.Center
+            )
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            multipleChoiceTask.options.forEach { option ->
+                val isSelected = selectedOptions.contains(option)
+                CustomBoxTaskButton(
+                    onClick = {
+                        if (answer == null)
+                            viewModel.dispatch(TasksMsg.SelectedMultipleWordsChanged(option))
+                    },
+                    text = option,
+                    backgroundColor = if (isSelected) MaterialTheme.colorScheme.surface else Color.Transparent,
+                    borderColor = when (answer) {
+                        true -> {
+                            if (isSelected) Green else MaterialTheme.colorScheme.outline
+                        }
+
+                        false -> {
+                            when {
+                                multipleChoiceTask.correctTranslation.contains(option) -> Green
+                                isSelected -> Red
+                                else -> MaterialTheme.colorScheme.outline
+                            }
+                        }
+
+                        null -> {
+                            if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                        }
                     }
                 )
                 Spacer(modifier = Modifier.height(Dimens.Padding_16))

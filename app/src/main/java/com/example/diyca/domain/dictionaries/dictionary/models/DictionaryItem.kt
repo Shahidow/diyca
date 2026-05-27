@@ -7,6 +7,12 @@ sealed class DictionaryItem {
     abstract val isFavorite: Boolean
     abstract val audio: String?
 
+    fun matches(query: String): Boolean {
+        if (query.isBlank()) return true
+        return original.contains(query, ignoreCase = true) ||
+                translation.contains(query, ignoreCase = true)
+    }
+
     data class PhrasebookItem(
         val parentId: Int,
         override val id: Int,

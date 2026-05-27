@@ -1,39 +1,25 @@
 package com.example.diyca.data.network
 
-import com.example.diyca.data.dto.requests.ChangeProfileRequest
-import com.example.diyca.data.dto.requests.LoginRequest
-import com.example.diyca.data.dto.requests.PasswordResetRequest
-import com.example.diyca.data.dto.responses.LoginResponse
-import com.example.diyca.data.dto.requests.RegistrationRequest
-import com.example.diyca.data.dto.requests.RemoveProfileRequest
-import com.example.diyca.data.dto.requests.ResetPasswordRequest
-import com.example.diyca.data.dto.requests.VerifyResetCodeRequest
-import com.example.diyca.data.dto.responses.VerifyResetCodeResponse
+import com.example.diyca.data.dto.user_data.ActivityResponse
+import com.example.diyca.data.dto.user_data.ProgressResponse
+import com.example.diyca.data.dto.user_data.RewardsResponse
+import com.example.diyca.data.dto.user_data.SetProgressRequest
+import com.example.diyca.data.dto.user_data.SetProgressResponse
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.HTTP
-import retrofit2.http.PATCH
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface UserApi {
-    @POST("/auth/login")
-    suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
+    @GET("/learn/progress/tree")
+    suspend fun getProgress(): Response<ProgressResponse>
 
-    @POST("/auth/register")
-    suspend fun registration(@Body registrationRequest: RegistrationRequest): Response<Unit>
+    @POST("/learn/progress/solved")
+    suspend fun setProgress(@Body request: SetProgressRequest): Response<SetProgressResponse>
 
-    @HTTP(method = "DELETE", path = "/auth/remove-profile", hasBody = true)
-    suspend fun removeProfile(@Body removeProfileRequest: RemoveProfileRequest):Response<Unit>
+    @GET("/learn/activity/calendar")
+    suspend fun getActivity(): Response<ActivityResponse>
 
-    @PATCH("/auth/change-profile")
-    suspend fun changeProfile(@Body request: ChangeProfileRequest): Response<Unit>
-
-    @POST("/auth/forgot-password")
-    suspend fun passwordReset(@Body passwordResetRequest: PasswordResetRequest): Response<Unit>
-
-    @POST("/auth/forgot-password/confirm")
-    suspend fun verifyResetCode(@Body verifyResetCodeRequest: VerifyResetCodeRequest): Response<VerifyResetCodeResponse>
-
-    @POST("/auth/forgot-password/reset")
-    suspend fun resetPassword(@Body resetPasswordRequest: ResetPasswordRequest): Response<Unit>
+    @GET("/learn/rewards")
+    suspend fun getRewards(): Response<RewardsResponse>
 }

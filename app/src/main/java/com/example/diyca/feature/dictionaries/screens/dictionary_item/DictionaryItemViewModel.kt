@@ -4,15 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.diyca.domain.favorites.FavoritesInteractor
 import com.example.diyca.domain.dictionaries.dictionary.DictionaryInteractor
+import com.example.diyca.domain.phrasebooks.PhrasebookItemsInteractor
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 
 class DictionaryItemViewModel(
+    private val phrasebookItemsInteractor: PhrasebookItemsInteractor,
     private val dictionaryInteractor: DictionaryInteractor,
     private val favoritesInteractor: FavoritesInteractor
 ) : ViewModel() {
@@ -28,19 +29,17 @@ class DictionaryItemViewModel(
                 viewModelScope.launch {
                     val flow = if (msg.itemData.isFavorites) {
                         favoritesInteractor.getFavoritesItems(msg.itemData.type)
+                    } else if (msg.itemData.parentId != null) {
+                        phrasebookItemsInteractor.getPhrasebookItems(msg.itemData.parentId)
                     } else {
                         dictionaryInteractor.getDictionary(msg.itemData.type)
                     }
-                    try {
-                        flow.collect { items ->
-                            val initialItem = items.firstOrNull { it.id == msg.itemData.id }
-                            _state.update {
-                                it.copy(currentItem = initialItem)
-                            }
-                            dispatch(DictionaryItemMsg.DataLoaded(items))
+                    flow.collect { items ->
+                        val initialItem = items.firstOrNull { it.id == msg.itemData.id }
+                        _state.update {
+                            it.copy(currentItem = initialItem)
                         }
-                    } catch (e: IOException) {
-                        // TODO: handle error
+                        dispatch(DictionaryItemMsg.DataLoaded(items))
                     }
                 }
             }

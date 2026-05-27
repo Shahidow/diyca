@@ -30,8 +30,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.diyca.R
 import com.example.diyca.ui.theme.Dimens
-import com.example.diyca.ui.theme.Grey96
-import com.example.diyca.ui.theme.White
 
 @Composable
 fun CustomTextButtonColored(
@@ -43,8 +41,8 @@ fun CustomTextButtonColored(
     Text(
         text = text,
         modifier = modifier.clickable { onClick() },
+        style = MaterialTheme.typography.labelLarge,
         color = color,
-        fontSize = Dimens.TextSize_16
     )
 }
 
@@ -73,26 +71,34 @@ fun CustomButtonColored(
         contentPadding = PaddingValues(0.dp)
     ) {
         Box(
-            modifier = if (isOutlined) {
-                boxModifier.background(
-                    color = Color.Transparent
-                )
-            } else {
-                boxModifier.background(
-                    brush = Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to MaterialTheme.colorScheme.tertiary,
-                            0.5f to MaterialTheme.colorScheme.primary
+            modifier = boxModifier
+                .then(
+                    if (isOutlined) {
+                        Modifier.background(Color.Transparent)
+                    } else {
+                        Modifier.background(
+                            brush = Brush.verticalGradient(
+                                colorStops = arrayOf(
+                                    0.0f to MaterialTheme.colorScheme.tertiary,
+                                    0.5f to MaterialTheme.colorScheme.primary
+                                )
+                            )
                         )
-                    )
+                    }
                 )
-            },
+                .then(
+                    if (!isEnabled) {
+                        Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+                    } else {
+                        Modifier
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = text,
-                color = if (isOutlined) MaterialTheme.colorScheme.primary else White,
-                fontSize = Dimens.TextSize_16
+                style = MaterialTheme.typography.labelLarge,
+                color = if (isOutlined) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary,
             )
         }
     }
@@ -104,12 +110,13 @@ fun CustomTaskButton(
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     onClick: () -> Unit,
+    color: Color = MaterialTheme.colorScheme.background
 ) {
     Surface(
         onClick = onClick,
         enabled = !isSelected,
         shape = RoundedCornerShape(Dimens.RoundedCorner_10),
-        color = MaterialTheme.colorScheme.background,
+        color = color,
         contentColor = MaterialTheme.colorScheme.onBackground,
         modifier = modifier
             .wrapContentSize()
@@ -122,7 +129,8 @@ fun CustomTaskButton(
         ) {
             Text(
                 text = text,
-                fontSize = Dimens.TextSize_16
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }
@@ -138,14 +146,14 @@ fun CustomSectionButton(
         onClick = onClick,
         shape = RoundedCornerShape(Dimens.RoundedCorner_16),
         color = if (isSelected) {
-            MaterialTheme.colorScheme.secondary
+            MaterialTheme.colorScheme.outline
         } else {
-            Grey96
+            MaterialTheme.colorScheme.secondary
         },
         contentColor = if (isSelected) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.onBackground
         } else {
-            Color.Black
+            MaterialTheme.colorScheme.primary
         },
         modifier = Modifier
             .wrapContentSize()
@@ -157,7 +165,7 @@ fun CustomSectionButton(
         ) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.labelLarge,
             )
         }
     }
@@ -165,17 +173,18 @@ fun CustomSectionButton(
 
 @Composable
 fun CustomBackButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
             .size(Dimens.Padding_32)
             .clickable { onClick() }
             .background(color = Color.Transparent)
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                 shape = RoundedCornerShape(Dimens.RoundedCorner_8)
             )
     ) {

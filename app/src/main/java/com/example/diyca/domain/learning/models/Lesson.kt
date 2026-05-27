@@ -1,12 +1,12 @@
 package com.example.diyca.domain.learning.models
 
 data class Lesson(
-    val id: Int,
+    val id: String,
+    val number: Int,
     val title: String,
-    val lessonsAmount: Int,
-    val newWordsAmount: Int,
-    val pic: String,
     val text: String,
-    val lessonsList: List<LessonSection>
+    val image: String?,
+    val audio: String?,
+    val tasksCount: Int,
+    val progress: Float = 0f
 )
-

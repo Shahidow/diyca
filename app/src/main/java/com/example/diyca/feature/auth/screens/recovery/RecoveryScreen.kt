@@ -1,6 +1,5 @@
 package com.example.diyca.feature.auth.screens.recovery
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,18 +22,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import com.example.diyca.R
-import com.example.diyca.ui.navigation.ScreenRoutes
 import com.example.diyca.ui.coponents.CustomBackButton
 import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomTextButtonColored
 import com.example.diyca.ui.coponents.CustomTextField
+import com.example.diyca.ui.navigation.popBackStackSafe
 import com.example.diyca.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
 
@@ -42,26 +39,16 @@ import org.koin.androidx.compose.koinViewModel
 fun RecoveryScreen(navHostController: NavHostController) {
     val viewModel: RecoveryViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
-    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect {
             when (it) {
-                is RecoveryEffect.ShowToast -> Toast.makeText(
-                    context,
-                    it.message,
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                is RecoveryEffect.ClickBack -> navHostController.navigate(ScreenRoutes.LoginRout) {
-                    launchSingleTop = true
-                }
+                is RecoveryEffect.ClickBack -> navHostController.popBackStackSafe()
             }
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -85,7 +72,7 @@ fun RecoveryScreen(navHostController: NavHostController) {
             ) {
 
                 Image(
-                    painter = painterResource(R.drawable.ic_logo_hadiyca),
+                    painter = painterResource(R.drawable.ic_logo_diyca),
                     contentDescription = null,
                     modifier = Modifier.fillMaxWidth(0.75f)
                 )
@@ -93,22 +80,24 @@ fun RecoveryScreen(navHostController: NavHostController) {
 
                 Text(
                     stringResource(state.screenType.previewText),
-                    fontSize = Dimens.TextSize_24,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
                 Spacer(modifier = Modifier.height(Dimens.Padding_16))
 
                 Text(
                     stringResource(state.screenType.meinText),
                     maxLines = 2,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(Dimens.Padding_16))
 
                 Text(
-                    text = state.error?.let { context.getString(it) } ?: "",
-                    fontSize = Dimens.TextSize_10,
+                    text = state.error?.let { stringResource(it) } ?: "",
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .align(Alignment.Start)

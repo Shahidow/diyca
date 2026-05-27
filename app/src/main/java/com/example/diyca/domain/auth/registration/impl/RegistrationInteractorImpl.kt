@@ -9,6 +9,6 @@ import kotlinx.coroutines.flow.first
 class RegistrationInteractorImpl(private val authRepository: AuthRepository) :
     RegistrationInteractor {
     override suspend fun registration(registrationData: RegistrationData): Resource<Unit> {
-        return authRepository.registration(registrationData).first()
+        return authRepository.registration(registrationData)
     }
 }

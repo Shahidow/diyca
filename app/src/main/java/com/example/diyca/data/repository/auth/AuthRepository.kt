@@ -8,14 +8,13 @@ import com.example.diyca.domain.auth.recovery.models.ResetPasswordData
 import com.example.diyca.domain.auth.recovery.models.VerifyResetCodeData
 import com.example.diyca.domain.home.settings.models.ChangeProfileData
 import com.example.diyca.domain.home.settings.models.RemoveProfileData
-import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
-    fun login(loginData: LoginData): Flow<Resource<UserData>>
-    fun registration(registrationData: RegistrationData): Flow<Resource<Unit>>
-    fun removeProfile(removeProfileData: RemoveProfileData): Flow<Resource<Unit>>
-    fun changeProfile(changeProfileData: ChangeProfileData): Flow<Resource<Unit>>
-    fun passwordReset(email: String): Flow<Resource<Unit>>
-    fun verifyResetCode(email: String, code: String): Flow<Resource<VerifyResetCodeData>>
-    fun resetPassword(resetPasswordData: ResetPasswordData): Flow<Resource<Unit>>
+    suspend fun login(loginData: LoginData): Resource<UserData>
+    suspend fun registration(registrationData: RegistrationData): Resource<Unit>
+    suspend fun removeProfile(removeProfileData: RemoveProfileData): Resource<Unit>
+    suspend fun changeProfile(changeProfileData: ChangeProfileData): Resource<Unit>
+    suspend fun passwordReset(email: String): Resource<Unit>
+    suspend fun verifyResetCode(email: String, code: String): Resource<VerifyResetCodeData>
+    suspend fun resetPassword(resetPasswordData: ResetPasswordData): Resource<Unit>
 }

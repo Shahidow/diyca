@@ -16,12 +16,6 @@ interface ExpressionDao {
     @Insert(entity = ExpressionEntity::class, OnConflictStrategy.REPLACE)
     suspend fun insertExpression(expressionEntity: ExpressionEntity)
 
-    @Query("SELECT * FROM expression_table WHERE id = :id")
-    suspend fun getExpressionById(id: Int): ExpressionEntity
-
-    @Query("SELECT id FROM expression_table")
-    suspend fun getExpressionsIds(): List<Int>
-
     @Update
     suspend fun updateExpression(expressionEntity: ExpressionEntity)
 

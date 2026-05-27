@@ -16,12 +16,6 @@ interface WordDao {
     @Insert(entity = WordEntity::class, OnConflictStrategy.REPLACE)
     suspend fun insertWord(wordEntity: WordEntity)
 
-    @Query("SELECT * FROM word_table WHERE id = :id")
-    suspend fun getWordById(id: Int): WordEntity
-
-    @Query("SELECT id FROM word_table")
-    suspend fun getWordsIds(): List<Int>
-
     @Update
     suspend fun updateWord(wordEntity: WordEntity)
 

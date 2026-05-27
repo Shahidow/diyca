@@ -19,11 +19,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.diyca.ui.navigation.navigateToTab
 import com.example.diyca.ui.theme.Dimens
-import com.example.diyca.ui.theme.White
 
 @Composable
 fun BottomNavigation(
@@ -38,7 +36,7 @@ fun BottomNavigation(
         BottomItem.Screen5,
     )
     NavigationBar(
-        containerColor = White
+        containerColor = MaterialTheme.colorScheme.background
     ) {
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = backStackEntry?.destination
@@ -66,10 +64,10 @@ fun BottomNavigation(
                     Text(text = context.getString(item.title), fontSize = Dimens.TextSize_10)
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,      // Цвет иконки в активном состоянии
-                    unselectedIconColor = Color.Black,   // Цвет иконки в неактивном состоянии
-                    selectedTextColor = MaterialTheme.colorScheme.primary,      // Цвет текста в активном состоянии
-                    unselectedTextColor = Color.Black,    // Цвет текста в неактивном состоянии
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onBackground,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedTextColor = MaterialTheme.colorScheme.onBackground,
                     indicatorColor = Color.Transparent
                 )
             )

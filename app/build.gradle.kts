@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.example.diyca"
         minSdk = 29
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -43,13 +43,20 @@ android {
 }
 
 dependencies {
-    implementation("androidx.navigation:navigation-compose:2.8.6")
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0")
+    implementation("androidx.navigation:navigation-compose:2.9.8")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
     implementation("com.airbnb.android:lottie-compose:6.6.2")
     implementation("androidx.compose.material:material-icons-extended")
 
+    //Markdown
+    implementation("com.halilibo.compose-richtext:richtext-ui-material3:0.20.0")
+    implementation("com.halilibo.compose-richtext:richtext-commonmark:0.20.0")
+
+    //Core Splashscreen
+    implementation("androidx.core:core-splashscreen:1.2.0")
+
     //DataStore
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
 
     //Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -61,11 +68,11 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:3.5.0")
 
     //room
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
     implementation(libs.androidx.lifecycle.compiler) // Kotlin Extensions and Coroutines support
     //ksp("androidx.room:room-compiler:2.6.1") // Room compiler with KSP
-    kapt("androidx.room:room-compiler:2.6.1")
+    kapt("androidx.room:room-compiler:2.8.4")
 
     //Coil
     implementation("io.coil-kt:coil-compose:2.5.0")

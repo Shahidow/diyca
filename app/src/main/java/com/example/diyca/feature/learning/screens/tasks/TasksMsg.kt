@@ -1,15 +1,19 @@
 package com.example.diyca.feature.learning.screens.tasks
 
-import com.example.diyca.domain.learning.models.task_type.Task
+import com.example.diyca.ui.navigation.ScreenRoutes
+import com.example.diyca.util.ErrorType
 
 
 sealed class TasksMsg {
-    object LoadData : TasksMsg()
-    data class DataLoaded(val items: List<Task>) : TasksMsg()
-    data class Error(val message: String) : TasksMsg()
+    data class LoadData(val tasksRout: ScreenRoutes.TasksRout) : TasksMsg()
+    data class Error(val errorType: ErrorType) : TasksMsg()
     data class SelectedWordsChanged(val wordsList: List<String>) : TasksMsg()
     data class SelectedLettersChanged(val lettersList: List<String>) : TasksMsg()
-    data class SelectedWordChanged(val word: String) : TasksMsg()
+    data class SelectedSingleWordChanged(val word: String) : TasksMsg()
+    data class SelectedMultipleWordsChanged(val word: String) : TasksMsg()
     data class ActionButtonClicked(val data: String) : TasksMsg()
-    object SkipButtonClicked : TasksMsg()
+    data object CloseClicked : TasksMsg()
+    data object CloseTasks : TasksMsg()
+    data object DismissDialogs : TasksMsg()
+    data object SkipButtonClicked : TasksMsg()
 }

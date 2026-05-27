@@ -16,12 +16,6 @@ interface ProverbDao {
     @Insert(entity = ProverbEntity::class, OnConflictStrategy.REPLACE)
     suspend fun insertProverb(proverbEntity: ProverbEntity)
 
-    @Query("SELECT * FROM proverb_table WHERE id = :id")
-    suspend fun getProverbById(id: Int): ProverbEntity
-
-    @Query("SELECT id FROM proverb_table")
-    suspend fun getProverbsIds(): List<Int>
-
     @Update
     suspend fun updateProverb(proverbEntity: ProverbEntity)
 

@@ -20,13 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
@@ -34,9 +31,8 @@ import com.example.diyca.R
 import com.example.diyca.ui.navigation.ScreenRoutes
 import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryItem
 import com.example.diyca.ui.coponents.CustomBoxIconButton
+import com.example.diyca.ui.navigation.popBackStackSafe
 import com.example.diyca.ui.theme.Dimens
-import com.example.diyca.ui.theme.Grey
-import com.example.diyca.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -47,23 +43,14 @@ fun DictionaryItemScreen(
     val viewModel: DictionaryItemViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
 
-    val favoriteIcon = remember(state.currentItem) {
-        derivedStateOf {
-            if (state.currentItem?.isFavorite == true)
-                R.drawable.ic_favorites
-            else
-                R.drawable.ic_not_favorites
-        }
-    }
-
     LaunchedEffect(Unit) {
         viewModel.dispatch(
             DictionaryItemMsg.LoadData(itemData)
         )
         viewModel.effects.collect { effect ->
             when (effect) {
-                is DictionaryItemEffect.ShowToast -> TODO()
-                is DictionaryItemEffect.NavigateBack -> navHostController.popBackStack()
+                is DictionaryItemEffect.ShowToast -> {}
+                is DictionaryItemEffect.NavigateBack -> navHostController.popBackStackSafe()
             }
         }
     }
@@ -77,14 +64,12 @@ fun DictionaryItemScreen(
         pageCount = { state.items.size }
     )
 
-    // скролл к нужной странице после инициализации
     LaunchedEffect(initialPage) {
         if (initialPage != pagerState.currentPage) {
             pagerState.scrollToPage(initialPage)
         }
     }
 
-    // Отслеживание текущей страницы
     LaunchedEffect(state.items, pagerState.currentPage) {
         state.items.getOrNull(pagerState.currentPage)?.let { item ->
             viewModel.dispatch(DictionaryItemMsg.ChangeCurrentItem(item))
@@ -125,7 +110,8 @@ fun DictionaryItemScreen(
                     viewModel.dispatch(DictionaryItemMsg.UpdateFavorite(it))
                 }
             },
-            painter = favoriteIcon.value,
+            painter = if (state.currentItem?.isFavorite == true) R.drawable.ic_favorites else R.drawable.ic_favorites_not,
+            tint = if (state.currentItem?.isFavorite == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .constrainAs(favorite) {
                     end.linkTo(parent.end, margin = Dimens.Padding_32)
@@ -156,7 +142,10 @@ fun CardItem(item: DictionaryItem) {
                 elevation = Dimens.Padding_4,
                 shape = RoundedCornerShape(Dimens.RoundedCorner_20)
             )
-            .background(White, shape = RoundedCornerShape(Dimens.RoundedCorner_20))
+            .background(
+                MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(Dimens.RoundedCorner_20)
+            )
 
     ) {
         Column(
@@ -166,20 +155,24 @@ fun CardItem(item: DictionaryItem) {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = item.original, fontSize = 20.sp)
+            Text(
+                text = item.original,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
             Spacer(modifier = Modifier.height(Dimens.Padding_16))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Grey)
-                    .height(2.dp)
+                    .background(MaterialTheme.colorScheme.onSurface)
+                    .height(Dimens.Size_2)
             ) { }
             Spacer(modifier = Modifier.height(Dimens.Padding_16))
             Text(
                 text = item.translation,
-                fontSize = 20.sp
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
-
     }
 }

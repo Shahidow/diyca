@@ -16,12 +16,6 @@ interface PhrasebookItemDao {
     @Insert(entity = PhrasebookItemEntity::class, OnConflictStrategy.REPLACE)
     suspend fun insertPhrasebookItem(conversationItemEntity: PhrasebookItemEntity)
 
-    @Query("SELECT * FROM phrasebook_item_table WHERE id = :id")
-    suspend fun getPhrasebookItemById(id: Int): PhrasebookItemEntity
-
-    @Query("SELECT id FROM phrasebook_item_table")
-    suspend fun getFavoritesPhrasebookItemsIds(): List<Int>
-
     @Update
     suspend fun updatePhrasebookItem(phrasebookItemEntity: PhrasebookItemEntity)
 

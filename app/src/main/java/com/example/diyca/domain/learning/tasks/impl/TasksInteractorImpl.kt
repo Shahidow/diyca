@@ -1,33 +1,33 @@
 package com.example.diyca.domain.learning.tasks.impl
 
-import com.example.diyca.domain.learning.models.task_type.BuildSentenceTask
-import com.example.diyca.domain.learning.models.task_type.BuildWordTask
-import com.example.diyca.domain.learning.models.task_type.ChooseTranslationTask
+import com.example.diyca.data.repository.learning.LearningRepository
+import com.example.diyca.data.repository.userdata.UserDataBaseRepository
 import com.example.diyca.domain.learning.models.task_type.Task
 import com.example.diyca.domain.learning.tasks.TasksInteractor
+import com.example.diyca.util.Resource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
-class TasksInteractorImpl: TasksInteractor {
-    override fun getTasksList(): List<Task> {
-        return listOf(
-            BuildSentenceTask(
-                id = "1",
-                sentence = "Мое любимое блюдо это шашлык",
-                correctTranslation = "Мое любимое блюдо это шашлык",
-                words = listOf("Мое","любимое","блюдо","это","шашлык","лосось","кукуруза","хлеб","она","кинза","деревянная нога")
-            ),
-            BuildWordTask(
-                id = "2",
-                word = "Шашлык",
-                correctTranslation = "Шашлык",
-                letters = listOf("Къ","А","Ш","Л","К","К1","П1","Р","О","П","С","Т","И","Кх","Яь","З","1","Е")
-            ),
-            ChooseTranslationTask(
-                id = "3",
-                word = "шашлык и деревянная нога",
-                options = listOf("шашлык","дерево","нога","шашлык и деревянная нога"),
-                correctTranslation = "шашлык и деревянная нога"
-            )
-        )
+class TasksInteractorImpl(
+    private val learningRepository: LearningRepository,
+    private val userDataBaseRepository: UserDataBaseRepository
+    ): TasksInteractor {
+
+    override fun getTasksList(lessonId: String, isContinue: Boolean): Flow<Resource<List<Task>>> = flow {
+        val tasksResource = learningRepository.getTasks(lessonId)
+        if (tasksResource is Resource.Error) {
+            emit(Resource.Error(tasksResource.errorType, tasksResource.resultCode))
+            return@flow
+        }
+        val allTasks = (tasksResource as Resource.Success).data.orEmpty()
+        if (isContinue) {
+            userDataBaseRepository.getProgressByLesson(lessonId).collect { completedProgress ->
+                val completedIds = completedProgress.map { it.taskId }.toSet()
+                val filteredTasks = allTasks.filter { it.id !in completedIds }
+                emit(Resource.Success(filteredTasks))
+            }
+        } else {
+            emit(Resource.Success(allTasks))
+        }
     }
-
 }

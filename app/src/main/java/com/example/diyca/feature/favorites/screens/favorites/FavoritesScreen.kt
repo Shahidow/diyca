@@ -1,7 +1,7 @@
 package com.example.diyca.feature.favorites.screens.favorites
 
-import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -26,11 +29,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.diyca.R
 import com.example.diyca.ui.navigation.ScreenRoutes
@@ -38,29 +47,58 @@ import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryItem
 import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryType
 import com.example.diyca.ui.coponents.CustomBoxForDictionaries
 import com.example.diyca.ui.coponents.CustomSectionButton
+import com.example.diyca.ui.navigation.navigateSafe
 import com.example.diyca.ui.theme.Dimens
-import com.example.diyca.ui.theme.Grey
-import com.example.diyca.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun FavoritesScreen(navHostController: NavHostController) {
     val viewModel: FavoritesViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
-    val context = LocalContext.current
+    val sections = FavoritesButtonItems.all.map { it.type }
+    val pagerState = rememberPagerState(
+        initialPage = sections.indexOf(state.selectedSection).coerceAtLeast(0),
+        pageCount = { sections.size }
+    )
+    var isProgrammaticScroll by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is FavoritesEffect.ShowToast -> TODO()
-                is FavoritesEffect.NavigateToItem -> navHostController.navigate(
-                    ScreenRoutes.DictionaryItemRout(
-                        id = effect.item.id,
-                        isFavorites = true,
-                        type = state.selectedSection
-                    ),
-                )
+                is FavoritesEffect.NavigateToItem -> {
+                    focusManager.clearFocus()
+                    navHostController.navigateSafe(
+                        ScreenRoutes.DictionaryItemRout(
+                            id = effect.item.id,
+                            isFavorites = true,
+                            type = state.selectedSection
+                        )
+                    )
+                }
             }
+        }
+    }
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }
+            .collect { page ->
+                if (!isProgrammaticScroll) {
+                    val newSection = sections[page]
+                    if (state.selectedSection != newSection) {
+                        viewModel.dispatch(FavoritesMsg.InternalNavigate(newSection))
+                    }
+                }
+            }
+    }
+
+    LaunchedEffect(state.selectedSection) {
+        focusManager.clearFocus()
+        val targetPage = sections.indexOf(state.selectedSection)
+        if (targetPage != -1 && pagerState.currentPage != targetPage) {
+            isProgrammaticScroll = true
+            pagerState.animateScrollToPage(targetPage)
+            isProgrammaticScroll = false
         }
     }
 
@@ -68,15 +106,51 @@ fun FavoritesScreen(navHostController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondary)
+            .pointerInput(Unit) { detectTapGestures(onTap = { focusManager.clearFocus() }) }
     ) {
-        FavoritesTitle(state, viewModel, context)
+        FavoritesTitle(state, viewModel, focusManager)
         FavoritesSearch(state, viewModel)
-        when (state.selectedSection) {
-            DictionaryType.EXPRESSION -> FavoritesItems(state.expressions, state, viewModel)
-            DictionaryType.PHRASEBOOK -> FavoritesItems(state.phrasebookItems, state, viewModel)
-            DictionaryType.PROVERB -> FavoritesItems(state.proverbs, state, viewModel)
-            DictionaryType.WORD -> FavoritesItems(state.words, state, viewModel)
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.Top
+        ) { pageIndex ->
+            val currentType = sections[pageIndex]
+            val filteredList = when (currentType) {
+                DictionaryType.EXPRESSION -> state.filteredExpressions
+                DictionaryType.PHRASEBOOK -> state.filteredPhrasebookItems
+                DictionaryType.PROVERB -> state.filteredProverbs
+                DictionaryType.WORD -> state.filteredWords
+            }
+            val currentList = when (currentType) {
+                DictionaryType.EXPRESSION -> state.expressions
+                DictionaryType.PHRASEBOOK -> state.phrasebookItems
+                DictionaryType.PROVERB -> state.proverbs
+                DictionaryType.WORD -> state.words
+            }
+            if (currentList.isEmpty()) {
+                FavoritesEmpty()
+            } else if (filteredList.isEmpty()) {
+                FavoritesEmpty(false)
+            } else {
+                FavoritesItems(filteredList, viewModel, focusManager)
+            }
         }
+    }
+}
+
+@Composable
+fun FavoritesEmpty(isEmpty: Boolean = true) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = if (isEmpty) stringResource(R.string.empty_list) else stringResource(R.string.nothing_was_found),
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+        )
     }
 }
 
@@ -84,13 +158,22 @@ fun FavoritesScreen(navHostController: NavHostController) {
 fun FavoritesTitle(
     state: FavoritesState,
     viewModel: FavoritesViewModel,
-    context: Context
+    focusManager: FocusManager
 ) {
+    val listState = rememberLazyListState()
+    val sections = FavoritesButtonItems.all
+    LaunchedEffect(state.selectedSection) {
+        val index = sections.indexOfFirst { it.type == state.selectedSection }
+        if (index != -1) {
+            listState.animateScrollToItem(index)
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                White, shape = RoundedCornerShape(
+                color = MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(
                     bottomStart = Dimens.RoundedCorner_20,
                     bottomEnd = Dimens.RoundedCorner_20
                 )
@@ -99,19 +182,21 @@ fun FavoritesTitle(
     ) {
         Text(
             stringResource(R.string.favorites),
-            fontSize = Dimens.TextSize_20,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(Dimens.Padding_8)
         )
         Spacer(modifier = Modifier.height(Dimens.Padding_12))
         LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-
-            ) {
+            state = listState,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             itemsIndexed(FavoritesButtonItems.all) { _, item ->
                 CustomSectionButton(
-                    context.getString(item.title),
+                    stringResource(item.title),
                     state.selectedSection == item.type,
                     onClick = {
+                        focusManager.clearFocus()
                         if (state.selectedSection != item.type) {
                             viewModel.dispatch(FavoritesMsg.InternalNavigate(item.type))
                         }
@@ -125,74 +210,82 @@ fun FavoritesTitle(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesSearch(state: FavoritesState, viewModel: FavoritesViewModel) {
-    val searchText = when (state.selectedSection) {
-        DictionaryType.EXPRESSION -> state.searchExpression
-        DictionaryType.PHRASEBOOK -> state.searchConversationItems
-        DictionaryType.PROVERB -> state.searchProverb
-        DictionaryType.WORD -> state.searchWord
-    }
     SearchBar(
-        windowInsets = WindowInsets(top = 0.dp),
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = state.currentSearchText,
+                onQueryChange = { text ->
+                    viewModel.dispatch(FavoritesMsg.SearchText(text, state.selectedSection))
+                },
+                onSearch = { },
+                expanded = false,
+                onExpandedChange = { },
+                placeholder = {
+                    Text(
+                        stringResource(R.string.search),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                colors = SearchBarDefaults.inputFieldColors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                )
+            )
+        },
+        expanded = false,
+        onExpandedChange = { },
         modifier = Modifier
             .fillMaxWidth()
             .padding(Dimens.Padding_16),
-        query = searchText,
-        onQueryChange = { text ->
-            viewModel.dispatch(FavoritesMsg.SearchText(text, state.selectedSection))
-        },
-        onSearch = { },
-        placeholder = {
-            Text(stringResource(R.string.search), color = Grey, fontSize = 14.sp)
-        },
-        active = false,
-        onActiveChange = { },
         colors = SearchBarDefaults.colors(
-            containerColor = White
+            containerColor = MaterialTheme.colorScheme.background,
+            dividerColor = Color.Transparent
         ),
         shape = RoundedCornerShape(Dimens.RoundedCorner_12),
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null,
-                tint = Grey
-            )
-        }
+        windowInsets = WindowInsets(top = Dimens.ZeroSize)
     ) {}
 }
 
 @Composable
 fun FavoritesItems(
     list: List<DictionaryItem>,
-    state: FavoritesState,
-    viewModel: FavoritesViewModel
+    viewModel: FavoritesViewModel,
+    focusManager: FocusManager
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = Dimens.Padding_16),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(Dimens.Padding_8)
     ) {
-        val searchText = when (state.selectedSection) {
-            DictionaryType.EXPRESSION -> state.searchExpression
-            DictionaryType.PHRASEBOOK -> state.searchConversationItems
-            DictionaryType.PROVERB -> state.searchProverb
-            DictionaryType.WORD -> state.searchWord
-        }
         itemsIndexed(list) { _, item ->
-            if (item.original.contains(searchText, ignoreCase = true)) {
-                CustomBoxForDictionaries(
-                    onClick = { viewModel.dispatch(FavoritesMsg.NavigateToItem(item)) },
-                    isVoiced = !item.audio.isNullOrEmpty(),
-                    isFavorites = item.isFavorite,
-                    title = item.original,
-                    subtitle = item.translation,
-                    isTwoLines = item !is DictionaryItem.Word,
-                    onFavoritesClick = {
-                        viewModel.dispatch(FavoritesMsg.DeleteFromFavorites(item))
-                    },
-                    onSoundClick = { },
-                )
-            }
+            CustomBoxForDictionaries(
+                onClick = {
+                    focusManager.clearFocus()
+                    viewModel.dispatch(FavoritesMsg.NavigateToItem(item))
+                },
+                isVoiced = !item.audio.isNullOrEmpty(),
+                isFavorites = item.isFavorite,
+                title = item.original,
+                subtitle = item.translation,
+                isTwoLines = item !is DictionaryItem.Word,
+                onFavoritesClick = {
+                    focusManager.clearFocus()
+                    viewModel.dispatch(FavoritesMsg.DeleteFromFavorites(item))
+                },
+                onSoundClick = {
+                    focusManager.clearFocus()
+                },
+            )
         }
+        item { Spacer(modifier = Modifier.height(Dimens.Padding_8)) }
     }
 }

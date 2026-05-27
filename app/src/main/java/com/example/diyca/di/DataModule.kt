@@ -9,9 +9,14 @@ import com.example.diyca.data.db.userdata.UserDataConverter
 import com.example.diyca.data.db.userdata.UserDatabase
 import com.example.diyca.data.mappers.AuthRequestMapper
 import com.example.diyca.data.mappers.AuthResponseMapper
-import com.example.diyca.data.network.AuthApi
+import com.example.diyca.data.mappers.LearningResponseMapper
+import com.example.diyca.data.mappers.UserDataMapper
+import com.example.diyca.data.network.TokenApi
 import com.example.diyca.data.network.AuthInterceptor
+import com.example.diyca.data.network.LearningApi
 import com.example.diyca.data.network.TokenAuthenticator
+import com.example.diyca.data.network.AuthApi
+import com.example.diyca.data.network.DictionaryApi
 import com.example.diyca.data.network.UserApi
 import com.example.diyca.data.prefs.UserPrefsRepository
 import com.example.diyca.data.prefs.UserPrefsRepositoryImpl
@@ -19,12 +24,18 @@ import com.example.diyca.data.repository.auth.AuthRepository
 import com.example.diyca.data.repository.auth.TokenStorage
 import com.example.diyca.data.repository.auth.impl.AuthRepositoryImpl
 import com.example.diyca.data.repository.auth.impl.TokenStorageImpl
-import com.example.diyca.data.repository.dictionaries.DictionaryRepository
-import com.example.diyca.data.repository.dictionaries.DictionaryRepositoryImpl
+import com.example.diyca.data.repository.dictionaries.DictionaryDataBaseRepository
+import com.example.diyca.data.repository.dictionaries.DictionaryNetworkRepository
+import com.example.diyca.data.repository.dictionaries.impl.DictionaryDataBaseRepositoryImpl
+import com.example.diyca.data.repository.dictionaries.impl.DictionaryNetworkRepositoryImpl
 import com.example.diyca.data.repository.favorites.FavoritesRepository
 import com.example.diyca.data.repository.favorites.FavoritesRepositoryImpl
-import com.example.diyca.data.repository.userdata.UserDataRepository
-import com.example.diyca.data.repository.userdata.impl.UserDataRepositoryImpl
+import com.example.diyca.data.repository.learning.LearningRepository
+import com.example.diyca.data.repository.learning.impl.LearningRepositoryImpl
+import com.example.diyca.data.repository.userdata.UserDataBaseRepository
+import com.example.diyca.data.repository.userdata.UserNetworkRepository
+import com.example.diyca.data.repository.userdata.impl.UserDataBaseRepositoryImpl
+import com.example.diyca.data.repository.userdata.impl.UserNetworkRepositoryImpl
 import com.example.diyca.util.BASE_URL
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
@@ -36,18 +47,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
 val dataModule = module {
-
     single { androidContext().dataStore }
-    single<UserPrefsRepository> { UserPrefsRepositoryImpl(get()) }
+
     single {
         Room.databaseBuilder(androidContext(), DictionaryDatabase::class.java, "dictionary.db")
             .build()
     }
-
     single {
         Room.databaseBuilder(androidContext(), UserDatabase::class.java, "user.db")
             .build()
     }
+
     single<TokenStorage> { TokenStorageImpl(androidContext()) }
     single { AuthInterceptor(get()) }
     single { TokenAuthenticator(get(), get(named("refreshApi"))) }
@@ -58,6 +68,14 @@ val dataModule = module {
             .authenticator(TokenAuthenticator(get(), get(named("refreshApi"))))
             .build()
     }
+    single<AuthApi> {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(get())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AuthApi::class.java)
+    }
     single<UserApi> {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -66,21 +84,44 @@ val dataModule = module {
             .build()
             .create(UserApi::class.java)
     }
+    single<LearningApi> {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(get())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(LearningApi::class.java)
+    }
+    single<DictionaryApi> {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(get())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(DictionaryApi::class.java)
+    }
     single(named("refreshApi")) {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(AuthApi::class.java)
+            .create(TokenApi::class.java)
     }
 
     factory { DictionaryItemConverter() }
     factory { UserDataConverter() }
-    single<FavoritesRepository> { FavoritesRepositoryImpl(get(), get()) }
-    single<DictionaryRepository> { DictionaryRepositoryImpl(get(), get()) }
-    single<UserDataRepository> { UserDataRepositoryImpl(get(), get(), get()) }
-
+    factory { UserDataMapper() }
+    factory { LearningResponseMapper() }
     factory { AuthResponseMapper() }
     factory { AuthRequestMapper() }
+
+    single<DictionaryNetworkRepository> { DictionaryNetworkRepositoryImpl(get()) }
+    single<UserPrefsRepository> { UserPrefsRepositoryImpl(get()) }
+    single<FavoritesRepository> { FavoritesRepositoryImpl(get(), get()) }
+    single<DictionaryDataBaseRepository> { DictionaryDataBaseRepositoryImpl(get(), get()) }
+    single<UserDataBaseRepository> { UserDataBaseRepositoryImpl(get(), get(), get()) }
+    single<UserNetworkRepository> { UserNetworkRepositoryImpl(get(), get(), get()) }
+    single<LearningRepository> { LearningRepositoryImpl(get(), get()) }
+
     single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get(), get()) }
 }

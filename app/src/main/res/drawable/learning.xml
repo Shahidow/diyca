@@ -13,8 +13,8 @@
           android:endX="16.328"
           android:endY="8.923"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -29,8 +29,8 @@
           android:endX="16.328"
           android:endY="8.923"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -43,8 +43,8 @@
           android:endX="10.195"
           android:endY="12.97"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -59,8 +59,8 @@
           android:endX="10.195"
           android:endY="12.97"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -73,8 +73,8 @@
           android:endX="10.195"
           android:endY="4.97"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -89,8 +89,8 @@
           android:endX="10.195"
           android:endY="4.97"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -103,8 +103,8 @@
           android:endX="14.794"
           android:endY="17.016"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -119,8 +119,8 @@
           android:endX="14.794"
           android:endY="17.016"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -135,8 +135,8 @@
           android:endX="8.849"
           android:endY="0.568"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>
@@ -151,8 +151,8 @@
           android:endX="15.611"
           android:endY="0.596"
           android:type="linear">
-        <item android:offset="0" android:color="#FF2B7338"/>
-        <item android:offset="1" android:color="#FF3D964D"/>
+        <item android:offset="0" android:color="#000000"/>
+        <item android:offset="1" android:color="#000000"/>
       </gradient>
     </aapt:attr>
   </path>

@@ -1,9 +1,11 @@
 package com.example.diyca.feature.home.screens.profile
 
-import com.example.diyca.R
+import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.home.settings.models.UserAvatar
+
 
 data class ProfileState (
-    val pic: Int = R.drawable.ic_avatar_ph,
+    val avatar: UserAvatar? = null,
     val userName: String = "",
-    val notifications: Boolean = false,
+    val rewards: List<Reward> = emptyList(),
 )

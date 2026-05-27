@@ -5,13 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.diyca.domain.favorites.FavoritesInteractor
 import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryItem
 import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryType
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okio.IOException
 
 class FavoritesViewModel(private val favoritesInteractor: FavoritesInteractor) : ViewModel() {
 
@@ -21,6 +21,8 @@ class FavoritesViewModel(private val favoritesInteractor: FavoritesInteractor) :
     private val _effects = Channel<FavoritesEffect>(Channel.BUFFERED)
     val effects = _effects.receiveAsFlow()
 
+    private var favoritesJob: Job? = null
+
     init {
         dispatch(FavoritesMsg.LoadData(DictionaryType.WORD))
     }
@@ -28,50 +30,46 @@ class FavoritesViewModel(private val favoritesInteractor: FavoritesInteractor) :
     fun dispatch(msg: FavoritesMsg) {
         when (msg) {
             is FavoritesMsg.LoadData -> {
-                viewModelScope.launch {
-                    _state.update { it.copy(isLoading = true) }
+                favoritesJob?.cancel()
+                favoritesJob = viewModelScope.launch {
                     favoritesInteractor.getFavoritesItems(msg.section).collect {
-                        try {
-                            dispatch(FavoritesMsg.DataLoaded(msg.section, it))
-                        } catch (e: IOException) {
-                            TODO()
-                        }
+                        dispatch(FavoritesMsg.DataLoaded(msg.section, it))
                     }
                 }
             }
 
             is FavoritesMsg.DataLoaded -> {
                 when (msg.type) {
-                    DictionaryType.EXPRESSION -> {
-                        _state.update {
-                            it.copy(
-                                expressions = msg.items.filterIsInstance<DictionaryItem.Expression>()
-                            )
-                        }
+                    DictionaryType.EXPRESSION -> _state.update {
+                        val items = msg.items.filterIsInstance<DictionaryItem.Expression>()
+                        it.copy(
+                            expressions = items,
+                            filteredExpressions = items.filter { item -> item.matches(it.searchExpression) }
+                        )
                     }
 
-                    DictionaryType.PHRASEBOOK -> {
-                        _state.update {
-                            it.copy(
-                                phrasebookItems = msg.items.filterIsInstance<DictionaryItem.PhrasebookItem>()
-                            )
-                        }
+                    DictionaryType.PHRASEBOOK -> _state.update {
+                        val items = msg.items.filterIsInstance<DictionaryItem.PhrasebookItem>()
+                        it.copy(
+                            phrasebookItems = items,
+                            filteredPhrasebookItems = items.filter { item -> item.matches(it.searchConversationItems) }
+                        )
                     }
 
-                    DictionaryType.PROVERB -> {
-                        _state.update {
-                            it.copy(
-                                proverbs = msg.items.filterIsInstance<DictionaryItem.Proverb>()
-                            )
-                        }
+                    DictionaryType.PROVERB -> _state.update {
+                        val items = msg.items.filterIsInstance<DictionaryItem.Proverb>()
+                        it.copy(
+                            proverbs = items,
+                            filteredProverbs = items.filter { item -> item.matches(it.searchProverb) }
+                        )
                     }
 
-                    DictionaryType.WORD -> {
-                        _state.update {
-                            it.copy(
-                                words = msg.items.filterIsInstance<DictionaryItem.Word>()
-                            )
-                        }
+                    DictionaryType.WORD -> _state.update {
+                        val items = msg.items.filterIsInstance<DictionaryItem.Word>()
+                        it.copy(
+                            words = items,
+                            filteredWords = items.filter { item -> item.matches(it.searchWord) }
+                        )
                     }
                 }
             }
@@ -84,42 +82,52 @@ class FavoritesViewModel(private val favoritesInteractor: FavoritesInteractor) :
 
             is FavoritesMsg.SearchText -> {
                 when (msg.section) {
-                    DictionaryType.EXPRESSION -> {
-                        _state.update {
-                            it.copy(
-                                searchExpression = msg.text
-                            )
-                        }
+                    DictionaryType.EXPRESSION -> _state.update {
+                        it.copy(
+                            searchExpression = msg.text,
+                            currentSearchText = msg.text,
+                            filteredExpressions = it.expressions.filter { item -> item.matches(msg.text) }
+                        )
                     }
 
-                    DictionaryType.PHRASEBOOK -> {
-                        _state.update {
-                            it.copy(
-                                searchConversationItems = msg.text
-                            )
-                        }
+                    DictionaryType.PHRASEBOOK -> _state.update {
+                        it.copy(
+                            searchConversationItems = msg.text,
+                            currentSearchText = msg.text,
+                            filteredPhrasebookItems = it.phrasebookItems.filter { item ->
+                                item.matches(msg.text)
+                            }
+                        )
                     }
 
-                    DictionaryType.PROVERB -> {
-                        _state.update {
-                            it.copy(
-                                searchProverb = msg.text
-                            )
-                        }
+                    DictionaryType.PROVERB -> _state.update {
+                        it.copy(
+                            searchProverb = msg.text,
+                            currentSearchText = msg.text,
+                            filteredProverbs = it.proverbs.filter { item -> item.matches(msg.text) }
+                        )
                     }
 
-                    DictionaryType.WORD -> {
-                        _state.update {
-                            it.copy(
-                                searchWord = msg.text
-                            )
-                        }
+                    DictionaryType.WORD -> _state.update {
+                        it.copy(
+                            searchWord = msg.text,
+                            currentSearchText = msg.text,
+                            filteredWords = it.words.filter { item -> item.matches(msg.text) }
+                        )
                     }
                 }
             }
 
             is FavoritesMsg.InternalNavigate -> {
-                _state.update { it.copy(selectedSection = msg.section) }
+                _state.update {
+                    val searchText = when (msg.section) {
+                        DictionaryType.WORD -> it.searchWord
+                        DictionaryType.EXPRESSION -> it.searchExpression
+                        DictionaryType.PROVERB -> it.searchProverb
+                        DictionaryType.PHRASEBOOK -> it.searchConversationItems
+                    }
+                    it.copy(selectedSection = msg.section, currentSearchText = searchText)
+                }
                 viewModelScope.launch {
                     dispatch(FavoritesMsg.LoadData(msg.section))
                 }

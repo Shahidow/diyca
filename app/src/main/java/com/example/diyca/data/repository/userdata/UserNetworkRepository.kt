@@ -1,0 +1,13 @@
+package com.example.diyca.data.repository.userdata
+
+import com.example.diyca.domain.home.models.DailyActivity
+import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.learning.models.UserProgress
+import com.example.diyca.util.Resource
+
+interface UserNetworkRepository {
+    suspend fun getProgress(): Resource<List<UserProgress>>
+    suspend fun setProgress(progressList: List<UserProgress>): Resource<Unit>
+    suspend fun getActivity(): Resource<List<DailyActivity>>
+    suspend fun getRewards(): Resource<List<Reward>>
+}

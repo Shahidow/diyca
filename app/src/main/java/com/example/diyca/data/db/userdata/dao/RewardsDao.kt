@@ -14,4 +14,7 @@ interface RewardsDao {
 
     @Query("SELECT * FROM rewards_table")
     fun getAllRewards(): Flow<List<RewardEntity>>
+
+    @Query("DELETE FROM rewards_table")
+    suspend fun clearAllRewards()
 }

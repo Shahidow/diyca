@@ -35,27 +35,42 @@
     <string name="invite_friends">Пригласить друзей</string>
     <string name="rate_app">Оценить нас</string>
     <string name="contacts">Контакты</string>
-    <string name="achievements">Достижения</string>
+    <string name="users_achievements">Твоя коллекция наград</string>
     <string name="notifications">Уведомления</string>
     <string name="log_out">Выйти</string>
     <string name="delete_account">Удалить аккаунт</string>
     <string name="change_password">Сменить пароль</string>
     <string name="target_language">Я хочу изучать</string>
     <string name="app_language">Мой язык</string>
+    <string name="no_rewards">У вас пока нет наград</string>
 
     // АКТИВНОСТЬ
     <string name="activity_today">Активность за сегодня</string>
     <string name="lessons_completed">Пройдено уроков</string>
     <string name="tasks_completed">Выполнено заданий</string>
     <string name="today">Сегодня</string>
+    <string name="activity_start_point">Начало истории</string>
 
-    // ОБУЧЕНИЕ, БИБЛИОТЕКА, ИЗБРАННОЕ
+    // ОБУЧЕНИЕ
     <string name="learning">Обучение</string>
+    <string name="study_plan">План обучения</string>
+    <string name="start_tasks">Приступить к практике</string>
+    <string name="lesson_number">Урок %1$s</string>
+    <string name="translate_sentence">Переведи предложение</string>
+    <string name="translate_word">Переведи слово</string>
+    <string name="choose_single_translate">Выбери правильный вариант</string>
+    <string name="choose_multiple_translate">Выбери правильные варианты</string>
+    <string name="title_result_excellent">Отличный результат!\nПродолжай в том же духе!</string>
+    <string name="title_result_good">Очень хорошо!\nОтличная работа!</string>
+    <string name="title_result_fine">Неплохо!\nПродолжай тренироваться!</string>
+    <string name="title_result_bad">Можно лучше\nНемного практики — и получится</string>
+    <string name="title_result_nothing">Попробуй снова\nВсё получится с практикой</string>
+
+    //БИБЛИОТЕКА, ИЗБРАННОЕ
     <string name="phrasebook">Разговорник</string>
     <string name="library">Библиотека</string>
     <string name="favorites">Избранное</string>
     <string name="search">Поиск</string>
-    <string name="study_plan">План обучения</string>
     <string name="words">Слова</string>
     <string name="dictionary">Словарь</string>
     <string name="expressions">Выражения</string>
@@ -71,6 +86,12 @@
     <string name="action_cancel">Отмена</string>
     <string name="action_save">Сохранить</string>
     <string name="action_yes">Да</string>
+    <string name="action_load">Загрузить</string>
+    <string name="action_retry">Повторить</string>
+    <string name="action_continue">Продолжить</string>
+    <string name="action_start_over">Начать заново</string>
+    <string name="action_terminate">Завершить</string>
+    <string name="action_update">Обновить</string>
 
     // ОТВЕТЫ СЕРВЕРА
     <string name="server_error">Ошибка сервера, попробуйте позже</string>
@@ -103,6 +124,9 @@
     <string name="enter_password_prompt">Введите пароль</string>
     <string name="exit_confirmation">Вы уверены, что хотите закрыть приложение?</string>
     <string name="exit">Выход</string>
+    <string name="start_over_or_continue">Начать сначала или продолжить?</string>
+    <string name="lost_progress_confirmation">Прогресс будет утерян, вы уверены?</string>
+    <string name="terminate_tasks">Завершить выполнение</string>
 
     // ДАТЫ
     <string name="mon">ПН</string>
@@ -113,4 +137,15 @@
     <string name="sat">СБ</string>
     <string name="sun">ВС</string>
 
+    <string name="load_data_message">Для продолжения\nзагрузите данные приложения</string>
+    <string name="pull_to_refresh">Потяните вниз, чтобы обновить</string>
+    <string name="course_completed">Курс завершен</string>
+    <string name="empty_list">Список пуст</string>
+    <string name="message_download_the_app">Привет! Скачай Diyca: https://play.google.com/store/apps/details?id=your.app.id</string>
+    <string name="share_via">Поделиться через</string>
+    <string name="policy">Политикой конфиденциальности</string>
+    <string name="i_agree_with">"Я согласен с "</string>
+    <string name="no_progress_saved">Прогресс не сохранён!</string>
+    <string name="choose_avatar">Выберите аватарку</string>
+    <string name="nothing_was_found">Ничего не найдено</string>
 </resources>

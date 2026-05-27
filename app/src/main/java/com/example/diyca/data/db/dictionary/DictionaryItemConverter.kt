@@ -97,7 +97,7 @@ class DictionaryItemConverter {
         return PhrasebookEntity(
             id = phrasebook.id,
             title = phrasebook.title,
-            pic = phrasebook.pic,
+            pic = phrasebook.image,
         )
     }
 
@@ -105,7 +105,7 @@ class DictionaryItemConverter {
         return Phrasebook(
             id = phrasebook.id,
             title = phrasebook.title,
-            pic = phrasebook.pic,
+            image = phrasebook.pic,
         )
     }
 }

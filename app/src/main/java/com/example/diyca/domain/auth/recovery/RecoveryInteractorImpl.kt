@@ -8,17 +8,17 @@ import kotlinx.coroutines.flow.first
 
 class RecoveryInteractorImpl(private val authRepository: AuthRepository): RecoveryInteractor {
     override suspend fun requestPasswordReset(email: String): Resource<Unit> {
-        return authRepository.passwordReset(email).first()
+        return authRepository.passwordReset(email)
     }
 
     override suspend fun verifyResetCode(
         email: String,
         code: String
     ): Resource<VerifyResetCodeData> {
-        return authRepository.verifyResetCode(email, code).first()
+        return authRepository.verifyResetCode(email, code)
     }
 
     override suspend fun resetPassword(resetPasswordData: ResetPasswordData): Resource<Unit> {
-        return authRepository.resetPassword(resetPasswordData).first()
+        return authRepository.resetPassword(resetPasswordData)
     }
 }

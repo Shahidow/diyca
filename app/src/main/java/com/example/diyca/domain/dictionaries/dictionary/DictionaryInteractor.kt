@@ -5,7 +5,7 @@ import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryType
 import kotlinx.coroutines.flow.Flow
 
 interface DictionaryInteractor {
-    suspend fun getDictionary(dictionaryType: DictionaryType): Flow<List<DictionaryItem>>
+    fun getDictionary(dictionaryType: DictionaryType): Flow<List<DictionaryItem>>
     suspend fun updateFavoriteItem(dictionaryItem: DictionaryItem)
     suspend fun setDic()
 }

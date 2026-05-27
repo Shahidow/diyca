@@ -15,9 +15,12 @@ interface ActivityDao {
     @Query("SELECT * FROM activity_table ORDER BY date DESC")
     fun getAllActivity(): Flow<List<ActivityEntity>>
 
-    @Query("SELECT * FROM activity_table WHERE date >= :startDate ORDER BY date DESC")
-    fun getActivityFromDate(startDate: Long): Flow<List<ActivityEntity>>
+    @Query("SELECT * FROM activity_table WHERE date >= :date ORDER BY date DESC")
+    fun getActivityFromDate(date: String): Flow<List<ActivityEntity>>
 
-    @Query("SELECT * FROM activity_table WHERE date = :startOfDay LIMIT 1")
-    suspend fun getActivityByDate(startOfDay: Long): ActivityEntity?
+    @Query("SELECT * FROM activity_table WHERE date = :date LIMIT 1")
+    suspend fun getActivityByDate(date: String): ActivityEntity?
+
+    @Query("DELETE FROM activity_table")
+    suspend fun clearAllActivity()
 }
