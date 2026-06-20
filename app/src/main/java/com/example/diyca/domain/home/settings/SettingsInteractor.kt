@@ -10,6 +10,7 @@ interface SettingsInteractor {
     fun getUserName(): Flow<String>
     suspend fun getUserEmail(): String
     suspend fun insertUserName(userName: String)
+    suspend fun clearProgress(): Resource<Unit>
     suspend fun removeProfile(password: String): Resource<Unit>
     suspend fun changeProfile(changeProfileData: ChangeProfileData): Resource<Unit>
     suspend fun logout()

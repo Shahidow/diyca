@@ -26,6 +26,7 @@ interface UserDataBaseRepository {
     fun getProgressByLessonCount(lessonId: String): Flow<Int>
     fun getProgressByTopic(topicId: String): Flow<List<UserProgress>>
     suspend fun insertUserProgress(userProgress: UserProgress)
+    suspend fun clearProgress()
 
     suspend fun clearAllData()
 }

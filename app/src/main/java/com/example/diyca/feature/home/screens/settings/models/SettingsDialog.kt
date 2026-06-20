@@ -11,12 +11,19 @@ sealed class SettingsDialog(
     val textFieldLabel: Int? = null,
     val isPassword: Boolean = true,
 ) {
-    data object LogOut : SettingsDialog(
+    data object LogOutDialog : SettingsDialog(
         title = R.string.log_out,
         message = R.string.logout_confirmation_message,
         confirmButtonText = R.string.action_yes,
         dismissButtonText = R.string.action_cancel
         )
+
+    data object ClearProgressDialog : SettingsDialog(
+        title = R.string.clear_progress,
+        message = R.string.clear_progress_confirmation,
+        confirmButtonText = R.string.action_yes,
+        dismissButtonText = R.string.action_cancel
+    )
 
     data object DeleteWarningDialog : SettingsDialog(
         title = R.string.warning_title,

@@ -5,7 +5,7 @@ import com.example.diyca.util.ErrorType
 
 sealed class SettingsMsg {
     data object LoadData : SettingsMsg()
-    data object NavigateBack: SettingsMsg()
+    data object NavigateBack : SettingsMsg()
 
     data object AvatarPickerClicked : SettingsMsg()
     data object AvatarPickerDismissed : SettingsMsg()
@@ -21,6 +21,7 @@ sealed class SettingsMsg {
     data object PassChangeConfirmed : SettingsMsg()
     data object UserNameChangeConfirmed : SettingsMsg()
     data object RemoveProfileConfirmed : SettingsMsg()
+    data object ClearProgressConfirmed : SettingsMsg()
     data object FinalActionConfirmed : SettingsMsg()
 
     data class Error(val errorType: ErrorType) : SettingsMsg()

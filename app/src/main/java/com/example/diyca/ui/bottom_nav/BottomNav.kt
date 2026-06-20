@@ -14,26 +14,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.diyca.ui.navigation.navigateToTab
 import com.example.diyca.ui.theme.Dimens
+import androidx.compose.ui.res.stringResource
 
 @Composable
-fun BottomNavigation(
-    navController: NavController
-) {
-    val context = LocalContext.current
+fun BottomNavigation(navController: NavController) {
     val listItems = listOf(
-        BottomItem.Screen1,
-        BottomItem.Screen2,
-        BottomItem.Screen3,
-        BottomItem.Screen4,
-        BottomItem.Screen5,
+        BottomItem.ScreenHome,
+        BottomItem.ScreenLearning,
+        BottomItem.ScreenPhrasebook,
+        BottomItem.ScreenLibrary,
+        BottomItem.ScreenFavorites,
     )
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.background
@@ -43,14 +39,12 @@ fun BottomNavigation(
         listItems.forEach { item ->
             val isSelected = currentDestination?.hasRoute(item.route::class) ?: false
             val iconSize by animateDpAsState(
-                targetValue = if (isSelected) 32.dp else 24.dp,
+                targetValue = if (isSelected) Dimens.Size_32 else Dimens.Size_24,
                 animationSpec = tween(durationMillis = 250), label = ""
             )
             NavigationBarItem(
                 selected = isSelected,
-                onClick = {
-                    navController.navigateToTab(item.route)
-                },
+                onClick = { navController.navigateToTab(item.route) },
                 icon = {
                     Box(modifier = Modifier.size(iconSize)) {
                         Icon(
@@ -61,7 +55,7 @@ fun BottomNavigation(
                     }
                 },
                 label = {
-                    Text(text = context.getString(item.title), fontSize = Dimens.TextSize_10)
+                    Text(text = stringResource(item.title), fontSize = Dimens.TextSize_10)
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.primary,

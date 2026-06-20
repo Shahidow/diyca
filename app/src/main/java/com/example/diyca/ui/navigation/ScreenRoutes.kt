@@ -13,6 +13,9 @@ sealed class ScreenRoutes {
     data object MainGraph : ScreenRoutes()
 
     @Serializable
+    data object BottomBarGraph
+
+    @Serializable
     data object DownloadGraph : ScreenRoutes()
 
     //STARTUP

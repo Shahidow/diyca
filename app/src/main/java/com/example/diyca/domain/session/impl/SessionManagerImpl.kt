@@ -42,7 +42,7 @@ class SessionManagerImpl(
                 Base64.URL_SAFE or Base64.NO_WRAP))
             val json = JSONObject(payload)
             json.getLong("exp") * 1000
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             0
         }
     }

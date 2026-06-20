@@ -57,9 +57,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.diyca.R
 import com.example.diyca.ui.theme.Dimens
-import com.example.diyca.ui.theme.Grey92
 import com.example.diyca.ui.theme.MediumGray
 import com.example.diyca.util.ErrorType
+import kotlinx.coroutines.delay
 
 @Composable
 fun CustomTextField(
@@ -380,4 +380,16 @@ fun CustomErrorBox(
             )
         }
     }
+}
+
+@Composable
+fun blinkingCursor(): String {
+    var isVisible by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(500)
+            isVisible = !isVisible
+        }
+    }
+    return if (isVisible) "_" else " "
 }

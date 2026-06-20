@@ -75,6 +75,10 @@ class UserDataBaseRepositoryImpl(
             .map { list -> list.map { userDataConverter.mapUserProgress(it) } }
             .catch { emit(emptyList()) }
 
+    override suspend fun clearProgress() {
+        userDatabase.progressDao().clearAllProgress()
+    }
+
     override suspend fun insertUserProgress(userProgress: UserProgress) {
         userDatabase.progressDao().insertProgress(userDataConverter.mapUserProgress(userProgress))
     }

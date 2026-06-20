@@ -1,6 +1,5 @@
 package com.example.diyca.domain.dictionaries.dictionary.impl
 
-import android.annotation.SuppressLint
 import com.example.diyca.data.repository.dictionaries.DictionaryDataBaseRepository
 import com.example.diyca.data.repository.favorites.FavoritesRepository
 import com.example.diyca.domain.dictionaries.dictionary.DictionaryInteractor
@@ -18,104 +17,6 @@ class DictionaryInteractorImpl(
 
     override suspend fun updateFavoriteItem(dictionaryItem: DictionaryItem) {
         favoritesRepository.updateFavoriteItem(dictionaryItem)
-    }
-
-    @SuppressLint("SuspiciousIndentation")
-    override suspend fun setDic() {
-        val dicList = listOf(
-            DictionaryItem.Expression(
-                id = 1,
-                original = "Expression lkjdsgflksgcbedoi uegrofiengrconfin groeigfbufgbu geiucgebiuvfgiu egifuegbv iufgneiubgfiu cegbgfieungci",
-                translation = "Expression lkjdsgflksgcbedoi uegrofiengrconfin groeigfbufgbu geiucgebiuvfgiu egifuegbv iufgneiubgfiu cegbgfieungci",
-                isFavorite = false,
-                audio = null
-            ),
-            DictionaryItem.Proverb(
-                id = 3,
-                original = "Proverb lkjdsgflksgcbedoi uegrofiengrconfin groeigfbufgbu geiucgebiuvfgiu egifuegbv iufgneiubgfiu cegbgfieungci",
-                translation = "Proverb lkjdsgflksgcbedoi uegrofiengrconfin groeigfbufgbu geiucgebiuvfgiu egifuegbv iufgneiubgfiu cegbgfieungci",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.Word(
-                id = 1,
-                original = "Word первое",
-                translation = "Word lkjdsgflksgcbedoi uegrofiengrconfin groeigfbufgbu geiucgebiuvfgiu egifuegbv iufgneiubgfiu cegbgfieungci",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.Word(
-                id = 2,
-                original = "Word второе",
-                translation = "Word",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.Word(
-                id = 3,
-                original = "Третье слово",
-                translation = "Word",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.Word(
-                id = 4,
-                original = "Word четверное",
-                translation = "Word lkjdsgflksgcbedoi uegrofiengrconfin groeigfbufgbu geiucgebiuvfgiu egifuegbv iufgneiubgfiu cegbgfieungci",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.Word(
-                id = 5,
-                original = "Word пятое",
-                translation = "Word",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.Word(
-                id = 6,
-                original = "Шестое слово",
-                translation = "Word",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.PhrasebookItem(
-                parentId = 1,
-                id = 1,
-                original = "Разговорник1",
-                translation = "Разговорник1",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.PhrasebookItem(
-                parentId = 1,
-                id = 2,
-                original = "Разговорник1",
-                translation = "Разговорник1",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.PhrasebookItem(
-                parentId = 1,
-                id = 3,
-                original = "Разговорник1",
-                translation = "Разговорник1",
-                isFavorite = false,
-                audio = ""
-            ),
-            DictionaryItem.PhrasebookItem(
-                parentId = 2,
-                id = 4,
-                original = "Разговорник1",
-                translation = "Разговорник1",
-                isFavorite = false,
-                audio = ""
-            ),
-        )
-        dicList.forEach { item ->
-            dictionaryDataBaseRepository.insertDictionaryItem(item)
-        }
-
     }
 }
 

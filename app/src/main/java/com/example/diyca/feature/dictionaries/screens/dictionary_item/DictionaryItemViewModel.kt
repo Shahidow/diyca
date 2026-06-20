@@ -26,6 +26,7 @@ class DictionaryItemViewModel(
     fun dispatch(msg: DictionaryItemMsg) {
         when (msg) {
             is DictionaryItemMsg.LoadData -> {
+                if (_state.value.items.isNotEmpty()) return
                 viewModelScope.launch {
                     val flow = if (msg.itemData.isFavorites) {
                         favoritesInteractor.getFavoritesItems(msg.itemData.type)

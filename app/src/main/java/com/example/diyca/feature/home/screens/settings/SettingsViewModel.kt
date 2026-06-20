@@ -6,6 +6,7 @@ import com.example.diyca.R
 import com.example.diyca.domain.home.settings.SettingsInteractor
 import com.example.diyca.domain.home.settings.models.ChangeProfileData
 import com.example.diyca.domain.home.settings.models.UserAvatar
+import com.example.diyca.feature.home.screens.settings.SettingsEffect.*
 import com.example.diyca.feature.home.screens.settings.models.SettingsDialog
 import com.example.diyca.util.ErrorType
 import com.example.diyca.util.Resource
@@ -49,7 +50,7 @@ class SettingsViewModel(
                 }
             }
 
-            is SettingsMsg.NavigateBack -> viewModelScope.launch { _effects.send(SettingsEffect.NavigateBack) }
+            is SettingsMsg.NavigateBack -> viewModelScope.launch { _effects.send(NavigateBack) }
 
             is SettingsMsg.ShowDialog -> {
                 if (state.value.isLoading) return
@@ -64,7 +65,7 @@ class SettingsViewModel(
                 viewModelScope.launch {
                     dispatch(SettingsMsg.DismissDialogs)
                     settingsInteractor.logout()
-                    _effects.send(SettingsEffect.NavigateToLogin)
+                    _effects.send(NavigateToLogin)
                 }
             }
 
@@ -91,6 +92,22 @@ class SettingsViewModel(
                     }
                 } else {
                     _state.update { it.copy(error = R.string.invalid_password_format) }
+                }
+            }
+
+            is SettingsMsg.ClearProgressConfirmed -> {
+                if (state.value.isLoading) return
+                _state.update { it.copy(isLoading = true, error = null) }
+                viewModelScope.launch {
+                    val result = settingsInteractor.clearProgress()
+                    _state.update { it.copy(isLoading = false) }
+                    when (result) {
+                        is Resource.Success -> {
+                            _effects.send(ShowToast(R.string.success))
+                            dispatch(SettingsMsg.DismissDialogs)
+                        }
+                        is Resource.Error -> dispatch(SettingsMsg.Error(result.errorType))
+                    }
                 }
             }
 
@@ -140,7 +157,7 @@ class SettingsViewModel(
                                 dispatch(SettingsMsg.LogOut)
                             }
                             dispatch(SettingsMsg.DismissDialogs)
-                            _effects.send(SettingsEffect.ShowToast(R.string.success))
+                            _effects.send(ShowToast(R.string.success))
                         }
 
                         is Resource.Error -> dispatch(SettingsMsg.Error(result.errorType))

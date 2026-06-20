@@ -95,12 +95,14 @@ fun LessonScreen(navHostController: NavHostController, lessonRout: ScreenRoutes.
         )
         Spacer(modifier = Modifier.height(Dimens.Padding_16))
 
-        CustomButtonColored(
-            onClick = { viewModel.dispatch(LessonMsg.StartTasksClicked) },
-            text = stringResource(R.string.start_tasks),
-            isEnabled = !state.isLoading
-        )
-        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+        if (state.tasksCount > 0) {
+            CustomButtonColored(
+                onClick = { viewModel.dispatch(LessonMsg.StartTasksClicked) },
+                text = stringResource(R.string.start_tasks),
+                isEnabled = !state.isLoading
+            )
+            Spacer(modifier = Modifier.height(Dimens.Padding_16))
+        }
     }
 }
 

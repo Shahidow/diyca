@@ -2,6 +2,7 @@ package com.example.diyca.domain.home.settings.impl
 
 import com.example.diyca.data.repository.auth.AuthRepository
 import com.example.diyca.data.repository.userdata.UserDataBaseRepository
+import com.example.diyca.data.repository.userdata.UserNetworkRepository
 import com.example.diyca.domain.home.settings.SettingsInteractor
 import com.example.diyca.domain.home.settings.models.ChangeProfileData
 import com.example.diyca.domain.home.settings.models.RemoveProfileData
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.first
 
 class SettingsInteractorImpl(
     private val authRepository: AuthRepository,
+    private val userNetworkRepository: UserNetworkRepository,
     private val userDataBaseRepository: UserDataBaseRepository,
     private val sessionManager: SessionManager
 ) : SettingsInteractor {
@@ -30,6 +32,10 @@ class SettingsInteractorImpl(
 
     override suspend fun insertUserName(userName: String) {
         userDataBaseRepository.insertUserName(userName)
+    }
+
+    override suspend fun clearProgress(): Resource<Unit> {
+        return userNetworkRepository.clearProgress()
     }
 
     override suspend fun removeProfile(password: String): Resource<Unit> {

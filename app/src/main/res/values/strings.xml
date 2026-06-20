@@ -148,4 +148,6 @@
     <string name="no_progress_saved">Прогресс не сохранён!</string>
     <string name="choose_avatar">Выберите аватарку</string>
     <string name="nothing_was_found">Ничего не найдено</string>
+    <string name="clear_progress">Очистить прогресс</string>
+    <string name="clear_progress_confirmation">Вы уверены?\nУдаленный прогресс невозможно восстановить!</string>
 </resources>

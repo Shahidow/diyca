@@ -7,5 +7,4 @@ import kotlinx.coroutines.flow.Flow
 interface DictionaryInteractor {
     fun getDictionary(dictionaryType: DictionaryType): Flow<List<DictionaryItem>>
     suspend fun updateFavoriteItem(dictionaryItem: DictionaryItem)
-    suspend fun setDic()
 }

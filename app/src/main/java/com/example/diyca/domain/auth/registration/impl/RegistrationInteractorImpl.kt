@@ -4,7 +4,6 @@ import com.example.diyca.data.repository.auth.AuthRepository
 import com.example.diyca.domain.auth.models.RegistrationData
 import com.example.diyca.domain.auth.registration.RegistrationInteractor
 import com.example.diyca.util.Resource
-import kotlinx.coroutines.flow.first
 
 class RegistrationInteractorImpl(private val authRepository: AuthRepository) :
     RegistrationInteractor {

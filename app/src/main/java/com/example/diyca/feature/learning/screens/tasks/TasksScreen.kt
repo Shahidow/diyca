@@ -1,6 +1,12 @@
 package com.example.diyca.feature.learning.screens.tasks
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,7 +38,6 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -41,7 +46,6 @@ import com.example.diyca.domain.learning.models.task_type.BuildSentenceTask
 import com.example.diyca.domain.learning.models.task_type.BuildWordTask
 import com.example.diyca.domain.learning.models.task_type.MultipleChoiceTask
 import com.example.diyca.domain.learning.models.task_type.SingleChoiceTask
-import com.example.diyca.domain.learning.models.task_type.Task
 import com.example.diyca.ui.coponents.CustomBoxTaskButton
 import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomDialog
@@ -50,6 +54,7 @@ import com.example.diyca.ui.coponents.CustomProgressBar
 import com.example.diyca.ui.coponents.CustomTaskButton
 import com.example.diyca.ui.coponents.CustomTextButtonColored
 import com.example.diyca.ui.coponents.CustomTextField
+import com.example.diyca.ui.coponents.blinkingCursor
 import com.example.diyca.ui.navigation.ScreenRoutes
 import com.example.diyca.ui.navigation.navigateAndPopSelf
 import com.example.diyca.ui.navigation.popBackStackSafe
@@ -61,7 +66,6 @@ import org.koin.androidx.compose.koinViewModel
 fun TasksScreen(navHostController: NavHostController, tasksRout: ScreenRoutes.TasksRout) {
     val viewModel: TasksViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
-    val task = state.tasks.getOrNull(state.currentTask)
 
     LaunchedEffect(tasksRout) {
         viewModel.dispatch(TasksMsg.LoadData(tasksRout))
@@ -132,16 +136,15 @@ fun TasksScreen(navHostController: NavHostController, tasksRout: ScreenRoutes.Ta
             }
         }
 
-        else -> TasksMainContent(state, task, viewModel)
+        else -> TasksMainContent(state, viewModel)
     }
 }
 
 @Composable
 fun TasksMainContent(
     state: TasksState,
-    task: Task?,
     viewModel: TasksViewModel
-){
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -169,50 +172,66 @@ fun TasksMainContent(
         }
         Spacer(modifier = Modifier.height(Dimens.Padding_8))
 
-        Text(
-            text = when (task) {
-                is BuildSentenceTask -> stringResource(R.string.translate_sentence)
-                is BuildWordTask -> stringResource(R.string.translate_word)
-                is SingleChoiceTask -> stringResource(R.string.choose_single_translate)
-                is MultipleChoiceTask -> stringResource(R.string.choose_multiple_translate)
-                null -> ""
+        AnimatedContent(
+            targetState = state.currentTask,
+            transitionSpec = {
+                (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
+                    slideOutHorizontally { width -> -width } + fadeOut()
+                )
             },
-            fontWeight = FontWeight.Bold,
-            fontSize = Dimens.TextSize_18
-        )
-        task?.let {
-            when (it) {
-                is BuildSentenceTask -> BuildSentenceTaskScreen(
-                    modifier = Modifier.weight(1f),
-                    buildSentenceTask = it,
-                    selectedWords = state.selectedWords,
-                    viewModel = viewModel,
-                    answer = state.answer
+            modifier = Modifier.weight(1f),
+            label = "TaskTransition"
+        ) { targetIndex ->
+            val currentAnimatedTask = state.tasks.getOrNull(targetIndex)
+            Column {
+                Text(
+                    text = when (currentAnimatedTask) {
+                        is BuildSentenceTask -> stringResource(R.string.translate_sentence)
+                        is BuildWordTask -> stringResource(R.string.translate_word)
+                        is SingleChoiceTask -> stringResource(R.string.choose_single_translate)
+                        is MultipleChoiceTask -> stringResource(R.string.choose_multiple_translate)
+                        null -> ""
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
+                currentAnimatedTask?.let { animatedTask ->
+                    when (animatedTask) {
+                        is BuildSentenceTask -> BuildSentenceTaskScreen(
+                            modifier = Modifier.fillMaxWidth(),
+                            buildSentenceTask = animatedTask,
+                            selectedWords = state.selectedWords,
+                            viewModel = viewModel,
+                            answer = state.answer
+                        )
 
-                is BuildWordTask -> BuildWordTaskScreen(
-                    modifier = Modifier.weight(1f),
-                    buildWordTask = it,
-                    selectedLetters = state.selectedLetters,
-                    viewModel = viewModel,
-                    answer = state.answer
-                )
+                        is BuildWordTask -> BuildWordTaskScreen(
+                            modifier = Modifier.fillMaxWidth(),
+                            buildWordTask = animatedTask,
+                            selectedLetters = state.selectedLetters,
+                            viewModel = viewModel,
+                            answer = state.answer
+                        )
 
-                is SingleChoiceTask -> ChooseTranslationTaskScreen(
-                    modifier = Modifier.weight(1f),
-                    singleChoiceTask = it,
-                    selectedWord = state.selectedSingleWord,
-                    viewModel = viewModel,
-                    answer = state.answer
-                )
+                        is SingleChoiceTask -> ChooseTranslationTaskScreen(
+                            modifier = Modifier.fillMaxWidth(),
+                            singleChoiceTask = animatedTask,
+                            selectedWord = state.selectedSingleWord,
+                            viewModel = viewModel,
+                            answer = state.answer
+                        )
 
-                is MultipleChoiceTask -> MultipleChoiceTaskScreen(
-                    modifier = Modifier.weight(1f),
-                    multipleChoiceTask = it,
-                    selectedOptions = state.selectedMultipleWords,
-                    viewModel = viewModel,
-                    answer = state.answer
-                )
+                        is MultipleChoiceTask -> MultipleChoiceTaskScreen(
+                            modifier = Modifier.fillMaxWidth(),
+                            multipleChoiceTask = animatedTask,
+                            selectedOptions = state.selectedMultipleWords,
+                            viewModel = viewModel,
+                            answer = state.answer
+                        )
+                    }
+                }
             }
         }
         Spacer(modifier = Modifier.height(Dimens.Padding_24))
@@ -257,6 +276,8 @@ fun BuildSentenceTaskScreen(
         ) {
             Text(
                 text = buildSentenceTask.question,
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
         }
@@ -334,12 +355,14 @@ fun BuildWordTaskScreen(
         ) {
             Text(
                 text = buildWordTask.question,
-                fontSize = Dimens.TextSize_24,
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
         }
         CustomTextField(
-            value = selectedLetters.joinToString(""),
+            value = if (answer == null) selectedLetters.joinToString("") + blinkingCursor()
+            else selectedLetters.joinToString(""),
             onValueChange = {},
             isBorder = true,
             readOnly = true,
@@ -348,7 +371,7 @@ fun BuildWordTaskScreen(
                 false -> Red
                 null -> MaterialTheme.colorScheme.outline
             },
-            showDeleteButton = true,
+            showDeleteButton = answer == null,
             onDeleteClick = {
                 if (answer == null)
                     viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters.dropLast(1)))
@@ -406,7 +429,8 @@ fun ChooseTranslationTaskScreen(
         ) {
             Text(
                 text = singleChoiceTask.question,
-                fontSize = Dimens.TextSize_24,
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
         }
@@ -454,7 +478,8 @@ fun MultipleChoiceTaskScreen(
         ) {
             Text(
                 text = multipleChoiceTask.question,
-                fontSize = Dimens.TextSize_24,
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
         }

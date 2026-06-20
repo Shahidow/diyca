@@ -1,7 +1,5 @@
 package com.example.diyca.ui.navigation
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -27,13 +25,17 @@ fun NavGraphBuilder.mainNavGraph(
     navHostController: NavHostController
 ) {
     navigation<ScreenRoutes.MainGraph>(
-        startDestination = ScreenRoutes.HomeRout
+        startDestination = ScreenRoutes.BottomBarGraph
     ) {
-        composable<ScreenRoutes.HomeRout> { HomeScreen(navHostController) }
-        composable<ScreenRoutes.LearningRout> { StudyPlanScreen(navHostController) }
-        composable<ScreenRoutes.PhrasebookRout> { PhrasebookScreen(navHostController) }
-        composable<ScreenRoutes.LibraryRout> { DictionaryScreen(navHostController) }
-        composable<ScreenRoutes.FavoritesRout> { FavoritesScreen(navHostController) }
+        navigation<ScreenRoutes.BottomBarGraph>(
+            startDestination = ScreenRoutes.HomeRout
+        ) {
+            composable<ScreenRoutes.HomeRout> { HomeScreen(navHostController) }
+            composable<ScreenRoutes.LearningRout> { StudyPlanScreen(navHostController) }
+            composable<ScreenRoutes.PhrasebookRout> { PhrasebookScreen(navHostController) }
+            composable<ScreenRoutes.LibraryRout> { DictionaryScreen(navHostController) }
+            composable<ScreenRoutes.FavoritesRout> { FavoritesScreen(navHostController) }
+        }
 
         composable<ScreenRoutes.ProfileRout> { ProfileScreen(navHostController) }
         composable<ScreenRoutes.SettingsRout> { SettingsScreen(navHostController) }

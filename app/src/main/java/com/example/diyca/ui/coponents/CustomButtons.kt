@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.diyca.R
@@ -36,12 +37,13 @@ fun CustomTextButtonColored(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.primary
+    color: Color = MaterialTheme.colorScheme.primary,
+    style: TextStyle = MaterialTheme.typography.labelLarge
 ) {
     Text(
         text = text,
         modifier = modifier.clickable { onClick() },
-        style = MaterialTheme.typography.labelLarge,
+        style = style,
         color = color,
     )
 }

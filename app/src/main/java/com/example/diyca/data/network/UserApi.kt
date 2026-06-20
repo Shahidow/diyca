@@ -17,6 +17,9 @@ interface UserApi {
     @POST("/learn/progress/solved")
     suspend fun setProgress(@Body request: SetProgressRequest): Response<SetProgressResponse>
 
+    @GET("/learn/progress/clear")
+    suspend fun clearProgress(): Response<Unit>
+
     @GET("/learn/activity/calendar")
     suspend fun getActivity(): Response<ActivityResponse>
 

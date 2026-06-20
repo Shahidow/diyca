@@ -1,5 +1,6 @@
 package com.example.diyca.feature.home.screens.settings
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,6 +54,7 @@ import com.example.diyca.ui.navigation.popBackStackSafe
 import com.example.diyca.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun SettingsScreen(navHostController: NavHostController) {
     val viewModel: SettingsViewModel = koinViewModel()
@@ -127,15 +129,22 @@ fun SettingsScreen(navHostController: NavHostController) {
             SettingsLanguage()
             Spacer(modifier = Modifier.height(Dimens.Padding_24))
             CustomButtonColored(
-                onClick = { viewModel.dispatch(SettingsMsg.ShowDialog(SettingsDialog.LogOut)) },
+                onClick = { viewModel.dispatch(SettingsMsg.ShowDialog(SettingsDialog.LogOutDialog)) },
                 text = stringResource(R.string.log_out),
                 isOutlined = true,
             )
             Spacer(modifier = Modifier.height(Dimens.Padding_32))
             CustomTextButtonColored(
+                text = stringResource(R.string.clear_progress),
+                onClick = { viewModel.dispatch(SettingsMsg.ShowDialog(SettingsDialog.ClearProgressDialog)) },
+                color = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.height(Dimens.Padding_32))
+            CustomTextButtonColored(
                 text = stringResource(R.string.delete_account),
                 onClick = { viewModel.dispatch(SettingsMsg.ShowDialog(SettingsDialog.DeleteWarningDialog)) },
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelMedium
             )
             Spacer(modifier = Modifier.height(Dimens.Padding_32))
         }
@@ -308,11 +317,12 @@ fun SettingsDialogs(state: SettingsState, viewModel: SettingsViewModel) {
         },
         onConfirm = {
             val msg = when (dialog) {
-                is SettingsDialog.LogOut -> SettingsMsg.LogOut
+                is SettingsDialog.LogOutDialog -> SettingsMsg.LogOut
                 is SettingsDialog.DeleteWarningDialog -> SettingsMsg.RemoveProfileConfirmed
                 is SettingsDialog.ChangeNameDialog -> SettingsMsg.UserNameChangeConfirmed
                 is SettingsDialog.ChangePassDialog -> SettingsMsg.PassChangeConfirmed
                 is SettingsDialog.PasswordDialog -> SettingsMsg.FinalActionConfirmed
+                is SettingsDialog.ClearProgressDialog -> SettingsMsg.ClearProgressConfirmed
             }
             viewModel.dispatch(msg)
         },

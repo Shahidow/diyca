@@ -21,7 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.zIndex
@@ -42,11 +45,10 @@ fun DictionaryItemScreen(
 ) {
     val viewModel: DictionaryItemViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
+    var isInitialScrollDone by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.dispatch(
-            DictionaryItemMsg.LoadData(itemData)
-        )
+        viewModel.dispatch(DictionaryItemMsg.LoadData(itemData))
         viewModel.effects.collect { effect ->
             when (effect) {
                 is DictionaryItemEffect.ShowToast -> {}
@@ -64,12 +66,14 @@ fun DictionaryItemScreen(
         pageCount = { state.items.size }
     )
 
-    LaunchedEffect(initialPage) {
-        if (initialPage != pagerState.currentPage) {
+    LaunchedEffect(state.items) {
+        if (state.items.isNotEmpty() && !isInitialScrollDone) {
+            val initialPage = state.items.indexOfFirst { it.id == itemData.id }.takeIf { it >= 0 } ?: 0
             pagerState.scrollToPage(initialPage)
+            isInitialScrollDone = true
         }
     }
-
+    
     LaunchedEffect(state.items, pagerState.currentPage) {
         state.items.getOrNull(pagerState.currentPage)?.let { item ->
             viewModel.dispatch(DictionaryItemMsg.ChangeCurrentItem(item))

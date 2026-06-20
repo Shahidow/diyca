@@ -6,6 +6,7 @@ import com.example.diyca.domain.learning.models.task_type.BuildSentenceTask
 import com.example.diyca.domain.learning.models.task_type.BuildWordTask
 import com.example.diyca.domain.learning.models.task_type.MultipleChoiceTask
 import com.example.diyca.domain.learning.models.task_type.SingleChoiceTask
+import com.example.diyca.domain.learning.models.task_type.Task
 import com.example.diyca.domain.learning.models.task_type.UserAnswer
 import com.example.diyca.domain.learning.tasks.TasksInteractor
 import com.example.diyca.util.Resource
@@ -30,7 +31,7 @@ class TasksViewModel(private val tasksInteractor: TasksInteractor) : ViewModel()
     fun dispatch(msg: TasksMsg) {
         when (msg) {
             is TasksMsg.LoadData -> {
-                if (_state.value.isLoading) return
+                if (_state.value.isLoading || (_state.value.tasks.isNotEmpty() && _state.value.lessonId == msg.tasksRout.lessonId)) return
                 loadJob?.cancel()
                 _state.update {
                     it.copy(
@@ -46,7 +47,7 @@ class TasksViewModel(private val tasksInteractor: TasksInteractor) : ViewModel()
                         .collect { resource ->
                             when (resource) {
                                 is Resource.Success -> {
-                                    val tasks = resource.data.orEmpty()
+                                    val tasks = resource.data.orEmpty().map { it.shuffled() }
                                     _state.update {
                                         it.copy(
                                             isLoading = false,
@@ -123,6 +124,15 @@ class TasksViewModel(private val tasksInteractor: TasksInteractor) : ViewModel()
             }
 
             is TasksMsg.DismissDialogs -> _state.update { it.copy(showCloseConfirmation = false) }
+        }
+    }
+
+    private fun Task.shuffled(): Task {
+        return when (this) {
+            is BuildSentenceTask -> this.copy(words = words.shuffled())
+            is BuildWordTask -> this.copy(letters = letters.shuffled())
+            is SingleChoiceTask -> this.copy(options = options.shuffled())
+            is MultipleChoiceTask -> this.copy(options = options.shuffled())
         }
     }
 

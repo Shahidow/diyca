@@ -47,7 +47,7 @@ val domainModule = module {
 
     single<HomeInteractor> { HomeInteractorImpl(get(), get()) }
     single<ProfileInteractor> { ProfileInteractorImpl(get()) }
-    single<SettingsInteractor> { SettingsInteractorImpl(get(), get(), get()) }
+    single<SettingsInteractor> { SettingsInteractorImpl(get(), get(), get(), get()) }
 
     single<ActivityInteractor> { ActivityInteractorImpl(get()) }
 

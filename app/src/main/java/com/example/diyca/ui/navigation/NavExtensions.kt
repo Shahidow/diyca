@@ -2,16 +2,16 @@ package com.example.diyca.ui.navigation
 
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavOptionsBuilder
 
 fun NavController.navigateToTab(route: Any) {
-    if (this.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
-        this.navigate(route) {
-            popUpTo(this@navigateToTab.graph.findStartDestination().id) { saveState = true }
-            launchSingleTop = true
-            restoreState = true
+    this.navigate(route) {
+        popUpTo<ScreenRoutes.HomeRout> {
+            saveState = true
+            inclusive = false
         }
+        launchSingleTop = true
+        restoreState = true
     }
 }
 

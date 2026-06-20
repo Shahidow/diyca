@@ -8,6 +8,7 @@ import com.example.diyca.util.Resource
 interface UserNetworkRepository {
     suspend fun getProgress(): Resource<List<UserProgress>>
     suspend fun setProgress(progressList: List<UserProgress>): Resource<Unit>
+    suspend fun clearProgress(): Resource<Unit>
     suspend fun getActivity(): Resource<List<DailyActivity>>
     suspend fun getRewards(): Resource<List<Reward>>
 }

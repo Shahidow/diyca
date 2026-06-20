@@ -5,9 +5,9 @@ import java.io.IOException
 suspend fun <T> safeApiCall(call: suspend () -> Resource<T>): Resource<T> {
     return try {
         call()
-    } catch (e: IOException) {
+    } catch (_: IOException) {
         Resource.Error(ErrorType.NetworkError)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         Resource.Error(ErrorType.Unknown)
     }
 }

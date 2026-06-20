@@ -46,6 +46,17 @@ class UserNetworkRepositoryImpl(
             }
         }
 
+    override suspend fun clearProgress(): Resource<Unit> =
+        safeApiCall {
+            val response = userApi.clearProgress()
+            if (response.isSuccessful) {
+                userDataBaseRepository.clearProgress()
+                Resource.Success(Unit)
+            } else {
+                handleNetworkError(response)
+            }
+        }
+
     override suspend fun getActivity(): Resource<List<DailyActivity>> = safeApiCall {
         val response = userApi.getActivity()
         if (response.isSuccessful) {

@@ -4,7 +4,6 @@ import com.example.diyca.domain.learning.models.Lesson
 import com.example.diyca.util.ErrorType
 
 sealed class CurrentLessonState {
-
     data class Active(
         val lesson: Lesson,
         val topicId: String
