@@ -2,9 +2,10 @@ package com.example.diyca.data.network
 
 import com.example.diyca.data.dto.user_data.ActivityResponse
 import com.example.diyca.data.dto.user_data.ProgressResponse
-import com.example.diyca.data.dto.user_data.RewardsResponse
+import com.example.diyca.data.dto.user_data.RewardResponse
 import com.example.diyca.data.dto.user_data.SetProgressRequest
 import com.example.diyca.data.dto.user_data.SetProgressResponse
+import com.example.diyca.data.dto.user_data.UserRewardsResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -24,5 +25,8 @@ interface UserApi {
     suspend fun getActivity(): Response<ActivityResponse>
 
     @GET("/learn/rewards")
-    suspend fun getRewards(): Response<RewardsResponse>
+    suspend fun getUserRewards(): Response<UserRewardsResponse>
+
+    @GET("/python/reward")
+    suspend fun getAllRewards(): Response<List<RewardResponse>>
 }

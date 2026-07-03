@@ -39,13 +39,13 @@ import org.koin.dsl.module
 val domainModule = module {
     single<SessionManager> { SessionManagerImpl(get()) }
 
-    single<StartupInteractor> { StartupInteractorImpl(get(), get()) }
+    single<StartupInteractor> { StartupInteractorImpl(get(), get(), get(), get(), get()) }
 
     single<LoginInteractor> { LoginInteractorImpl(get(), get(), get(), get()) }
     single<RegistrationInteractor> { RegistrationInteractorImpl(get()) }
     single<RecoveryInteractor> { RecoveryInteractorImpl(get()) }
 
-    single<HomeInteractor> { HomeInteractorImpl(get(), get()) }
+    single<HomeInteractor> { HomeInteractorImpl(get(), get(), get()) }
     single<ProfileInteractor> { ProfileInteractorImpl(get()) }
     single<SettingsInteractor> { SettingsInteractorImpl(get(), get(), get(), get()) }
 

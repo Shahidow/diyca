@@ -2,6 +2,9 @@ package com.example.diyca.domain.startup
 
 import com.example.diyca.data.prefs.UserPrefsRepository
 import com.example.diyca.data.repository.dictionaries.DictionaryDataBaseRepository
+import com.example.diyca.data.repository.dictionaries.DictionaryNetworkRepository
+import com.example.diyca.data.repository.userdata.UserDataBaseRepository
+import com.example.diyca.data.repository.userdata.UserNetworkRepository
 import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryItem
 import com.example.diyca.util.ErrorType
 import com.example.diyca.util.LoadingStatus
@@ -10,8 +13,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class StartupInteractorImpl(
-    //private val repository: StartupRepository,
+    private val dictionaryNetworkRepository: DictionaryNetworkRepository,
     private val db: DictionaryDataBaseRepository,
+    private val userNetworkRepository: UserNetworkRepository,
+    private val userDataBaseRepository: UserDataBaseRepository,
     private val prefs: UserPrefsRepository
 ) : StartupInteractor {
     val data = listOf(
@@ -231,8 +236,10 @@ class StartupInteractorImpl(
                 // 4. Эмитим прогресс (например, по 25% на каждую либу)
 
             }
+            emit(LoadingStatus.Progress(0.95f, "Загрузка наград"))
+
             emit(LoadingStatus.Success)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             emit(LoadingStatus.Error(ErrorType.Unknown))
         }
     }

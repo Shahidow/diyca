@@ -2,12 +2,15 @@ package com.example.diyca.data.mappers
 
 import com.example.diyca.data.dto.user_data.ActivityResponse
 import com.example.diyca.data.dto.user_data.ProgressResponse
+import com.example.diyca.data.dto.user_data.RewardResponse
 import com.example.diyca.data.dto.user_data.SetProgressChapterDto
 import com.example.diyca.data.dto.user_data.SetProgressDataDto
 import com.example.diyca.data.dto.user_data.SetProgressRequest
 import com.example.diyca.data.dto.user_data.SetProgressResponse
 import com.example.diyca.domain.home.models.DailyActivity
+import com.example.diyca.domain.home.models.Reward
 import com.example.diyca.domain.learning.models.UserProgress
+import java.util.TimeZone
 
 class UserDataMapper {
     fun mapProgressDtoToDomain(dto: ProgressResponse): List<UserProgress> {
@@ -32,7 +35,7 @@ class UserDataMapper {
                     tasks = tasks.map { it.taskId }
                 )
             }
-        val currentTimeZone = java.util.TimeZone.getDefault().id
+        val currentTimeZone = TimeZone.getDefault().id
         return SetProgressRequest(
             timezone = currentTimeZone,
             progress = SetProgressDataDto(
@@ -58,5 +61,17 @@ class UserDataMapper {
             lessonsCompleted = activityDto.lessonsCompleted,
             tasksCompleted = activityDto.tasksCompleted
         )
+    }
+
+    fun mapRewardsDtoToDomain(dto: List<RewardResponse>): List<Reward> {
+        return dto.map { itemDto->
+            Reward(
+                id = itemDto.id,
+                title = itemDto.rewardTitle,
+                category = itemDto.category,
+                name = itemDto.rewardName,
+                imageUrl = itemDto.imageUrl
+            )
+        }
     }
 }

@@ -1,14 +1,14 @@
 package com.example.diyca.feature.home.screens.profile
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,26 +37,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.example.diyca.R
-import com.example.diyca.ui.coponents.CustomBoxContainer
-import com.example.diyca.ui.coponents.CustomButtonColored
-import com.example.diyca.ui.coponents.CustomTextButtonColored
-import com.example.diyca.ui.theme.Dimens
-import com.example.diyca.ui.theme.Grey92
-import androidx.constraintlayout.compose.ConstraintLayout
-import coil.compose.rememberAsyncImagePainter
-import coil.request.CachePolicy
-import coil.request.ImageRequest
 import com.example.diyca.domain.home.models.Reward
 import com.example.diyca.domain.home.settings.models.UserAvatar
 import com.example.diyca.ui.coponents.CustomBackButton
+import com.example.diyca.ui.coponents.CustomBoxContainer
+import com.example.diyca.ui.coponents.CustomButtonColored
+import com.example.diyca.ui.coponents.CustomRewardBox
+import com.example.diyca.ui.coponents.CustomTextButtonColored
 import com.example.diyca.ui.coponents.shimmerBrush
 import com.example.diyca.ui.navigation.ScreenRoutes
 import com.example.diyca.ui.navigation.navigateSafe
 import com.example.diyca.ui.navigation.popBackStackSafe
+import com.example.diyca.ui.theme.Dimens
+import com.example.diyca.ui.theme.Grey92
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun ProfileScreen(navHostController: NavHostController) {
     val viewModel: ProfileViewModel = koinViewModel()
@@ -84,7 +85,7 @@ fun ProfileScreen(navHostController: NavHostController) {
                 is ProfileEffect.NavigateBack -> navHostController.popBackStackSafe()
                 is ProfileEffect.NavigateToSettings -> navHostController.navigateSafe(ScreenRoutes.SettingsRout)
                 is ProfileEffect.RateUs -> {
-                    val uri = Uri.parse("market://details?id=your.app.id")
+                    val uri = "market://details?id=your.app.id".toUri()
                     val goToMarket = Intent(Intent.ACTION_VIEW, uri).apply {
                         addFlags(
                             Intent.FLAG_ACTIVITY_NO_HISTORY or
@@ -94,11 +95,11 @@ fun ProfileScreen(navHostController: NavHostController) {
                     }
                     try {
                         context.startActivity(goToMarket)
-                    } catch (e: ActivityNotFoundException) {
+                    } catch (_: ActivityNotFoundException) {
                         context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://play.google.com/store/apps/details?id=your.app.id")
+                                "https://play.google.com/store/apps/details?id=your.app.id".toUri()
                             )
                         )
                     }
@@ -268,48 +269,19 @@ fun UserRewardsSection(rewards: List<Reward>) {
                 )
             }
         } else {
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(vertical = Dimens.Padding_16),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceAround
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Padding_8),
+                verticalArrangement = Arrangement.spacedBy(Dimens.Padding_8),
+                contentPadding = PaddingValues(horizontal = Dimens.Padding_8)
             ) {
                 items(rewards.size) { index ->
-                    ProfileAwardItem(rewards[index])
+                    CustomRewardBox(rewards[index])
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ProfileAwardItem(reward: Reward) {
-    val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(reward.imageUrl)
-            .crossfade(true)
-            .placeholder(R.drawable.ic_award)
-            .error(R.drawable.ic_award)
-            .diskCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .build()
-    )
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(Dimens.Padding_8)
-    ) {
-        Image(
-            painter = painter,
-            contentDescription = null,
-            modifier = Modifier
-                .size(Dimens.Size_48)
-                .clip(CircleShape)
-        )
-        Spacer(modifier = Modifier.height(Dimens.Padding_4))
-        Text(
-            text = reward.title,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
     }
 }

@@ -30,6 +30,8 @@ class UserDataConverter {
             rewardId = reward.id,
             imageUrl = reward.imageUrl,
             title = reward.title,
+            name = reward.name,
+            category = reward.category,
         )
     }
 
@@ -38,6 +40,8 @@ class UserDataConverter {
             id = rewardEntity.rewardId,
             imageUrl = rewardEntity.imageUrl,
             title = rewardEntity.title,
+            category = rewardEntity.category,
+            name = rewardEntity.name,
         )
     }
 

@@ -44,18 +44,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
-import coil.request.CachePolicy
-import coil.request.ImageRequest
 import com.example.diyca.R
-import com.example.diyca.domain.home.models.Reward
 import com.example.diyca.domain.home.models.DailyActivity
+import com.example.diyca.domain.home.models.Reward
 import com.example.diyca.domain.home.settings.models.UserAvatar
 import com.example.diyca.domain.learning.models.Lesson
 import com.example.diyca.ui.coponents.CustomBoxContainer
-import com.example.diyca.ui.coponents.CustomDoubleCircularProgress
 import com.example.diyca.ui.coponents.CustomDialog
+import com.example.diyca.ui.coponents.CustomDoubleCircularProgress
 import com.example.diyca.ui.coponents.CustomErrorBox
+import com.example.diyca.ui.coponents.CustomRewardBox
 import com.example.diyca.ui.coponents.shimmerBrush
 import com.example.diyca.ui.navigation.ScreenRoutes
 import com.example.diyca.ui.navigation.navigateSafe
@@ -200,7 +198,7 @@ fun HomeScreen(navHostController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(Dimens.Padding_8))
 
-            HomeAwards(state.rewards)
+            HomeRewards(state.rewards)
             Spacer(modifier = Modifier.height(Dimens.Padding_16))
         }
 
@@ -432,7 +430,7 @@ fun HomeActivityItem(
 }
 
 @Composable
-fun HomeAwards(rewards: List<Reward>) {
+fun HomeRewards(rewards: List<Reward>) {
     CustomBoxContainer(
         contentPadding = PaddingValues(Dimens.Padding_16),
         color = MaterialTheme.colorScheme.background,
@@ -458,47 +456,15 @@ fun HomeAwards(rewards: List<Reward>) {
 
         } else {
             LazyRow(
-                modifier = Modifier
-                    .padding(vertical = Dimens.Padding_16),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                contentPadding = PaddingValues(horizontal = Dimens.Padding_8),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Padding_8)
             ) {
                 items(rewards.size) { index ->
-                    HomeAwardItem(rewards[index])
+                    CustomRewardBox(rewards[index])
                 }
             }
         }
-    }
-}
-
-@Composable
-fun HomeAwardItem(reward: Reward) {
-    val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(reward.imageUrl)
-            .crossfade(true)
-            .placeholder(R.drawable.ic_award)
-            .error(R.drawable.ic_award)
-            .diskCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .build()
-    )
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(Dimens.Padding_8)
-    ) {
-        Image(
-            painter = painter,
-            contentDescription = null,
-            modifier = Modifier
-                .size(Dimens.Size_48)
-                .clip(CircleShape)
-        )
-        Spacer(modifier = Modifier.height(Dimens.Padding_4))
-        Text(
-            text = reward.title,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
     }
 }

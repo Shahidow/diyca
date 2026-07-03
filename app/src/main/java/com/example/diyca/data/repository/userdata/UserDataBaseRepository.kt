@@ -19,6 +19,8 @@ interface UserDataBaseRepository {
     suspend fun insertActivity(dailyActivity: DailyActivity)
 
     fun getAllRewards(): Flow<List<Reward>>
+    fun getUserRewards(): Flow<List<String>>
+    suspend fun insertUserReward(rewardTitle: String)
     suspend fun insertReward(reward: Reward)
 
     fun getAllProgress(): Flow<List<UserProgress>>

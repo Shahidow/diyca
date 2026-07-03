@@ -39,7 +39,7 @@ class UserNetworkRepositoryImpl(
                     val dailyActivity =
                         userDataMapper.mapDailyActivityDtoToDomain(body) ?: return@let
                     userDataBaseRepository.insertActivity(dailyActivity)
-                }
+                } ?: Resource.Error(ErrorType.ServerError)
                 Resource.Success(Unit)
             } else {
                 handleNetworkError(response)
@@ -69,7 +69,27 @@ class UserNetworkRepositoryImpl(
         }
     }
 
-    override suspend fun getRewards(): Resource<List<Reward>> {
-        TODO("Not yet implemented")
+    override suspend fun getUserRewards(): Resource<List<String>> = safeApiCall {
+        val response = userApi.getUserRewards()
+        if (response.isSuccessful) {
+            response.body()?.let { body ->
+                val userRewards = body.data
+                Resource.Success(userRewards)
+            } ?: Resource.Error(ErrorType.ServerError)
+        } else {
+            handleNetworkError(response)
+        }
+    }
+
+    override suspend fun getAllRewards(): Resource<List<Reward>> = safeApiCall {
+        val response = userApi.getAllRewards()
+        if (response.isSuccessful) {
+            response.body()?.let { body ->
+                val domainRewards = userDataMapper.mapRewardsDtoToDomain(body)
+                Resource.Success(domainRewards)
+            } ?: Resource.Error(ErrorType.ServerError)
+        } else {
+            handleNetworkError(response)
+        }
     }
 }

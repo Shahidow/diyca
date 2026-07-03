@@ -5,7 +5,6 @@ import com.example.diyca.data.dto.auth.requests.VerifyResetCodeRequest
 import com.example.diyca.data.mappers.AuthRequestMapper
 import com.example.diyca.data.mappers.AuthResponseMapper
 import com.example.diyca.data.network.AuthApi
-import com.example.diyca.util.Resource
 import com.example.diyca.data.repository.auth.AuthRepository
 import com.example.diyca.data.repository.auth.TokenStorage
 import com.example.diyca.data.repository.userdata.UserDataBaseRepository
@@ -17,6 +16,7 @@ import com.example.diyca.domain.auth.recovery.models.VerifyResetCodeData
 import com.example.diyca.domain.home.settings.models.ChangeProfileData
 import com.example.diyca.domain.home.settings.models.RemoveProfileData
 import com.example.diyca.util.ErrorType
+import com.example.diyca.util.Resource
 import com.example.diyca.util.handleNetworkError
 import com.example.diyca.util.safeApiCall
 

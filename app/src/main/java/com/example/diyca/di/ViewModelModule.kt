@@ -14,6 +14,7 @@ import com.example.diyca.feature.auth.screens.registration.RegistrationViewModel
 import com.example.diyca.feature.home.screens.activity.ActivityViewModel
 import com.example.diyca.feature.home.screens.activity_calendar.ActivityCalendarViewModel
 import com.example.diyca.feature.learning.screens.lesson.LessonViewModel
+import com.example.diyca.feature.learning.screens.player.PlayerViewModel
 import com.example.diyca.feature.learning.screens.tasks.TasksViewModel
 import com.example.diyca.feature.learning.screens.tasks_result.TasksResultViewModel
 import com.example.diyca.feature.phrasebooks.screens.phrasebook.PhrasebookViewModel
@@ -25,6 +26,7 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel<AppViewModel> { AppViewModel(get(), get()) }
+    viewModel<PlayerViewModel> { PlayerViewModel(get()) }
 
     viewModel<StartupViewModel> { StartupViewModel(get()) }
 

@@ -39,6 +39,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
@@ -49,13 +51,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.diyca.R
+import com.example.diyca.domain.home.models.Reward
 import com.example.diyca.ui.theme.Dimens
 import com.example.diyca.ui.theme.MediumGray
 import com.example.diyca.util.ErrorType
@@ -392,4 +399,45 @@ fun blinkingCursor(): String {
         }
     }
     return if (isVisible) "_" else " "
+}
+
+@Composable
+fun CustomRewardBox(reward: Reward) {
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(reward.imageUrl)
+            .crossfade(true)
+            .placeholder(R.drawable.ic_award)
+            .error(R.drawable.ic_award)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .build()
+    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .width(Dimens.Size_100)
+            .padding(Dimens.Padding_8)
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = null,
+            modifier = Modifier
+                .size(Dimens.Size_48)
+                .clip(CircleShape)
+                .then(if (!reward.isOpen) Modifier.graphicsLayer(alpha = 0.3f) else Modifier)
+        )
+        Spacer(modifier = Modifier.height(Dimens.Padding_4))
+        Text(
+            text = reward.name,
+            maxLines = 2,
+            minLines = 2,
+            style = MaterialTheme.typography.labelMedium,
+            color = if (reward.isOpen) MaterialTheme.colorScheme.onBackground
+            else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
+            textAlign = TextAlign.Center,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }

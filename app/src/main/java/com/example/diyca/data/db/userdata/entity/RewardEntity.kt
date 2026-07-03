@@ -7,6 +7,8 @@ import androidx.room.PrimaryKey
 data class RewardEntity(
     @PrimaryKey
     val rewardId: String,
-    val imageUrl: String,
-    val title: String
+    val imageUrl: String?,
+    val title: String,
+    val name: String,
+    val category: String
 )

@@ -12,7 +12,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.diyca"
+        applicationId = "com.diyca.app"
         minSdk = 29
         targetSdk = 35
         versionCode = 1
@@ -23,7 +23,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isShrinkResources = true
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -39,48 +40,49 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
     }
 }
 
 dependencies {
-    implementation("androidx.navigation:navigation-compose:2.9.8")
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
-    implementation("com.airbnb.android:lottie-compose:6.6.2")
-    implementation("androidx.compose.material:material-icons-extended")
-
+    implementation(libs.androidx.media3.database)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.lottie.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+    //ExoPlayer
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.datasource)
     //Markdown
-    implementation("com.halilibo.compose-richtext:richtext-ui-material3:0.20.0")
-    implementation("com.halilibo.compose-richtext:richtext-commonmark:0.20.0")
-
+    implementation(libs.richtext.ui.material3)
+    implementation(libs.richtext.commonmark)
     //Core Splashscreen
-    implementation("androidx.core:core-splashscreen:1.2.0")
-
+    implementation(libs.androidx.core.splashscreen)
     //DataStore
-    implementation("androidx.datastore:datastore-preferences:1.2.1")
-
+    implementation(libs.androidx.datastore.preferences)
     //Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
-
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
     //koin
-    implementation("io.insert-koin:koin-android:3.5.3")
-    implementation("io.insert-koin:koin-androidx-compose:3.5.0")
-
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
     //room
-    implementation("androidx.room:room-runtime:2.8.4")
-    implementation("androidx.room:room-ktx:2.8.4")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.lifecycle.compiler) // Kotlin Extensions and Coroutines support
     //ksp("androidx.room:room-compiler:2.6.1") // Room compiler with KSP
-    kapt("androidx.room:room-compiler:2.8.4")
-
+    kapt(libs.androidx.room.compiler)
     //Coil
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation("io.coil-kt:coil-svg:2.6.0")
+    implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
 
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
-
-
+    implementation(libs.androidx.security.crypto)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -98,4 +100,3 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
-

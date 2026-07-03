@@ -29,6 +29,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.diyca.R
+import com.example.diyca.feature.learning.screens.player.PlayerScreen
 import com.example.diyca.ui.coponents.CustomBackButton
 import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomDialog
@@ -91,6 +92,7 @@ fun LessonScreen(navHostController: NavHostController, lessonRout: ScreenRoutes.
             text = state.text,
             title = state.title,
             image = state.image,
+            audio = state.audio,
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.height(Dimens.Padding_16))
@@ -133,7 +135,7 @@ fun LessonHeader(number: Int, viewModel: LessonViewModel) {
 }
 
 @Composable
-fun LessonItem(text: String, title: String, image: String?, modifier: Modifier = Modifier) {
+fun LessonItem(text: String, title: String, image: String?, audio: String?, modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
@@ -165,6 +167,10 @@ fun LessonItem(text: String, title: String, image: String?, modifier: Modifier =
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
             )
+        }
+        if (!audio.isNullOrEmpty()) {
+            Spacer(modifier = Modifier.height(Dimens.Padding_12))
+            PlayerScreen(audioUrl = audio)
         }
         Spacer(modifier = Modifier.height(Dimens.Padding_12))
         RichText(

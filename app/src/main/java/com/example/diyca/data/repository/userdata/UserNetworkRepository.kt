@@ -10,5 +10,6 @@ interface UserNetworkRepository {
     suspend fun setProgress(progressList: List<UserProgress>): Resource<Unit>
     suspend fun clearProgress(): Resource<Unit>
     suspend fun getActivity(): Resource<List<DailyActivity>>
-    suspend fun getRewards(): Resource<List<Reward>>
+    suspend fun getUserRewards(): Resource<List<String>>
+    suspend fun getAllRewards(): Resource<List<Reward>>
 }

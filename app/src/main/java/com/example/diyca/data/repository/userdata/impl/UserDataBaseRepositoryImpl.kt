@@ -46,16 +46,20 @@ class UserDataBaseRepositoryImpl(
         }
     }
 
-
     override fun getAllRewards(): Flow<List<Reward>> =
         userDatabase.rewardsDao().getAllRewards()
             .map { list -> list.map { userDataConverter.mapUserReward(it) } }
             .catch { emit(emptyList()) }
 
+    override fun getUserRewards(): Flow<List<String>> = userPrefsRepository.getUserRewards()
+
+    override suspend fun insertUserReward(rewardTitle: String) {
+        userPrefsRepository.insertUserReward(rewardTitle)
+    }
+
     override suspend fun insertReward(reward: Reward) {
         userDatabase.rewardsDao().insertReward(userDataConverter.mapUserReward(reward))
     }
-
 
     override fun getAllProgress(): Flow<List<UserProgress>> =
         userDatabase.progressDao().getAllProgress()
@@ -85,7 +89,6 @@ class UserDataBaseRepositoryImpl(
 
     override suspend fun clearAllData() {
         userDatabase.progressDao().clearAllProgress()
-        userDatabase.rewardsDao().clearAllRewards()
         userDatabase.activityDao().clearAllActivity()
         userPrefsRepository.clearUserData()
     }

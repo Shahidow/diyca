@@ -1,27 +1,26 @@
 package com.example.diyca.domain.home.mein.impl
 
+import android.util.Log
 import com.example.diyca.data.repository.learning.LearningRepository
 import com.example.diyca.data.repository.userdata.UserDataBaseRepository
+import com.example.diyca.data.repository.userdata.UserNetworkRepository
 import com.example.diyca.domain.home.mein.CurrentLessonState
 import com.example.diyca.domain.home.mein.HomeInteractor
-import com.example.diyca.domain.home.models.Reward
 import com.example.diyca.domain.home.models.DailyActivity
+import com.example.diyca.domain.home.models.Reward
 import com.example.diyca.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import java.time.LocalDate
-import kotlin.collections.groupBy
-import kotlin.collections.mapValues
-import kotlin.collections.sortedBy
 
 class HomeInteractorImpl(
+    private val userNetworkRepository: UserNetworkRepository,
     private val userDataBaseRepository: UserDataBaseRepository,
     private val learningRepository: LearningRepository
 ) : HomeInteractor {
 
     override fun getUserAvatar(): Flow<String> = userDataBaseRepository.getUserAvatar()
-
     override fun getUserName(): Flow<String> = userDataBaseRepository.getUserName()
 
     private val retrySignal =
@@ -79,5 +78,20 @@ class HomeInteractorImpl(
         return userDataBaseRepository.getTodayActivity(today)
     }
 
-    override fun getRewards(): Flow<List<Reward>> = userDataBaseRepository.getAllRewards()
+    override fun getUserRewards(): Flow<List<Reward>> {
+        return combine(
+            userDataBaseRepository.getAllRewards(),
+            userDataBaseRepository.getUserRewards()
+        ) { allRewards, openedTitles ->
+            val openedSet = openedTitles.toSet()
+            allRewards.map { reward -> reward.copy(isOpen = openedSet.contains(reward.title)) }
+        }
+    }
+
+    override suspend fun getRewards() {
+        val rewardsResource = userNetworkRepository.getAllRewards()
+        if (rewardsResource is Resource.Success) {
+            rewardsResource.data?.forEach { reward -> userDataBaseRepository.insertReward(reward) }
+        }
+    }
 }

@@ -109,6 +109,7 @@
     <string name="success">Успех</string>
     <string name="registration_success_message">Регистрация успешна, подтвердите почту</string>
     <string name="invalid_request">Неверные или недопустимые данные запроса</string>
+    <string name="audio_playback_error">Не удалось воспроизвести аудио</string>
 
     // ДИАЛОГИ
     <string name="logout_confirmation_message">Вы уверены, что хотите выйти?</string>

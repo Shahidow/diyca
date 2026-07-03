@@ -12,6 +12,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 
 
 class HomeViewModel(private val homeInteractor: HomeInteractor) : ViewModel() {
@@ -24,9 +25,13 @@ class HomeViewModel(private val homeInteractor: HomeInteractor) : ViewModel() {
 
     init {
         _state.update { it.copy(isLoading = true) }
+        updateRewards()
         observeUserData()
     }
 
+    private fun updateRewards() {
+        viewModelScope.launch { homeInteractor.getRewards() }
+    }
     private fun observeUserData() {
         viewModelScope.launch {
             launch {
@@ -45,7 +50,7 @@ class HomeViewModel(private val homeInteractor: HomeInteractor) : ViewModel() {
                 }
             }
             launch {
-                homeInteractor.getRewards().collect { rewards ->
+                homeInteractor.getUserRewards().collect { rewards ->
                     _state.update { it.copy(rewards = rewards) }
                 }
             }
