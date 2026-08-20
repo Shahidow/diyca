@@ -1,14 +1,15 @@
 package com.example.diyca.data.mappers
 
 import com.example.diyca.data.dto.user_data.ActivityResponse
+import com.example.diyca.data.dto.user_data.GetAllRewardsResponse
 import com.example.diyca.data.dto.user_data.ProgressResponse
-import com.example.diyca.data.dto.user_data.RewardResponse
 import com.example.diyca.data.dto.user_data.SetProgressChapterDto
 import com.example.diyca.data.dto.user_data.SetProgressDataDto
 import com.example.diyca.data.dto.user_data.SetProgressRequest
 import com.example.diyca.data.dto.user_data.SetProgressResponse
 import com.example.diyca.domain.home.models.DailyActivity
 import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.startup.models.RewardsData
 import com.example.diyca.domain.learning.models.UserProgress
 import java.util.TimeZone
 
@@ -25,7 +26,7 @@ class UserDataMapper {
         } ?: emptyList()
     }
 
-    fun mapDomainToSetProgressRequest(progressList: List<UserProgress>): SetProgressRequest {
+    fun mapDomainToSetProgressRequest(progressList: List<UserProgress>, newRewardIds: List<String>): SetProgressRequest {
         val chapters = progressList
             .groupBy { it.topicId to it.lessonId }
             .map { (pair, tasks) ->
@@ -40,7 +41,8 @@ class UserDataMapper {
             timezone = currentTimeZone,
             progress = SetProgressDataDto(
                 chapters = chapters
-            )
+            ),
+            rewards = newRewardIds
         )
     }
 
@@ -63,15 +65,19 @@ class UserDataMapper {
         )
     }
 
-    fun mapRewardsDtoToDomain(dto: List<RewardResponse>): List<Reward> {
-        return dto.map { itemDto->
-            Reward(
-                id = itemDto.id,
-                title = itemDto.rewardTitle,
-                category = itemDto.category,
-                name = itemDto.rewardName,
-                imageUrl = itemDto.imageUrl
-            )
-        }
+    fun mapRewardListDtoToDomain(dto: GetAllRewardsResponse): RewardsData {
+        return RewardsData(
+            version = dto.version,
+            rewards = dto.data.map { itemDto ->
+                Reward(
+                    id = itemDto.id,
+                    title = itemDto.rewardTitle,
+                    category = itemDto.category,
+                    name = itemDto.rewardName,
+                    image = itemDto.imageUrl,
+                    isOpen = false
+                )
+            }
+        )
     }
 }

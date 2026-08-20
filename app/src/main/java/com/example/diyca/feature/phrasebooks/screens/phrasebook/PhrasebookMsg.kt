@@ -7,5 +7,5 @@ sealed class PhrasebookMsg {
     data class DataLoaded(
         val phrasebookList: List<Phrasebook>
     ): PhrasebookMsg()
-    data class PhrasebookOpen(val id: Int): PhrasebookMsg()
+    data class PhrasebookOpen(val id: String): PhrasebookMsg()
 }

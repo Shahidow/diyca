@@ -59,6 +59,7 @@ fun StudyPlanScreen(navHostController: NavHostController) {
                     navHostController.navigateSafe(
                         ScreenRoutes.TopicRout(
                             id = effect.topic.id,
+                            topicTasksCount = effect.topic.tasksCount,
                             header = effect.topic.header,
                             text = effect.topic.text,
                         )

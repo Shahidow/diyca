@@ -43,8 +43,7 @@ class LoginViewModel(private val loginInteractor: LoginInteractor) :
 
                 _state.update { it.copy(isLoading = true, error = null) }
                 viewModelScope.launch {
-                    val data = loginInteractor.login(LoginData(email, password))
-                    when (data) {
+                    when (val data = loginInteractor.login(LoginData(email, password))) {
                         is Resource.Success -> dispatch(LoginMsg.DataLoaded)
                         is Resource.Error -> dispatch(LoginMsg.Error(data.errorType))
                     }
@@ -53,9 +52,6 @@ class LoginViewModel(private val loginInteractor: LoginInteractor) :
 
             is LoginMsg.DataLoaded -> {
                 _state.update { it.copy(isLoading = false) }
-                viewModelScope.launch {
-                    _effects.send(LoginEffect.NavigateToHome)
-                }
             }
 
             is LoginMsg.RegisterClicked -> {

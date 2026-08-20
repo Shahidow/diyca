@@ -19,14 +19,7 @@ class PhrasebookViewModel(private val phrasebookInteractor: PhrasebookInteractor
     val effects = _effects.receiveAsFlow()
 
     init {
-        start()
         dispatch(PhrasebookMsg.LoadData)
-    }
-
-    private fun start(){
-        viewModelScope.launch {
-            phrasebookInteractor.setData()
-        }
     }
 
     fun dispatch(msg: PhrasebookMsg) {

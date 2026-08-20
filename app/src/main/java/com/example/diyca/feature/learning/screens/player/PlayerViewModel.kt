@@ -60,7 +60,6 @@ class PlayerViewModel(
     }
 
     override fun onCleared() {
-        super.onCleared()
         repository.release()
     }
 }

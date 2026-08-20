@@ -17,4 +17,7 @@ interface RewardsDao {
 
     @Query("DELETE FROM rewards_table")
     suspend fun clearAllRewards()
+
+    @Query("UPDATE rewards_table SET imageUrl = :localPath WHERE rewardId = :id")
+    suspend fun updateRewardImage(id: String, localPath: String)
 }

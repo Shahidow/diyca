@@ -13,20 +13,15 @@ fun RootNavGraph(
     navController: NavHostController
 ) {
     val state by appViewModel.state.collectAsState()
-    if (state.needsDownload == null) return
-    if (state.needsDownload == false && state.isAuthorized == null) return
+    if (state.isAuthorized == null) return
 
-    val startDest = when {
-        state.needsDownload == true -> ScreenRoutes.DownloadGraph
-        state.isAuthorized == true -> ScreenRoutes.MainGraph
-        else -> ScreenRoutes.AuthGraph
-    }
+    val startDest =
+        if (state.isAuthorized == true) ScreenRoutes.MainGraph else ScreenRoutes.AuthGraph
 
     NavHost(
         navController = navController,
         startDestination = startDest
     ) {
-        downloadNavGraph()
         authNavGraph(navController)
         mainNavGraph(navController)
     }

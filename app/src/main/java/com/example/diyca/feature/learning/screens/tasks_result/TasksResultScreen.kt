@@ -36,7 +36,6 @@ import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomErrorBox
 import com.example.diyca.ui.navigation.ScreenRoutes
 import com.example.diyca.ui.navigation.navigateAndPopSelf
-import com.example.diyca.ui.navigation.navigateSafe
 import com.example.diyca.ui.navigation.popBackStackSafe
 import com.example.diyca.ui.theme.Dimens
 import com.example.diyca.ui.theme.Green
@@ -64,6 +63,7 @@ fun TasksResultScreen(
                 is TasksResultEffect.StartTasks -> navHostController.navigateAndPopSelf(
                     ScreenRoutes.TasksRout(
                         topicId = state.topicId,
+                        topicTasksCount = state.topicTasksCount,
                         lessonId = state.lessonId,
                         isContinue = effect.isContinue,
                         lessonTasksCount = state.lessonTasksCount

@@ -13,6 +13,7 @@ import com.example.diyca.data.db.userdata.UserDataConverter
 import com.example.diyca.data.db.userdata.UserDatabase
 import com.example.diyca.data.mappers.AuthRequestMapper
 import com.example.diyca.data.mappers.AuthResponseMapper
+import com.example.diyca.data.mappers.DictionaryResponseMapper
 import com.example.diyca.data.mappers.LearningResponseMapper
 import com.example.diyca.data.mappers.UserDataMapper
 import com.example.diyca.data.network.AuthApi
@@ -23,7 +24,7 @@ import com.example.diyca.data.network.TokenApi
 import com.example.diyca.data.network.TokenAuthenticator
 import com.example.diyca.data.network.UserApi
 import com.example.diyca.data.prefs.UserPrefsRepository
-import com.example.diyca.data.prefs.UserPrefsRepositoryImpl
+import com.example.diyca.data.prefs.impl.UserPrefsRepositoryImpl
 import com.example.diyca.data.repository.auth.AuthRepository
 import com.example.diyca.data.repository.auth.TokenStorage
 import com.example.diyca.data.repository.auth.impl.AuthRepositoryImpl
@@ -33,11 +34,11 @@ import com.example.diyca.data.repository.dictionaries.DictionaryNetworkRepositor
 import com.example.diyca.data.repository.dictionaries.impl.DictionaryDataBaseRepositoryImpl
 import com.example.diyca.data.repository.dictionaries.impl.DictionaryNetworkRepositoryImpl
 import com.example.diyca.data.repository.favorites.FavoritesRepository
-import com.example.diyca.data.repository.favorites.FavoritesRepositoryImpl
+import com.example.diyca.data.repository.favorites.impl.FavoritesRepositoryImpl
 import com.example.diyca.data.repository.learning.LearningRepository
 import com.example.diyca.data.repository.learning.impl.LearningRepositoryImpl
 import com.example.diyca.data.repository.player.AudioRepository
-import com.example.diyca.data.repository.player.AudioRepositoryImpl
+import com.example.diyca.data.repository.player.impl.AudioRepositoryImpl
 import com.example.diyca.data.repository.userdata.UserDataBaseRepository
 import com.example.diyca.data.repository.userdata.UserNetworkRepository
 import com.example.diyca.data.repository.userdata.impl.UserDataBaseRepositoryImpl
@@ -128,10 +129,11 @@ val dataModule = module {
     factory { UserDataConverter() }
     factory { UserDataMapper() }
     factory { LearningResponseMapper() }
+    factory { DictionaryResponseMapper() }
     factory { AuthResponseMapper() }
     factory { AuthRequestMapper() }
 
-    single<DictionaryNetworkRepository> { DictionaryNetworkRepositoryImpl(get()) }
+    single<DictionaryNetworkRepository> { DictionaryNetworkRepositoryImpl(get(), get(), get()) }
     single<UserPrefsRepository> { UserPrefsRepositoryImpl(get()) }
     single<FavoritesRepository> { FavoritesRepositoryImpl(get(), get()) }
     single<DictionaryDataBaseRepository> { DictionaryDataBaseRepositoryImpl(get(), get()) }
@@ -139,5 +141,5 @@ val dataModule = module {
     single<UserNetworkRepository> { UserNetworkRepositoryImpl(get(), get(), get()) }
     single<LearningRepository> { LearningRepositoryImpl(get(), get()) }
 
-    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get()) }
 }

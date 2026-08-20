@@ -21,7 +21,6 @@ class ProfileViewModel(private val profileInteractor: ProfileInteractor) : ViewM
 
     init {
         observeUserData()
-        dispatch(ProfileMsg.LoadData)
     }
 
     private fun observeUserData() {
@@ -36,18 +35,16 @@ class ProfileViewModel(private val profileInteractor: ProfileInteractor) : ViewM
                     _state.update { it.copy(userName = name) }
                 }
             }
+            launch {
+                profileInteractor.getUserRewards().collect { userRewards->
+                    _state.update { it.copy(rewards = userRewards) }
+                }
+            }
         }
     }
 
     fun dispatch(msg: ProfileMsg) {
         when (msg) {
-            is ProfileMsg.LoadData -> {
-                viewModelScope.launch {
-                    val rewards = profileInteractor.getRewards()
-                    _state.update { it.copy(rewards = rewards) }
-                }
-            }
-
             is ProfileMsg.InviteFriendsClicked -> {
                 viewModelScope.launch {
                     _effects.send(ProfileEffect.InviteFriends)

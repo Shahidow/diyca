@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 interface ProfileInteractor {
     fun getUserAvatar(): Flow<String>
     fun getUserName(): Flow<String>
-    suspend fun getRewards(): List<Reward>
+    fun getUserRewards(): Flow<List<Reward>>
 }

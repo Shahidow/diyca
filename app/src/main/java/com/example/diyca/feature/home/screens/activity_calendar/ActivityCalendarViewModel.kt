@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.diyca.domain.home.activity.ActivityInteractor
 import com.example.diyca.domain.home.models.DailyActivity
 import com.example.diyca.feature.home.screens.activity_calendar.models.MonthDisplayModel
+import com.example.diyca.util.DATE_FORMAT
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,7 +57,7 @@ class ActivityCalendarViewModel(private val activityInteractor: ActivityInteract
     private fun updateDate() {
         val now = LocalDate.now()
         val formatter = DateTimeFormatter.ofPattern(
-            "dd MMM yyyy",
+            DATE_FORMAT,
             Locale("ru")
         )
         val dateString = now.format(formatter)

@@ -15,6 +15,9 @@ class SessionManagerImpl(
 
     override fun saveTokens(access: String, refresh: String) {
         tokenStorage.saveTokens(access, refresh)
+    }
+
+    override fun markAuthorized() {
         _isAuthorized.value = true
     }
 

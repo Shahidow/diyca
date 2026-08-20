@@ -15,13 +15,6 @@ sealed class ScreenRoutes {
     @Serializable
     data object BottomBarGraph
 
-    @Serializable
-    data object DownloadGraph : ScreenRoutes()
-
-    //STARTUP
-    @Serializable
-    data object StartupRout : ScreenRoutes()
-
     //AUTH
     @Serializable
     data object LoginRout : ScreenRoutes()
@@ -38,7 +31,7 @@ sealed class ScreenRoutes {
 
     @Serializable
     data class PhrasebookItemsRout(
-        val parentId: Int = 0
+        val parentId: String = ""
     ) : ScreenRoutes()
 
     //HOME
@@ -66,6 +59,7 @@ sealed class ScreenRoutes {
     data class TopicRout(
         val id: String = "",
         val header: String = "",
+        val topicTasksCount: Int = 0,
         val audio: String? = null,
         val text: String = "",
     ) : ScreenRoutes()
@@ -74,17 +68,19 @@ sealed class ScreenRoutes {
     data class LessonRout(
         val id: String = "",
         val topicId: String = "",
+        val topicTasksCount: Int = 0,
         val number: Int = 0,
         val title: String = "",
         val text: String = "",
         val image: String? = null,
         val audio: String? = null,
-        val tasksCount: Int = 0,
+        val lessonTasksCount: Int = 0,
     ) : ScreenRoutes()
 
     @Serializable
     data class TasksRout(
         val topicId: String = "",
+        val topicTasksCount: Int = 0,
         val lessonId: String = "",
         val isContinue: Boolean = false,
         val lessonTasksCount: Int = 0
@@ -93,6 +89,7 @@ sealed class ScreenRoutes {
     @Serializable
     data class TasksResultRout(
         val topicId: String = "",
+        val topicTasksCount: Int = 0,
         val lessonId: String = "",
         val completedTasks: List<String> = emptyList(),
         val tasksCount: Int = 0,
@@ -105,10 +102,10 @@ sealed class ScreenRoutes {
 
     @Serializable
     data class DictionaryItemRout(
-        val id: Int = 0,
+        val id: String = "",
         val isFavorites: Boolean = false,
         val type: DictionaryType,
-        val parentId: Int? = null
+        val parentId: String? = null
     ) : ScreenRoutes()
 
     //FAVORITES

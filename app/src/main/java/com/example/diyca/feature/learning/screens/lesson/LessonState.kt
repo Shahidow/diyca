@@ -7,6 +7,7 @@ data class LessonState(
 
     val lessonId: String = "",
     val topicId: String = "",
+    val topicTasksCount: Int = 0,
     val number: Int = 0,
     val title: String = "",
     val text: String = "",

@@ -6,14 +6,12 @@ import com.example.diyca.domain.home.mein.CurrentLessonState
 import com.example.diyca.domain.home.mein.HomeInteractor
 import com.example.diyca.domain.home.settings.models.UserAvatar
 import com.example.diyca.util.LANGUAGE_ID
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
-
 
 class HomeViewModel(private val homeInteractor: HomeInteractor) : ViewModel() {
 
@@ -25,13 +23,9 @@ class HomeViewModel(private val homeInteractor: HomeInteractor) : ViewModel() {
 
     init {
         _state.update { it.copy(isLoading = true) }
-        updateRewards()
         observeUserData()
     }
 
-    private fun updateRewards() {
-        viewModelScope.launch { homeInteractor.getRewards() }
-    }
     private fun observeUserData() {
         viewModelScope.launch {
             launch {

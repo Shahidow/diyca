@@ -56,10 +56,11 @@ fun LessonScreen(navHostController: NavHostController, lessonRout: ScreenRoutes.
                 is LessonEffect.NavigateBack -> navHostController.popBackStackSafe()
                 is LessonEffect.NavigateToTasks -> navHostController.navigateSafe(
                     ScreenRoutes.TasksRout(
-                        effect.topicId,
-                        effect.lessonId,
-                        effect.isContinue,
-                        effect.lessonTasksCount
+                        topicId = effect.topicId,
+                        topicTasksCount = effect.topicTasksCount,
+                        lessonId = effect.lessonId,
+                        isContinue = effect.isContinue,
+                        lessonTasksCount = effect.lessonTasksCount
                     )
                 )
             }

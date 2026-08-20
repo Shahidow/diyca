@@ -4,7 +4,6 @@ import com.example.diyca.data.repository.auth.AuthRepository
 import com.example.diyca.domain.auth.recovery.models.ResetPasswordData
 import com.example.diyca.domain.auth.recovery.models.VerifyResetCodeData
 import com.example.diyca.util.Resource
-import kotlinx.coroutines.flow.first
 
 class RecoveryInteractorImpl(private val authRepository: AuthRepository): RecoveryInteractor {
     override suspend fun requestPasswordReset(email: String): Resource<Unit> {

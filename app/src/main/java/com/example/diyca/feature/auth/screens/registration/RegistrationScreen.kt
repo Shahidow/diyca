@@ -1,7 +1,6 @@
 package com.example.diyca.feature.auth.screens.registration
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +38,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.example.diyca.R
 import com.example.diyca.ui.coponents.CustomButtonColored
@@ -63,7 +63,7 @@ fun Registration(navHostController: NavHostController) {
                 is RegistrationEffect.OpenPolicyUrl -> context.startActivity(
                     Intent(
                         Intent.ACTION_VIEW,
-                        Uri.parse(POLICY)
+                        POLICY.toUri()
                     )
                 )
             }
@@ -102,7 +102,7 @@ fun Registration(navHostController: NavHostController) {
             Spacer(modifier = Modifier.height(Dimens.Padding_8))
 
             Text(
-                text = state.error?.let { context.getString(it) } ?: "",
+                text = state.error?.let { stringResource(it) } ?: "",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier

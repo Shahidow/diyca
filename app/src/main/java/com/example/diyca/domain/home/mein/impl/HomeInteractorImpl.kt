@@ -1,9 +1,7 @@
 package com.example.diyca.domain.home.mein.impl
 
-import android.util.Log
 import com.example.diyca.data.repository.learning.LearningRepository
 import com.example.diyca.data.repository.userdata.UserDataBaseRepository
-import com.example.diyca.data.repository.userdata.UserNetworkRepository
 import com.example.diyca.domain.home.mein.CurrentLessonState
 import com.example.diyca.domain.home.mein.HomeInteractor
 import com.example.diyca.domain.home.models.DailyActivity
@@ -15,7 +13,6 @@ import kotlinx.coroutines.flow.combine
 import java.time.LocalDate
 
 class HomeInteractorImpl(
-    private val userNetworkRepository: UserNetworkRepository,
     private val userDataBaseRepository: UserDataBaseRepository,
     private val learningRepository: LearningRepository
 ) : HomeInteractor {
@@ -85,13 +82,6 @@ class HomeInteractorImpl(
         ) { allRewards, openedTitles ->
             val openedSet = openedTitles.toSet()
             allRewards.map { reward -> reward.copy(isOpen = openedSet.contains(reward.title)) }
-        }
-    }
-
-    override suspend fun getRewards() {
-        val rewardsResource = userNetworkRepository.getAllRewards()
-        if (rewardsResource is Resource.Success) {
-            rewardsResource.data?.forEach { reward -> userDataBaseRepository.insertReward(reward) }
         }
     }
 }

@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName
 data class SetProgressRequest (
     @SerializedName("timezone")
     val timezone: String,
+    @SerializedName("rewards")
+    val rewards: List<String>,
     @SerializedName("progress")
     val progress: SetProgressDataDto
 )

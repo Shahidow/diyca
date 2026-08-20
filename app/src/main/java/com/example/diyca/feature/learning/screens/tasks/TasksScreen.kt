@@ -77,11 +77,12 @@ fun TasksScreen(navHostController: NavHostController, tasksRout: ScreenRoutes.Ta
                 is TasksEffect.CloseTasks -> navHostController.popBackStackSafe()
                 is TasksEffect.NavigateToResult -> navHostController.navigateAndPopSelf(
                     ScreenRoutes.TasksResultRout(
-                        effect.topicId,
-                        effect.lessonId,
-                        effect.completedTasks,
-                        effect.tasksCount,
-                        effect.lessonTasksCount
+                        topicId = effect.topicId,
+                        topicTasksCount = effect.topicTasksCount,
+                        lessonId = effect.lessonId,
+                        completedTasks = effect.completedTasks,
+                        tasksCount = effect.tasksCount,
+                        lessonTasksCount = effect.lessonTasksCount
                     )
                 )
             }

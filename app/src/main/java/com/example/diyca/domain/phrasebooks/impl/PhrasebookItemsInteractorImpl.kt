@@ -10,7 +10,7 @@ class PhrasebookItemsInteractorImpl(
     private val favoritesRepository: FavoritesRepository,
     private val dictionaryDataBaseRepository: DictionaryDataBaseRepository
 ) : PhrasebookItemsInteractor {
-    override fun getPhrasebookItems(parentId: Int): Flow<List<DictionaryItem.PhrasebookItem>> =
+    override fun getPhrasebookItems(parentId: String): Flow<List<DictionaryItem.PhrasebookItem>> =
         dictionaryDataBaseRepository.getPhrasebookItems(parentId)
 
     override suspend fun updateFavoriteItem(phrasebookItem: DictionaryItem.PhrasebookItem) {

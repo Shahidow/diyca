@@ -7,8 +7,12 @@ import kotlinx.coroutines.flow.Flow
 
 interface DictionaryDataBaseRepository {
     fun getDictionary(type: DictionaryType): Flow<List<DictionaryItem>>
-    fun getPhrasebookItems(parentId: Int): Flow<List<DictionaryItem.PhrasebookItem>>
+    fun getPhrasebookItems(parentId: String): Flow<List<DictionaryItem.PhrasebookItem>>
     suspend fun insertDictionaryItem(dictionaryItem: DictionaryItem)
+    suspend fun clearDictionary(type: DictionaryType)
     fun getPhrasebooks(): Flow<List<Phrasebook>>
+    suspend fun clearAllPhrasebooks()
+    suspend fun updatePhrasebookImage(id: String, localPath: String)
     suspend fun insertPhrasebook(phrasebook: Phrasebook)
+    suspend fun getDictionaryFavoriteIds(type: DictionaryType): List<String>
 }

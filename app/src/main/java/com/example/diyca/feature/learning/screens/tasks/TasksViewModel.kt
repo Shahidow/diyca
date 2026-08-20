@@ -39,7 +39,8 @@ class TasksViewModel(private val tasksInteractor: TasksInteractor) : ViewModel()
                         error = null,
                         topicId = msg.tasksRout.topicId,
                         lessonId = msg.tasksRout.lessonId,
-                        lessonTasksCount = msg.tasksRout.lessonTasksCount
+                        lessonTasksCount = msg.tasksRout.lessonTasksCount,
+                        topicTasksCount = msg.tasksRout.topicTasksCount
                     )
                 }
                 loadJob = viewModelScope.launch {
@@ -143,11 +144,12 @@ class TasksViewModel(private val tasksInteractor: TasksInteractor) : ViewModel()
             viewModelScope.launch {
                 _effects.send(
                     TasksEffect.NavigateToResult(
-                        currentState.topicId,
-                        currentState.lessonId,
-                        currentState.completedTasks,
-                        currentState.tasks.size,
-                        currentState.lessonTasksCount
+                        topicId = currentState.topicId,
+                        topicTasksCount = currentState.topicTasksCount,
+                        lessonId = currentState.lessonId,
+                        completedTasks = currentState.completedTasks,
+                        tasksCount = currentState.tasks.size,
+                        lessonTasksCount = currentState.lessonTasksCount
                     )
                 )
             }

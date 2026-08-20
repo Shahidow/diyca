@@ -5,6 +5,6 @@ data class Reward(
     val title: String,
     val category: String,
     val name: String,
-    val imageUrl: String?,
+    val image: String?,
     val isOpen: Boolean = false
 )

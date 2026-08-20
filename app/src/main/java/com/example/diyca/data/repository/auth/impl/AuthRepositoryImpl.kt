@@ -24,7 +24,6 @@ class AuthRepositoryImpl(
     private val authApi: AuthApi,
     private val authRequestMapper: AuthRequestMapper,
     private val authResponseMapper: AuthResponseMapper,
-    private val tokenStorage: TokenStorage,
     private val userDataBaseRepository: UserDataBaseRepository
 ) : AuthRepository {
 
@@ -35,7 +34,6 @@ class AuthRepositoryImpl(
                 val userData = authResponseMapper.loginResponseToDomain(body)
                 userDataBaseRepository.insertUserName(userData.nickname)
                 userDataBaseRepository.insertUserEmail(userData.email)
-                tokenStorage.saveTokens(access = userData.accessToken, refresh = userData.refreshToken)
                 Resource.Success(userData)
             } ?: Resource.Error(ErrorType.ServerError)
         } else {

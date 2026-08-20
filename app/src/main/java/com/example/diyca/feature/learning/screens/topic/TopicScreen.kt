@@ -61,12 +61,13 @@ fun TopicScreen(navHostController: NavHostController, topicRout: ScreenRoutes.To
                         ScreenRoutes.LessonRout(
                             id = lesson.id,
                             topicId = state.topicId,
+                            topicTasksCount = state.topicTasksCount,
                             number = lesson.number,
                             title = lesson.title,
                             text = lesson.text,
                             image = lesson.image,
                             audio = lesson.audio,
-                            tasksCount = lesson.tasksCount,
+                            lessonTasksCount = lesson.tasksCount,
                         )
                     )
                 }

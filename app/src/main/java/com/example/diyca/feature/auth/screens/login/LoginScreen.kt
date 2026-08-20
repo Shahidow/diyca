@@ -32,7 +32,6 @@ import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomTextButtonColored
 import com.example.diyca.ui.coponents.CustomTextField
 import com.example.diyca.ui.navigation.ScreenRoutes
-import com.example.diyca.ui.navigation.navigateAndClearStack
 import com.example.diyca.ui.navigation.navigateSafe
 import com.example.diyca.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
@@ -47,7 +46,6 @@ fun LoginScreen(navHostController: NavHostController) {
             when (effect) {
                 is LoginEffect.NavigateToRegistration -> navHostController.navigateSafe(ScreenRoutes.RegistrationRout)
                 is LoginEffect.NavigateToRecovery -> navHostController.navigateSafe(ScreenRoutes.RecoveryRout)
-                is LoginEffect.NavigateToHome -> navHostController.navigateAndClearStack(ScreenRoutes.HomeRout)
             }
         }
     }

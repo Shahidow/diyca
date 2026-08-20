@@ -2,6 +2,13 @@ package com.example.diyca.data.dto.user_data
 
 import com.google.gson.annotations.SerializedName
 
+data class GetAllRewardsResponse(
+    @SerializedName("version")
+    val version: Int,
+    @SerializedName("data")
+    val data: List<RewardResponse>
+)
+
 data class RewardResponse(
     @SerializedName("_id")
     val id: String,

@@ -4,6 +4,7 @@ sealed class TasksEffect {
     data object CloseTasks : TasksEffect()
     data class NavigateToResult(
         val topicId: String,
+        val topicTasksCount: Int,
         val lessonId: String,
         val completedTasks: List<String>,
         val tasksCount: Int,

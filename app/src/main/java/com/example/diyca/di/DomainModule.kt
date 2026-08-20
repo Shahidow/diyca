@@ -27,25 +27,33 @@ import com.example.diyca.domain.home.activity.impl.ActivityInteractorImpl
 import com.example.diyca.domain.learning.tasks.TasksInteractor
 import com.example.diyca.domain.learning.tasks.impl.TasksInteractorImpl
 import com.example.diyca.domain.learning.tasks_result.TasksResultInteractor
-import com.example.diyca.domain.learning.tasks_result.TasksResultInteractorImpl
+import com.example.diyca.domain.learning.tasks_result.impl.TasksResultInteractorImpl
 import com.example.diyca.domain.phrasebooks.PhrasebookItemsInteractor
 import com.example.diyca.domain.phrasebooks.impl.PhrasebookItemsInteractorImpl
+import com.example.diyca.domain.rewards.RewardEvaluator
 import com.example.diyca.domain.session.SessionManager
 import com.example.diyca.domain.session.impl.SessionManagerImpl
 import com.example.diyca.domain.startup.StartupInteractor
-import com.example.diyca.domain.startup.StartupInteractorImpl
+import com.example.diyca.domain.startup.impl.StartupInteractorImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.dsl.module
 
 val domainModule = module {
+    single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+
     single<SessionManager> { SessionManagerImpl(get()) }
 
-    single<StartupInteractor> { StartupInteractorImpl(get(), get(), get(), get(), get()) }
+    single<RewardEvaluator> { RewardEvaluator() }
+
+    single<StartupInteractor> { StartupInteractorImpl(get(),get(), get(),get(), get(), get(), get(), get()) }
 
     single<LoginInteractor> { LoginInteractorImpl(get(), get(), get(), get()) }
     single<RegistrationInteractor> { RegistrationInteractorImpl(get()) }
     single<RecoveryInteractor> { RecoveryInteractorImpl(get()) }
 
-    single<HomeInteractor> { HomeInteractorImpl(get(), get(), get()) }
+    single<HomeInteractor> { HomeInteractorImpl(get(), get()) }
     single<ProfileInteractor> { ProfileInteractorImpl(get()) }
     single<SettingsInteractor> { SettingsInteractorImpl(get(), get(), get(), get()) }
 
@@ -54,7 +62,7 @@ val domainModule = module {
     single<StudyPlanInteractor> { StudyPlanInteractorImpl(get(), get()) }
     single<LessonInteractor> { LessonInteractorImpl(get(), get()) }
     single<TasksInteractor> { TasksInteractorImpl(get(), get()) }
-    single<TasksResultInteractor> { TasksResultInteractorImpl(get(), get()) }
+    single<TasksResultInteractor> { TasksResultInteractorImpl(get(), get(), get()) }
 
     single<FavoritesInteractor> { FavoritesInteractorImpl(get()) }
 

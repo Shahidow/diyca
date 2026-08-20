@@ -43,7 +43,9 @@ fun MainScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(paddingValues)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
             RootNavGraph(
                 appViewModel = appViewModel,

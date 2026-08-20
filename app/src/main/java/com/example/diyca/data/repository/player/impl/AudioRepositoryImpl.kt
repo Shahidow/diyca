@@ -1,4 +1,4 @@
-package com.example.diyca.data.repository.player
+package com.example.diyca.data.repository.player.impl
 
 import android.content.Context
 import androidx.media3.common.MediaItem
@@ -10,6 +10,7 @@ import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import com.example.diyca.data.repository.player.AudioRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

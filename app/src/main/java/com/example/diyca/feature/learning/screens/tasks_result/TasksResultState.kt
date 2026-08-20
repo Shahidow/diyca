@@ -5,6 +5,7 @@ import com.example.diyca.util.ErrorType
 
 data class TasksResultState(
     val topicId: String = "",
+    val topicTasksCount: Int = 0,
     val lessonId: String = "",
     val title: Int? = null,
     val completedTasks: List<String> = emptyList(),

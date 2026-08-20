@@ -1,7 +1,8 @@
-package com.example.diyca.data.repository.favorites
+package com.example.diyca.data.repository.favorites.impl
 
 import com.example.diyca.data.db.dictionary.DictionaryDatabase
 import com.example.diyca.data.db.dictionary.DictionaryItemConverter
+import com.example.diyca.data.repository.favorites.FavoritesRepository
 import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryItem
 import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryType
 import kotlinx.coroutines.flow.Flow

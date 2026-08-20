@@ -1,8 +1,8 @@
 package com.example.diyca.data.network
 
 import com.example.diyca.data.dto.user_data.ActivityResponse
+import com.example.diyca.data.dto.user_data.GetAllRewardsResponse
 import com.example.diyca.data.dto.user_data.ProgressResponse
-import com.example.diyca.data.dto.user_data.RewardResponse
 import com.example.diyca.data.dto.user_data.SetProgressRequest
 import com.example.diyca.data.dto.user_data.SetProgressResponse
 import com.example.diyca.data.dto.user_data.UserRewardsResponse
@@ -28,5 +28,5 @@ interface UserApi {
     suspend fun getUserRewards(): Response<UserRewardsResponse>
 
     @GET("/python/reward")
-    suspend fun getAllRewards(): Response<List<RewardResponse>>
+    suspend fun getAllRewards(): Response<GetAllRewardsResponse>
 }

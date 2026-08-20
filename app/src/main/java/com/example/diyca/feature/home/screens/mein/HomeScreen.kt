@@ -90,7 +90,7 @@ fun HomeScreen(navHostController: NavHostController) {
                             text = lesson.text,
                             image = lesson.image,
                             audio = lesson.audio,
-                            tasksCount = lesson.tasksCount
+                            lessonTasksCount = lesson.tasksCount
                         )
                     )
                 }
@@ -453,7 +453,6 @@ fun HomeRewards(rewards: List<Reward>) {
                     style = MaterialTheme.typography.labelLarge,
                 )
             }
-
         } else {
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),

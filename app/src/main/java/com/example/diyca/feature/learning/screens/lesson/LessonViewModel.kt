@@ -29,16 +29,17 @@ class LessonViewModel(private val lessonInteractor: LessonInteractor) : ViewMode
                         isLoading = true,
                         lessonId = msg.lessonRout.id,
                         topicId = msg.lessonRout.topicId,
+                        topicTasksCount = msg.lessonRout.topicTasksCount,
                         number = msg.lessonRout.number,
                         title = msg.lessonRout.title,
                         text = msg.lessonRout.text,
                         image = msg.lessonRout.image,
                         audio = msg.lessonRout.audio,
-                        tasksCount = msg.lessonRout.tasksCount,
+                        tasksCount = msg.lessonRout.lessonTasksCount,
                     )
                 }
                 viewModelScope.launch {
-                    lessonInteractor.getLessonProgress(msg.lessonRout.id, msg.lessonRout.tasksCount)
+                    lessonInteractor.getLessonProgress(msg.lessonRout.id, msg.lessonRout.lessonTasksCount)
                         .collect { progress ->
                             _state.update {
                                 it.copy(
@@ -62,10 +63,11 @@ class LessonViewModel(private val lessonInteractor: LessonInteractor) : ViewMode
                     val state = _state.value
                     _effects.send(
                         LessonEffect.NavigateToTasks(
-                            state.topicId,
-                            state.lessonId,
-                            msg.isContinue,
-                            state.tasksCount
+                            topicTasksCount = state.topicTasksCount,
+                            topicId = state.topicId,
+                            lessonId = state.lessonId,
+                            isContinue = msg.isContinue,
+                            lessonTasksCount = state.tasksCount
                         )
                     )
                 }

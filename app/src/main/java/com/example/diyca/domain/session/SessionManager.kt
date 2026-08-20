@@ -7,6 +7,7 @@ interface SessionManager {
     fun getAccessToken(): String?
     fun getRefreshToken(): String?
     fun saveTokens(access: String, refresh: String)
+    fun markAuthorized()
     suspend fun validateSession()
     fun logout()
 }

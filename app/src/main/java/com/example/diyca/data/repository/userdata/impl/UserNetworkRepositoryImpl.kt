@@ -5,7 +5,7 @@ import com.example.diyca.data.network.UserApi
 import com.example.diyca.data.repository.userdata.UserDataBaseRepository
 import com.example.diyca.data.repository.userdata.UserNetworkRepository
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.startup.models.RewardsData
 import com.example.diyca.domain.learning.models.UserProgress
 import com.example.diyca.util.ErrorType
 import com.example.diyca.util.Resource
@@ -30,9 +30,9 @@ class UserNetworkRepositoryImpl(
         }
     }
 
-    override suspend fun setProgress(progressList: List<UserProgress>): Resource<Unit> =
+    override suspend fun setProgress(progressList: List<UserProgress>, newRewardIds: List<String>): Resource<Unit> =
         safeApiCall {
-            val request = userDataMapper.mapDomainToSetProgressRequest(progressList)
+            val request = userDataMapper.mapDomainToSetProgressRequest(progressList, newRewardIds)
             val response = userApi.setProgress(request)
             if (response.isSuccessful) {
                 response.body()?.let { body ->
@@ -73,19 +73,18 @@ class UserNetworkRepositoryImpl(
         val response = userApi.getUserRewards()
         if (response.isSuccessful) {
             response.body()?.let { body ->
-                val userRewards = body.data
-                Resource.Success(userRewards)
+                Resource.Success(body.data)
             } ?: Resource.Error(ErrorType.ServerError)
         } else {
             handleNetworkError(response)
         }
     }
 
-    override suspend fun getAllRewards(): Resource<List<Reward>> = safeApiCall {
+    override suspend fun getAllRewards(): Resource<RewardsData> = safeApiCall {
         val response = userApi.getAllRewards()
         if (response.isSuccessful) {
             response.body()?.let { body ->
-                val domainRewards = userDataMapper.mapRewardsDtoToDomain(body)
+                val domainRewards = userDataMapper.mapRewardListDtoToDomain(body)
                 Resource.Success(domainRewards)
             } ?: Resource.Error(ErrorType.ServerError)
         } else {

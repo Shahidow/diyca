@@ -1,5 +1,6 @@
 package com.example.diyca.data.prefs
 
+import com.example.diyca.domain.startup.LibraryKeys
 import kotlinx.coroutines.flow.Flow
 
 
@@ -11,8 +12,8 @@ interface UserPrefsRepository {
     fun getUserEmailFlow(): Flow<String>
     suspend fun saveUserEmail(email: String)
     suspend fun clearUserData()
-    fun getLibVersionsFlow(): Flow<Map<String, String?>>
-    suspend fun saveLibVersion(libKey: String, version: String)
+    fun getLibVersions(libKey: LibraryKeys): Flow<Int?>
+    suspend fun saveLibVersion(libKey: LibraryKeys, version: Int)
     fun getUserRewards(): Flow<List<String>>
-    suspend fun insertUserReward(rewardTitle: String)
+    suspend fun saveUserRewards(rewardTitles: List<String>)
 }

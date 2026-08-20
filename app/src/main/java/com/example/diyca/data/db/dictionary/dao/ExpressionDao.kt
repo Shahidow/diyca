@@ -21,4 +21,10 @@ interface ExpressionDao {
 
     @Query("SELECT * FROM expression_table WHERE isFavorite = 1")
     fun getFavoritesExpressions(): Flow<List<ExpressionEntity>>
+
+    @Query("SELECT id FROM expression_table WHERE isFavorite = 1")
+    suspend fun getFavoriteExpressionIds(): List<String>
+
+    @Query("DELETE FROM expression_table")
+    suspend fun clearAllExpressions()
 }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,6 +34,7 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
+@Suppress("DEPRECATION")
 @Composable
 fun ActivityCalendarScreen(navController: NavController) {
     val viewModel: ActivityCalendarViewModel = koinViewModel()
@@ -76,12 +78,14 @@ fun ActivityCalendarScreen(navController: NavController) {
                     )
                 }
                 items(months) { month ->
+                    val configuration = LocalConfiguration.current
+                    val currentLocale = configuration.locales[0]
                     Text(
                         text = month.month.getDisplayName(
                             TextStyle.FULL_STANDALONE,
                             Locale("ru")
                         )
-                            .replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                            .replaceFirstChar { it.titlecase(currentLocale) },
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier

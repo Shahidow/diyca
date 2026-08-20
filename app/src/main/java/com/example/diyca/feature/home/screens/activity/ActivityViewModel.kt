@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.diyca.domain.home.activity.ActivityInteractor
 import com.example.diyca.domain.home.models.DailyActivity
+import com.example.diyca.util.DATE_FORMAT
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -66,7 +67,7 @@ class ActivityViewModel(private val activityInteractor: ActivityInteractor) : Vi
 
     private fun updateDate() {
         val now = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale("ru"))
+        val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT, Locale("ru"))
         _state.update { it.copy(todayDate = now.format(formatter)) }
     }
 

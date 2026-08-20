@@ -33,7 +33,7 @@ class DictionaryDataBaseRepositoryImpl(
                 .catch { emit(emptyList()) }
         }
 
-    override fun getPhrasebookItems(parentId: Int): Flow<List<DictionaryItem.PhrasebookItem>> =
+    override fun getPhrasebookItems(parentId: String): Flow<List<DictionaryItem.PhrasebookItem>> =
         dictionaryDatabase.phrasebookItemDao().getPhrasebookByTopic(parentId)
             .map { list -> list.map { dictionaryItemConverter.mapPhrasebookItem(it) } }
             .catch { emit(emptyList()) }
@@ -56,14 +56,44 @@ class DictionaryDataBaseRepositoryImpl(
         }
     }
 
+    override suspend fun clearDictionary(type: DictionaryType) {
+        when (type) {
+            DictionaryType.WORD -> dictionaryDatabase.wordDao().clearAllWords()
+            DictionaryType.PHRASEBOOK -> dictionaryDatabase.phrasebookItemDao()
+                .clearAllPhrasebookItems()
+
+            DictionaryType.EXPRESSION -> dictionaryDatabase.expressionDao().clearAllExpressions()
+            DictionaryType.PROVERB -> dictionaryDatabase.proverbDao().clearAllProverbs()
+        }
+    }
+
     override fun getPhrasebooks(): Flow<List<Phrasebook>> =
         dictionaryDatabase.phrasebookDao().getPhrasebooks()
             .map { list -> list.map { dictionaryItemConverter.mapPhrasebook(it) } }
             .catch { emit(emptyList()) }
 
+    override suspend fun clearAllPhrasebooks() {
+        dictionaryDatabase.phrasebookDao().clearAllPhrasebooks()
+    }
+
+    override suspend fun updatePhrasebookImage(id: String, localPath: String) {
+        dictionaryDatabase.phrasebookDao().updatePhrasebookImage(id, localPath)
+    }
+
 
     override suspend fun insertPhrasebook(phrasebook: Phrasebook) {
         dictionaryDatabase.phrasebookDao()
             .insertPhrasebook(dictionaryItemConverter.mapPhrasebook(phrasebook))
+    }
+
+    override suspend fun getDictionaryFavoriteIds(type: DictionaryType): List<String> {
+        return when (type) {
+            DictionaryType.EXPRESSION -> dictionaryDatabase.expressionDao()
+                .getFavoriteExpressionIds()
+
+            DictionaryType.PHRASEBOOK -> dictionaryDatabase.phrasebookItemDao().getFavoriteIds()
+            DictionaryType.PROVERB -> dictionaryDatabase.proverbDao().getFavoriteProverbIds()
+            DictionaryType.WORD -> dictionaryDatabase.wordDao().getFavoriteWordIds()
+        }
     }
 }

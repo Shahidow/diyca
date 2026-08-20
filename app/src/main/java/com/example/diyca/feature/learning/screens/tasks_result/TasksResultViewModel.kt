@@ -38,6 +38,7 @@ class TasksResultViewModel(private val tasksResultInteractor: TasksResultInterac
                 _state.update {
                     it.copy(
                         topicId = resultData.topicId,
+                        topicTasksCount = resultData.topicTasksCount,
                         lessonId = resultData.lessonId,
                         completedTasks = resultData.completedTasks,
                         tasksCount = resultData.tasksCount,
@@ -60,7 +61,15 @@ class TasksResultViewModel(private val tasksResultInteractor: TasksResultInterac
                             topicId = currentState.topicId
                         )
                     }
-                    when (val result = tasksResultInteractor.setProgress(progressList)) {
+                    val result = tasksResultInteractor.setProgress(
+                        progressList = progressList,
+                        lessonId = currentState.lessonId,
+                        topicId = currentState.topicId,
+                        topicTasksCount = currentState.topicTasksCount,
+                        lessonTasksCount = currentState.lessonTasksCount,
+                        completedTasks = currentState.completedTasks
+                    )
+                    when (result) {
                         is Resource.Success -> {
                             val lessonProgress = tasksResultInteractor.getLessonProgressFloat(
                                 currentState.lessonId,

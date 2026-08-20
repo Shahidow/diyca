@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
@@ -36,12 +38,13 @@ import com.example.diyca.domain.dictionaries.dictionary.models.DictionaryItem
 import com.example.diyca.ui.coponents.CustomBoxIconButton
 import com.example.diyca.ui.navigation.popBackStackSafe
 import com.example.diyca.ui.theme.Dimens
+import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.ui.material3.RichText
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun DictionaryItemScreen(
-    navHostController: NavHostController,
-    itemData: ScreenRoutes.DictionaryItemRout
+    navHostController: NavHostController, itemData: ScreenRoutes.DictionaryItemRout
 ) {
     val viewModel: DictionaryItemViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
@@ -62,18 +65,17 @@ fun DictionaryItemScreen(
     }
 
     val pagerState = rememberPagerState(
-        initialPage = initialPage,
-        pageCount = { state.items.size }
-    )
+        initialPage = initialPage, pageCount = { state.items.size })
 
     LaunchedEffect(state.items) {
         if (state.items.isNotEmpty() && !isInitialScrollDone) {
-            val initialPage = state.items.indexOfFirst { it.id == itemData.id }.takeIf { it >= 0 } ?: 0
+            val initialPage =
+                state.items.indexOfFirst { it.id == itemData.id }.takeIf { it >= 0 } ?: 0
             pagerState.scrollToPage(initialPage)
             isInitialScrollDone = true
         }
     }
-    
+
     LaunchedEffect(state.items, pagerState.currentPage) {
         state.items.getOrNull(pagerState.currentPage)?.let { item ->
             viewModel.dispatch(DictionaryItemMsg.ChangeCurrentItem(item))
@@ -94,8 +96,7 @@ fun DictionaryItemScreen(
                     end.linkTo(parent.end, margin = Dimens.Padding_32)
                     top.linkTo(parent.top, margin = Dimens.Padding_32)
                 }
-                .zIndex(1f)
-        )
+                .zIndex(1f))
 
         CustomBoxIconButton(
             onClick = { },
@@ -105,15 +106,14 @@ fun DictionaryItemScreen(
                     start.linkTo(parent.start, margin = Dimens.Padding_32)
                     bottom.linkTo(parent.bottom, margin = Dimens.Padding_48)
                 }
-                .zIndex(1f)
-        )
+                .zIndex(1f))
 
         CustomBoxIconButton(
             onClick = {
-                state.currentItem?.let {
-                    viewModel.dispatch(DictionaryItemMsg.UpdateFavorite(it))
-                }
-            },
+            state.currentItem?.let {
+                viewModel.dispatch(DictionaryItemMsg.UpdateFavorite(it))
+            }
+        },
             painter = if (state.currentItem?.isFavorite == true) R.drawable.ic_favorites else R.drawable.ic_favorites_not,
             tint = if (state.currentItem?.isFavorite == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
@@ -121,8 +121,7 @@ fun DictionaryItemScreen(
                     end.linkTo(parent.end, margin = Dimens.Padding_32)
                     bottom.linkTo(parent.bottom, margin = Dimens.Padding_48)
                 }
-                .zIndex(1f)
-        )
+                .zIndex(1f))
 
         HorizontalPager(
             state = pagerState,
@@ -131,8 +130,7 @@ fun DictionaryItemScreen(
             modifier = Modifier.constrainAs(pager) {
                 top.linkTo(close.bottom)
                 bottom.linkTo(favorite.top)
-            }
-        ) { page -> CardItem(item = state.items[page]) }
+            }) { page -> CardItem(item = state.items[page]) }
     }
 }
 
@@ -143,8 +141,7 @@ fun CardItem(item: DictionaryItem) {
             .fillMaxWidth()
             .padding(vertical = Dimens.Padding_100)
             .shadow(
-                elevation = Dimens.Padding_4,
-                shape = RoundedCornerShape(Dimens.RoundedCorner_20)
+                elevation = Dimens.Padding_4, shape = RoundedCornerShape(Dimens.RoundedCorner_20)
             )
             .background(
                 MaterialTheme.colorScheme.background,
@@ -156,12 +153,11 @@ fun CardItem(item: DictionaryItem) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(Dimens.Padding_16)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center
+                .verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = item.original,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.displayMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(Dimens.Padding_16))
@@ -172,11 +168,32 @@ fun CardItem(item: DictionaryItem) {
                     .height(Dimens.Size_2)
             ) { }
             Spacer(modifier = Modifier.height(Dimens.Padding_16))
-            Text(
-                text = item.translation,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            ProvideTextStyle(
+                value = MaterialTheme.typography.displayMedium.copy(
+                    color = if (item is DictionaryItem.PhrasebookItem) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                    fontSize = if (item is DictionaryItem.PhrasebookItem) Dimens.TextSize_24 else Dimens.TextSize_16
+                )
+            ) {
+                RichText(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Markdown(content = item.translation)
+                }
+            }
+            if (item is DictionaryItem.PhrasebookItem) {
+                Spacer(modifier = Modifier.height(Dimens.Padding_16))
+                Text(
+                    text = stringResource(R.string.usage_examples),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.height(Dimens.Padding_8))
+                Text(
+                    text = item.usingExample,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
     }
 }

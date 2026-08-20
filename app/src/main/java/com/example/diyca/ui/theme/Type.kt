@@ -76,15 +76,4 @@ val Typography = Typography(
         fontFamily = FontFamily(Font(R.font.nunito_regular)),
         fontSize = Dimens.TextSize_10
     )
-
-        /*
-        val MyCustomTextStyle = TextStyle(
-        fontFamily = FontFamily.Default, // Шрифт
-        fontWeight = FontWeight.Bold,    // Жирность текста
-        fontSize = 18.sp,                // Размер текста
-        color = Color.Black,             // Цвет текста
-        letterSpacing = 0.5.sp,          // Межбуквенный интервал
-        lineHeight = 24.sp               // Межстрочный интервал
-        )
-        */
-    )
+)

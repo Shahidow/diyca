@@ -13,16 +13,16 @@ data class TasksState (
     val tasksListSize: Int = 0,
     val currentTask: Int = 0,
     val lessonTasksCount: Int = 0,
+    val topicId: String = "",
+    val topicTasksCount: Int = 0,
+    val lessonId: String = "",
+    val completedTasks: List<String> = emptyList(),
 
     val selectedWords: List<String> = emptyList(),
     val selectedSingleWord: String = "",
     val selectedMultipleWords: List<String> = emptyList(),
     val selectedLetters: List<String> = emptyList(),
     val answer: Boolean? = null,
-
-    val completedTasks: List<String> = emptyList(),
-    val topicId: String = "",
-    val lessonId: String = "",
 
     val error: ErrorType? = null,
     val showCloseConfirmation: Boolean = false,

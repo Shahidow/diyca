@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "phrasebook_table")
 data class PhrasebookEntity (
     @PrimaryKey
-    val id: Int,
+    val id: String,
     val title: String,
-    val pic: String,
+    val image: String?,
 )

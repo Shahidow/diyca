@@ -20,8 +20,10 @@ interface UserDataBaseRepository {
 
     fun getAllRewards(): Flow<List<Reward>>
     fun getUserRewards(): Flow<List<String>>
-    suspend fun insertUserReward(rewardTitle: String)
+    suspend fun insertUserRewards(rewardTitles: List<String>)
     suspend fun insertReward(reward: Reward)
+    suspend fun updateRewardImage(id: String, localPath: String)
+    suspend fun clearAllRewards()
 
     fun getAllProgress(): Flow<List<UserProgress>>
     fun getProgressByLesson(lessonId: String): Flow<List<UserProgress>>

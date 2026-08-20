@@ -38,30 +38,31 @@ class LearningResponseMapper {
 
     fun taskResponseMapper(taskResponse: TaskResponse): Task {
         val firstAnswer = taskResponse.answer.firstOrNull() ?: ""
+        val cleanOptions = taskResponse.options.filter { it.isNotBlank() }
         return when (taskResponse.taskType) {
             "letter_builder" -> BuildWordTask(
                 id = taskResponse.id,
                 correctTranslation = firstAnswer,
                 question = taskResponse.questionText,
-                letters = taskResponse.options
+                letters = cleanOptions
             )
             "word_builder" -> BuildSentenceTask(
                 id = taskResponse.id,
                 correctTranslation = firstAnswer,
                 question = taskResponse.questionText,
-                words = taskResponse.options
+                words = cleanOptions
             )
             "single_choice" -> SingleChoiceTask(
                 id = taskResponse.id,
                 correctTranslation = firstAnswer,
                 question = taskResponse.questionText,
-                options = taskResponse.options
+                options = cleanOptions
             )
             "multiple_choice" -> MultipleChoiceTask(
                 id = taskResponse.id,
                 correctTranslation = taskResponse.answer,
                 question = taskResponse.questionText,
-                options = taskResponse.options
+                options = cleanOptions
             )
             else -> throw IllegalArgumentException("Unknown task type: ${taskResponse.taskType}")
         }

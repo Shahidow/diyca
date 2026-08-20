@@ -6,6 +6,7 @@ import com.example.diyca.util.ErrorType
 data class TopicState (
     val isLoading: Boolean = false,
     val topicId: String = "",
+    val topicTasksCount: Int = 0,
     val title: String = "",
     val audio: String? = null,
     val text: String = "",

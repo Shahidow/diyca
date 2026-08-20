@@ -29,6 +29,7 @@ class TopicViewModel(private val lessonInteractor: LessonInteractor) : ViewModel
                     it.copy(
                         isLoading = true,
                         topicId = msg.topicRout.id,
+                        topicTasksCount = msg.topicRout.topicTasksCount,
                         title = msg.topicRout.header,
                         text = msg.topicRout.text
                     )

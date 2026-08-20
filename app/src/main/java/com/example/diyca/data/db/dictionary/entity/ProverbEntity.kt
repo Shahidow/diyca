@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "proverb_table")
 data class ProverbEntity (
     @PrimaryKey
-    val id: Int,
+    val id: String,
     val original: String,
     val translation: String,
     val isFavorite: Boolean,

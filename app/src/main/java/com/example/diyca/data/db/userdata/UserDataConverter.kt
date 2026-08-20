@@ -28,7 +28,7 @@ class UserDataConverter {
     fun mapUserReward(reward: Reward): RewardEntity {
         return RewardEntity(
             rewardId = reward.id,
-            imageUrl = reward.imageUrl,
+            imageUrl = reward.image,
             title = reward.title,
             name = reward.name,
             category = reward.category,
@@ -38,7 +38,7 @@ class UserDataConverter {
     fun mapUserReward(rewardEntity: RewardEntity): Reward {
         return Reward(
             id = rewardEntity.rewardId,
-            imageUrl = rewardEntity.imageUrl,
+            image = rewardEntity.imageUrl,
             title = rewardEntity.title,
             category = rewardEntity.category,
             name = rewardEntity.name,

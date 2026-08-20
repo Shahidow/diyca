@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "word_table")
 data class WordEntity(
     @PrimaryKey
-    val id: Int,
+    val id: String,
     val original: String,
     val translation: String,
     val isFavorite: Boolean,

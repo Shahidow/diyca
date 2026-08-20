@@ -53,12 +53,20 @@ class UserDataBaseRepositoryImpl(
 
     override fun getUserRewards(): Flow<List<String>> = userPrefsRepository.getUserRewards()
 
-    override suspend fun insertUserReward(rewardTitle: String) {
-        userPrefsRepository.insertUserReward(rewardTitle)
+    override suspend fun insertUserRewards(rewardTitles: List<String>) {
+        userPrefsRepository.saveUserRewards(rewardTitles)
     }
 
     override suspend fun insertReward(reward: Reward) {
         userDatabase.rewardsDao().insertReward(userDataConverter.mapUserReward(reward))
+    }
+
+    override suspend fun updateRewardImage(id: String, localPath: String) {
+        userDatabase.rewardsDao().updateRewardImage(id, localPath)
+    }
+
+    override suspend fun clearAllRewards() {
+        userDatabase.rewardsDao().clearAllRewards()
     }
 
     override fun getAllProgress(): Flow<List<UserProgress>> =

@@ -27,6 +27,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.example.diyca.R
 import com.example.diyca.ui.theme.Dimens
 import com.example.diyca.ui.theme.Grey92
+import com.example.diyca.util.stripMarkdown
 
 @Composable
 fun CustomBoxContainer(
@@ -219,7 +220,7 @@ fun CustomBoxForDictionaries(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    subtitle,
+                    subtitle.stripMarkdown(),
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = maxLine,
                     overflow = TextOverflow.Ellipsis

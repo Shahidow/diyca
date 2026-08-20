@@ -18,10 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -84,7 +82,7 @@ fun ProfileScreen(navHostController: NavHostController) {
 
                 is ProfileEffect.NavigateBack -> navHostController.popBackStackSafe()
                 is ProfileEffect.NavigateToSettings -> navHostController.navigateSafe(ScreenRoutes.SettingsRout)
-                is ProfileEffect.RateUs -> {
+                is ProfileEffect.RateUs -> {                                                                                    //TODO
                     val uri = "market://details?id=your.app.id".toUri()
                     val goToMarket = Intent(Intent.ACTION_VIEW, uri).apply {
                         addFlags(
@@ -113,7 +111,6 @@ fun ProfileScreen(navHostController: NavHostController) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = Dimens.Padding_16)
-            .verticalScroll(rememberScrollState())
     ) {
         ProfileHeader(viewModel, state.avatar, state.userName)
         Spacer(modifier = Modifier.height(Dimens.Padding_32))
@@ -129,7 +126,7 @@ fun ProfileScreen(navHostController: NavHostController) {
         )
         Spacer(modifier = Modifier.height(Dimens.Padding_16))
 
-        UserRewardsSection(state.rewards)
+        UserRewardsSection(state.rewards, Modifier.weight(1f))
         Spacer(modifier = Modifier.height(Dimens.Padding_16))
 
         CustomButtonColored(
@@ -147,7 +144,7 @@ fun ProfileScreen(navHostController: NavHostController) {
                 onClick = { viewModel.dispatch(ProfileMsg.RateUsClicked) })
             CustomTextButtonColored(stringResource(R.string.contacts), onClick = { })
         }
-        Spacer(modifier = Modifier.height(Dimens.Padding_16))
+        Spacer(modifier = Modifier.weight(0.2f))
     }
 }
 
@@ -214,7 +211,7 @@ fun ProfileSettingsButton(viewModel: ProfileViewModel) {
         onClick = { viewModel.dispatch(ProfileMsg.GoToSettings) }
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -239,11 +236,10 @@ fun ProfileSettingsButton(viewModel: ProfileViewModel) {
 }
 
 @Composable
-fun UserRewardsSection(rewards: List<Reward>) {
+fun UserRewardsSection(rewards: List<Reward>, modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .height(198.dp)
             .border(
                 width = 1.dp,
                 color = Grey92,

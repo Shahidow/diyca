@@ -21,4 +21,10 @@ interface ProverbDao {
 
     @Query("SELECT * FROM proverb_table WHERE isFavorite = 1")
     fun getFavoritesProverbs(): Flow<List<ProverbEntity>>
+
+    @Query("SELECT id FROM proverb_table WHERE isFavorite = 1")
+    suspend fun getFavoriteProverbIds(): List<String>
+
+    @Query("DELETE FROM proverb_table")
+    suspend fun clearAllProverbs()
 }

@@ -151,4 +151,5 @@
     <string name="nothing_was_found">Ничего не найдено</string>
     <string name="clear_progress">Очистить прогресс</string>
     <string name="clear_progress_confirmation">Вы уверены?\nУдаленный прогресс невозможно восстановить!</string>
+    <string name="usage_examples">Примеры использования:</string>
 </resources>

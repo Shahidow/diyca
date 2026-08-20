@@ -6,10 +6,11 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "phrasebook_item_table")
 data class PhrasebookItemEntity (
     @PrimaryKey
-    val id: Int,
-    val parentId: Int,
+    val id: String,
+    val parentId: String,
     val original: String,
     val translation: String,
+    val usingExample: String,
     val isFavorite: Boolean,
     val audio: String?
 )

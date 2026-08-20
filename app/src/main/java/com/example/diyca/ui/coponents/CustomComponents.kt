@@ -67,6 +67,7 @@ import com.example.diyca.ui.theme.Dimens
 import com.example.diyca.ui.theme.MediumGray
 import com.example.diyca.util.ErrorType
 import kotlinx.coroutines.delay
+import java.io.File
 
 @Composable
 fun CustomTextField(
@@ -405,7 +406,7 @@ fun blinkingCursor(): String {
 fun CustomRewardBox(reward: Reward) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(reward.imageUrl)
+            .data(reward.image?.let { File(it) })
             .crossfade(true)
             .placeholder(R.drawable.ic_award)
             .error(R.drawable.ic_award)
@@ -423,7 +424,7 @@ fun CustomRewardBox(reward: Reward) {
             painter = painter,
             contentDescription = null,
             modifier = Modifier
-                .size(Dimens.Size_48)
+                .size(Dimens.Size_80)
                 .clip(CircleShape)
                 .then(if (!reward.isOpen) Modifier.graphicsLayer(alpha = 0.3f) else Modifier)
         )

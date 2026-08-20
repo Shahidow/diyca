@@ -21,4 +21,10 @@ interface WordDao {
 
     @Query("SELECT * FROM word_table WHERE isFavorite = 1")
     fun getFavoritesWords(): Flow<List<WordEntity>>
+
+    @Query("SELECT id FROM word_table WHERE isFavorite = 1")
+    suspend fun getFavoriteWordIds(): List<String>
+
+    @Query("DELETE FROM word_table")
+    suspend fun clearAllWords()
 }

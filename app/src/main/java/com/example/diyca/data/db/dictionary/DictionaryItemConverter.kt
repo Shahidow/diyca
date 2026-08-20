@@ -77,6 +77,7 @@ class DictionaryItemConverter {
             parentId = phrasebookItem.parentId,
             original = phrasebookItem.original,
             translation = phrasebookItem.translation,
+            usingExample = phrasebookItem.usingExample,
             isFavorite = phrasebookItem.isFavorite,
             audio = phrasebookItem.audio
         )
@@ -88,6 +89,7 @@ class DictionaryItemConverter {
             parentId = phrasebookItem.parentId,
             original = phrasebookItem.original,
             translation = phrasebookItem.translation,
+            usingExample = phrasebookItem.usingExample,
             isFavorite = phrasebookItem.isFavorite,
             audio = phrasebookItem.audio
         )
@@ -97,7 +99,7 @@ class DictionaryItemConverter {
         return PhrasebookEntity(
             id = phrasebook.id,
             title = phrasebook.title,
-            pic = phrasebook.image,
+            image = phrasebook.image,
         )
     }
 
@@ -105,7 +107,7 @@ class DictionaryItemConverter {
         return Phrasebook(
             id = phrasebook.id,
             title = phrasebook.title,
-            image = phrasebook.pic,
+            image = phrasebook.image,
         )
     }
 }

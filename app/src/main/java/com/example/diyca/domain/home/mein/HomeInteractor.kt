@@ -11,5 +11,4 @@ interface HomeInteractor {
     fun retryGetLesson()
     fun getDailyActivity(): Flow<DailyActivity?>
     fun getUserRewards(): Flow<List<Reward>>
-    suspend fun getRewards()
 }

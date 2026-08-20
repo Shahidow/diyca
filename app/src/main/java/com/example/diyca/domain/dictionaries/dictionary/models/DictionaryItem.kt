@@ -1,7 +1,7 @@
 package com.example.diyca.domain.dictionaries.dictionary.models
 
 sealed class DictionaryItem {
-    abstract val id: Int
+    abstract val id: String
     abstract val original: String
     abstract val translation: String
     abstract val isFavorite: Boolean
@@ -14,8 +14,9 @@ sealed class DictionaryItem {
     }
 
     data class PhrasebookItem(
-        val parentId: Int,
-        override val id: Int,
+        val parentId: String,
+        val usingExample: String,
+        override val id: String,
         override val original: String,
         override val translation: String,
         override val isFavorite: Boolean,
@@ -23,7 +24,7 @@ sealed class DictionaryItem {
     ) : DictionaryItem()
 
     data class Expression(
-        override val id: Int,
+        override val id: String,
         override val original: String,
         override val translation: String,
         override val isFavorite: Boolean,
@@ -31,7 +32,7 @@ sealed class DictionaryItem {
     ) : DictionaryItem()
 
     data class Proverb(
-        override val id: Int,
+        override val id: String,
         override val original: String,
         override val translation: String,
         override val isFavorite: Boolean,
@@ -39,7 +40,7 @@ sealed class DictionaryItem {
     ) : DictionaryItem()
 
     data class Word(
-        override val id: Int,
+        override val id: String,
         override val original: String,
         override val translation: String,
         override val isFavorite: Boolean,
