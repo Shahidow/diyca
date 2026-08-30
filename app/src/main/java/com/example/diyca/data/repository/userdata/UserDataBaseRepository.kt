@@ -1,7 +1,7 @@
 package com.example.diyca.data.repository.userdata
 
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.learning.models.UserProgress
 import kotlinx.coroutines.flow.Flow
 

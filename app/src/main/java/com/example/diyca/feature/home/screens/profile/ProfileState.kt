@@ -1,6 +1,6 @@
 package com.example.diyca.feature.home.screens.profile
 
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.home.settings.models.UserAvatar
 
 

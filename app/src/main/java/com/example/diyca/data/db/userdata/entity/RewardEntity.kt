@@ -10,5 +10,6 @@ data class RewardEntity(
     val imageUrl: String?,
     val title: String,
     val name: String,
-    val category: String
+    val category: String,
+    val threshold: Int
 )

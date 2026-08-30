@@ -1,6 +1,6 @@
 package com.example.diyca.domain.home.mein
 
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.home.models.DailyActivity
 import kotlinx.coroutines.flow.Flow
 

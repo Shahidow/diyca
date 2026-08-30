@@ -72,14 +72,15 @@ class TasksResultViewModel(private val tasksResultInteractor: TasksResultInterac
                     when (result) {
                         is Resource.Success -> {
                             val lessonProgress = tasksResultInteractor.getLessonProgressFloat(
-                                currentState.lessonId,
-                                currentState.lessonTasksCount
+                                lessonId = currentState.lessonId,
+                                lessonTaskCount = currentState.lessonTasksCount
                             )
                             _state.update {
                                 it.copy(
                                     isLoading = false,
                                     error = null,
-                                    lessonProgress = lessonProgress
+                                    lessonProgress = lessonProgress,
+                                    rewards = result.data ?: emptyList()
                                 )
                             }
                         }

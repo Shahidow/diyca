@@ -7,6 +7,7 @@ import com.example.diyca.data.repository.userdata.UserNetworkRepository
 import com.example.diyca.domain.home.models.DailyActivity
 import com.example.diyca.domain.startup.models.RewardsData
 import com.example.diyca.domain.learning.models.UserProgress
+import com.example.diyca.domain.learning.tasks_result.models.TasksResultModel
 import com.example.diyca.util.ErrorType
 import com.example.diyca.util.Resource
 import com.example.diyca.util.handleNetworkError
@@ -30,17 +31,21 @@ class UserNetworkRepositoryImpl(
         }
     }
 
-    override suspend fun setProgress(progressList: List<UserProgress>, newRewardIds: List<String>): Resource<Unit> =
+    override suspend fun setProgress(progressList: List<UserProgress>, newRewardIds: List<String>): Resource<TasksResultModel> =
         safeApiCall {
             val request = userDataMapper.mapDomainToSetProgressRequest(progressList, newRewardIds)
             val response = userApi.setProgress(request)
             if (response.isSuccessful) {
                 response.body()?.let { body ->
-                    val dailyActivity =
-                        userDataMapper.mapDailyActivityDtoToDomain(body) ?: return@let
-                    userDataBaseRepository.insertActivity(dailyActivity)
+                    val dailyActivity = userDataMapper.mapDailyActivityDtoToDomain(body)
+                    val newRewards = body.data?.newRewards?: emptyList()
+                    Resource.Success(
+                        TasksResultModel(
+                            activity = dailyActivity,
+                            newRewards = newRewards
+                        )
+                    )
                 } ?: Resource.Error(ErrorType.ServerError)
-                Resource.Success(Unit)
             } else {
                 handleNetworkError(response)
             }

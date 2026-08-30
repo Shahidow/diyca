@@ -1,7 +1,7 @@
 package com.example.diyca.domain.home.profile.impl
 
 import com.example.diyca.data.repository.userdata.UserDataBaseRepository
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.home.profile.ProfileInteractor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

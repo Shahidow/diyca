@@ -7,10 +7,18 @@ sealed class DictionaryItem {
     abstract val isFavorite: Boolean
     abstract val audio: String?
 
+    private fun normalize(text: String): String {
+        return text.lowercase()
+            .replace("1", "Ӏ")
+            .replace("i", "Ӏ")
+            .replace("l", "Ӏ")
+    }
+
     fun matches(query: String): Boolean {
         if (query.isBlank()) return true
-        return original.contains(query, ignoreCase = true) ||
-                translation.contains(query, ignoreCase = true)
+        val normalizedQuery = normalize(query)
+        return original.contains(normalizedQuery, ignoreCase = true) ||
+                translation.contains(normalizedQuery, ignoreCase = true)
     }
 
     data class PhrasebookItem(

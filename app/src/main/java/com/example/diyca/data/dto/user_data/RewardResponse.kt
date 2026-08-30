@@ -22,6 +22,14 @@ data class RewardResponse(
     @SerializedName("category")
     val category: String,
 
+    @SerializedName("meta")
+    val meta: RewardMetaResponse,
+
     @SerializedName("image_url")
     val imageUrl: String?
+)
+
+data class RewardMetaResponse(
+    @SerializedName("threshold")
+    val threshold: Int
 )

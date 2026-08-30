@@ -1,6 +1,8 @@
 package com.example.diyca.domain.learning.tasks_result
 
 import com.example.diyca.domain.learning.models.UserProgress
+import com.example.diyca.domain.learning.tasks_result.models.TasksResultModel
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.util.Resource
 
 interface TasksResultInteractor {
@@ -11,7 +13,7 @@ interface TasksResultInteractor {
         topicTasksCount: Int,
         lessonTasksCount: Int,
         completedTasks: List<String>
-    ): Resource<Unit>
+    ): Resource<List<Reward>>
 
     suspend fun getLessonProgressFloat(lessonId: String, lessonTaskCount: Int): Float
 }

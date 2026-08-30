@@ -46,7 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
 import com.example.diyca.R
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.home.settings.models.UserAvatar
 import com.example.diyca.domain.learning.models.Lesson
 import com.example.diyca.ui.coponents.CustomBoxContainer

@@ -9,5 +9,8 @@ data class SetProgressResponse(
 
 data class SetProgressResponseData(
     @SerializedName("activity")
-    val activity: ActivityItemDto
+    val activity: ActivityItemDto,
+
+    @SerializedName("newRewards")
+    val newRewards: List<String>
 )

@@ -14,9 +14,9 @@ import com.example.diyca.util.LANGUAGE_ID
 import com.example.diyca.util.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
@@ -31,8 +31,8 @@ class StartupInteractorImpl(
     private val userNetworkRepository: UserNetworkRepository,
     private val userDataBaseRepository: UserDataBaseRepository,
     private val prefs: UserPrefsRepository,
-    private val okHttpClient: OkHttpClient,
-    private val externalScope: CoroutineScope
+    private val externalScope: CoroutineScope,
+    okHttpClient: OkHttpClient
 ) : StartupInteractor {
 
     private val downloadClient = okHttpClient.newBuilder()
@@ -74,30 +74,39 @@ class StartupInteractorImpl(
         }
     }
 
-    override suspend fun checkVersion() {
-        try {
-            LibraryKeys.all.forEach { libKey ->
-                when (libKey) {
-                    LibraryKeys.REWARDS -> syncIfOutdated(
-                        libKey,
-                        { userNetworkRepository.getAllRewards() },
-                        { it?.version })
+    override suspend fun checkVersion() = supervisorScope {
+        launch {
+            try {
+                syncMissingImages()
+            } catch (e: Exception) {
+                Log.e("StartupInteractor", "Failed to sync missing images", e)
+            }
+        }
+        LibraryKeys.all.forEach { libKey ->
+            launch {
+                try {
+                    when (libKey) {
+                        LibraryKeys.REWARDS -> syncIfOutdated(
+                            libKey,
+                            { userNetworkRepository.getAllRewards() },
+                            { it?.version })
 
-                    LibraryKeys.PHRASES -> syncIfOutdated(
-                        libKey,
-                        { dictionaryNetworkRepository.getPhrasebookVersion() },
-                        { it })
+                        LibraryKeys.PHRASES -> syncIfOutdated(
+                            libKey,
+                            { dictionaryNetworkRepository.getPhrasebookVersion() },
+                            { it })
 
-                    LibraryKeys.WORDS -> syncIfOutdated(
-                        libKey,
-                        { dictionaryNetworkRepository.getVocabularyVersion() },
-                        { it })
+                        LibraryKeys.WORDS -> syncIfOutdated(
+                            libKey,
+                            { dictionaryNetworkRepository.getVocabularyVersion() },
+                            { it })
 
-                    else -> {}
+                        else -> {}
+                    }
+                } catch (e: Exception) {
+                    Log.e("StartupInteractor", "Error syncing library: $libKey", e)
                 }
             }
-        } catch (e: Exception) {
-            Log.e("StartupInteractor", "Error during checkVersion", e)
         }
     }
 
@@ -189,8 +198,8 @@ class StartupInteractorImpl(
         updateDb: suspend (id: String, localPath: String) -> Unit
     ) {
         externalScope.launch {
-            withContext(NonCancellable) {
-                ids.forEach { (id, remoteUrl) ->
+            ids.forEach { (id, remoteUrl) ->
+                launch {
                     downloadSemaphore.withPermit {
                         val localPath = downloadImage(subFolder, id, remoteUrl)
                         if (localPath != null) {
@@ -217,6 +226,27 @@ class StartupInteractorImpl(
             val data = resource.data ?: return
             saveData(data)
             extractVersion(data)?.let { prefs.saveLibVersion(libKey, it) }
+        }
+    }
+
+    private suspend fun syncMissingImages() {
+        userDataBaseRepository.getAllRewards().first().let { rewards ->
+            val missing = rewards.filter { it.image?.startsWith("http") == true }
+            if (missing.isNotEmpty()) {
+                scheduleImageDownloads("rewards", missing.map { it.id to it.image }) { id, path ->
+                    userDataBaseRepository.updateRewardImage(id, path)
+                }
+            }
+        }
+        dictionaryDataBaseRepository.getPhrasebooks().first().let { phrasebooks ->
+            val missing = phrasebooks.filter { it.image?.startsWith("http") == true }
+            if (missing.isNotEmpty()) {
+                scheduleImageDownloads(
+                    "phrasebook",
+                    missing.map { it.id to it.image }) { id, path ->
+                    dictionaryDataBaseRepository.updatePhrasebookImage(id, path)
+                }
+            }
         }
     }
 }

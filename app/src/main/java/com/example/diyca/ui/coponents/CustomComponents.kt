@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,6 +53,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -62,7 +64,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.diyca.R
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.ui.theme.Dimens
 import com.example.diyca.ui.theme.MediumGray
 import com.example.diyca.util.ErrorType
@@ -303,39 +305,38 @@ fun AutoResizeText(
     maxFontSize: TextUnit = style.fontSize,
     minFontSize: TextUnit = Dimens.TextSize_10
 ) {
-    val textMeasurer = rememberTextMeasurer()
-    var fontSize by remember { mutableStateOf(maxFontSize) }
-    LaunchedEffect(text, maxFontSize, minFontSize) {
-        fontSize = maxFontSize
-        var currentSize = maxFontSize
-        while (currentSize > minFontSize) {
-            val result = textMeasurer.measure(
-                text = text,
-                style = style.copy(fontSize = currentSize),
-                maxLines = 1
-            )
-            if (result.hasVisualOverflow) {
-                currentSize = (currentSize.value * 0.9f).sp
-                if (currentSize <= minFontSize) {
-                    fontSize = minFontSize
-                    break
+    BoxWithConstraints(modifier = modifier) {
+        val nTextMeasurer = rememberTextMeasurer()
+        val maxWidthPx = constraints.maxWidth
+        val fontSize by remember(text, maxFontSize, maxWidthPx) {
+            var currentSize = maxFontSize
+            if (maxWidthPx > 0) {
+                while (currentSize > minFontSize) {
+                    val result = nTextMeasurer.measure(
+                        text = text,
+                        style = style.copy(fontSize = currentSize),
+                        constraints = Constraints(maxWidth = maxWidthPx),
+                        maxLines = 1
+                    )
+                    if (result.hasVisualOverflow || result.lineCount > 1) {
+                        currentSize = (currentSize.value - 0.5f).sp
+                    } else {
+                        break
+                    }
                 }
-            } else {
-                fontSize = currentSize
-                break
             }
+            mutableStateOf(if (currentSize < minFontSize) minFontSize else currentSize)
         }
-        if (currentSize <= minFontSize) {
-            fontSize = minFontSize
-        }
+        Text(
+            text = text,
+            style = style,
+            maxLines = 1,
+            fontSize = fontSize,
+            overflow = TextOverflow.Ellipsis,
+            softWrap = false,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
-    Text(
-        text = text,
-        style = style,
-        maxLines = 1,
-        fontSize = fontSize,
-        modifier = modifier
-    )
 }
 
 @Composable

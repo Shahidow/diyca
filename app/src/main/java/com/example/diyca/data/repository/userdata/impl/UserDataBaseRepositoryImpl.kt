@@ -5,7 +5,7 @@ import com.example.diyca.data.db.userdata.UserDatabase
 import com.example.diyca.data.prefs.UserPrefsRepository
 import com.example.diyca.data.repository.userdata.UserDataBaseRepository
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.learning.models.UserProgress
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

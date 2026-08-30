@@ -5,7 +5,7 @@ import com.example.diyca.data.repository.userdata.UserDataBaseRepository
 import com.example.diyca.domain.home.mein.CurrentLessonState
 import com.example.diyca.domain.home.mein.HomeInteractor
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

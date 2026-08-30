@@ -1,6 +1,6 @@
 package com.example.diyca.feature.learning.screens.tasks_result
 
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.util.ErrorType
 
 data class TasksResultState(
@@ -16,6 +16,6 @@ data class TasksResultState(
 
     val isLoading: Boolean = false,
     val error: ErrorType? = null,
-    val reward: Reward? = null,
+    val rewards: List<Reward> = emptyList(),
     val showConfirmation: Boolean = false,
 )

@@ -6,9 +6,11 @@ import com.example.diyca.domain.learning.models.UserProgress
 import com.example.diyca.domain.learning.tasks_result.TasksResultInteractor
 import com.example.diyca.domain.rewards.RewardEvaluator
 import com.example.diyca.domain.rewards.models.LessonResult
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.rewards.models.RewardCalculationInput
 import com.example.diyca.util.Resource
 import kotlinx.coroutines.flow.first
+import java.time.LocalDate
 
 class TasksResultInteractorImpl(
     private val userNetworkRepository: UserNetworkRepository,
@@ -22,10 +24,11 @@ class TasksResultInteractorImpl(
         topicTasksCount: Int,
         lessonTasksCount: Int,
         completedTasks: List<String>
-    ): Resource<Unit> {
+    ): Resource<List<Reward>> {
         val history = userDataBaseRepository.getAllActivity().first()
         val currentProgress = userDataBaseRepository.getAllProgress().first()
         val earnedRewards = userDataBaseRepository.getUserRewards().first().toSet()
+        val allRewardsInDb = userDataBaseRepository.getAllRewards().first()
 
         val dbTopicTasks = currentProgress.filter { it.topicId == topicId }.map { it.taskId }
         val dbLessonTasks = currentProgress.filter { it.lessonId == lessonId }.map { it.taskId }
@@ -34,8 +37,7 @@ class TasksResultInteractorImpl(
 
         val isTopicCompleted = allTopicTasks.size == topicTasksCount
         val isLessonCompleted = allLessonTasks.size == lessonTasksCount
-        val todayDate = "" //todo
-
+        val todayDate = LocalDate.now().toString()
         val lessonResult = LessonResult(
             lessonId = lessonId,
             topicId = topicId,
@@ -51,20 +53,21 @@ class TasksResultInteractorImpl(
                 currentActivity = history,
                 currentProgress = currentProgress,
                 alreadyEarnedIds = earnedRewards,
-                currentLessonResult = lessonResult
+                currentLessonResult = lessonResult,
+                allAvailableRewards = allRewardsInDb
             )
         )
 
         return when (val resource = userNetworkRepository.setProgress(progressList, newRewardIds)) {
             is Resource.Error -> Resource.Error(resource.errorType, resource.resultCode)
             is Resource.Success -> {
-                progressList.forEach { progress ->
-                    userDataBaseRepository.insertUserProgress(progress)
-                }
+                progressList.forEach { userDataBaseRepository.insertUserProgress(it) }
+                resource.data?.activity?.let { userDataBaseRepository.insertActivity(it) }
                 if (newRewardIds.isNotEmpty()) {
                     userDataBaseRepository.insertUserRewards(newRewardIds)
                 }
-                Resource.Success(Unit)
+                val rewardModels = allRewardsInDb.filter { it.title in newRewardIds }
+                Resource.Success(rewardModels)
             }
         }
     }

@@ -39,7 +39,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.example.diyca.R
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.home.settings.models.UserAvatar
 import com.example.diyca.ui.coponents.CustomBackButton
 import com.example.diyca.ui.coponents.CustomBoxContainer

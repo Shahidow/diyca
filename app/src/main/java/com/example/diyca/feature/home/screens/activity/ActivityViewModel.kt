@@ -1,6 +1,5 @@
 package com.example.diyca.feature.home.screens.activity
 
-import java.util.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.diyca.domain.home.activity.ActivityInteractor
@@ -67,7 +66,7 @@ class ActivityViewModel(private val activityInteractor: ActivityInteractor) : Vi
 
     private fun updateDate() {
         val now = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT, Locale("ru"))
+        val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
         _state.update { it.copy(todayDate = now.format(formatter)) }
     }
 

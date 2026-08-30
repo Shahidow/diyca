@@ -5,8 +5,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,10 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,13 +31,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.diyca.R
+import com.example.diyca.domain.rewards.models.Reward
+import com.example.diyca.ui.coponents.CustomBoxContainer
 import com.example.diyca.ui.coponents.CustomBoxIconButton
 import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomErrorBox
+import com.example.diyca.ui.coponents.CustomRewardBox
 import com.example.diyca.ui.navigation.ScreenRoutes
 import com.example.diyca.ui.navigation.navigateAndPopSelf
 import com.example.diyca.ui.navigation.popBackStackSafe
@@ -51,6 +59,7 @@ fun TasksResultScreen(
     val viewModel: TasksResultViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
     val currentError = state.error
+    val newRewards = state.rewards
 
     LaunchedEffect(tasksResultRout) {
         viewModel.dispatch(TasksResultMsg.LoadTasksResult(tasksResultRout))
@@ -107,6 +116,10 @@ fun TasksResultScreen(
                     viewModel.dispatch(TasksResultMsg.SetResult)
                 })
                 Spacer(modifier = Modifier.height(Dimens.Padding_16))
+            }
+
+            newRewards.isNotEmpty() -> {
+                TasksResultRewards(newRewards)
             }
 
             else -> Spacer(modifier = Modifier.height(Dimens.Padding_56))
@@ -255,6 +268,45 @@ fun TasksResultErrorBox(errorType: ErrorType, onClick: () -> Unit) {
                 errorType = errorType,
                 imageSize = Dimens.Size_56,
             )
+        }
+    }
+}
+
+@Composable
+fun TasksResultRewards(rewards: List<Reward>) {
+    CustomBoxContainer(
+        contentPadding = PaddingValues(Dimens.Padding_16),
+        color = MaterialTheme.colorScheme.background,
+        borderColor = Color.Transparent
+    ) {
+        if (rewards.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_award),
+                    tint = MaterialTheme.colorScheme.primary,
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.height(Dimens.Padding_4))
+                Text(
+                    text = stringResource(R.string.no_rewards),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
+        } else {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                contentPadding = PaddingValues(horizontal = Dimens.Padding_8),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Padding_8)
+            ) {
+                items(rewards.size) { index ->
+                    CustomRewardBox(rewards[index])
+                }
+            }
         }
     }
 }

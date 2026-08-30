@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -246,7 +247,10 @@ fun DictionaryItems(
             .padding(horizontal = Dimens.Padding_16),
         verticalArrangement = Arrangement.spacedBy(Dimens.Padding_8)
     ) {
-        itemsIndexed(dictionaryItems) { _, item ->
+        items(
+            items = dictionaryItems,
+            key = { it.id }
+        ) { item ->
             CustomBoxForDictionaries(
                 onClick = {
                     focusManager.clearFocus()

@@ -4,7 +4,7 @@ import com.example.diyca.data.db.userdata.entity.ActivityEntity
 import com.example.diyca.data.db.userdata.entity.ProgressEntity
 import com.example.diyca.data.db.userdata.entity.RewardEntity
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.learning.models.UserProgress
 
 class UserDataConverter {
@@ -32,6 +32,7 @@ class UserDataConverter {
             title = reward.title,
             name = reward.name,
             category = reward.category,
+            threshold = reward.threshold,
         )
     }
 
@@ -42,6 +43,7 @@ class UserDataConverter {
             title = rewardEntity.title,
             category = rewardEntity.category,
             name = rewardEntity.name,
+            threshold = rewardEntity.threshold
         )
     }
 

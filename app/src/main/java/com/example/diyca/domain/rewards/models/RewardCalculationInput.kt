@@ -7,7 +7,8 @@ data class RewardCalculationInput(
     val currentActivity: List<DailyActivity>,
     val currentProgress: List<UserProgress>,
     val alreadyEarnedIds: Set<String>,
-    val currentLessonResult: LessonResult
+    val currentLessonResult: LessonResult,
+    val allAvailableRewards: List<Reward>
 )
 
 data class LessonResult(

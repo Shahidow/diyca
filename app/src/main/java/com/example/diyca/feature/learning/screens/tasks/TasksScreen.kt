@@ -50,6 +50,7 @@ import com.example.diyca.ui.coponents.CustomBoxTaskButton
 import com.example.diyca.ui.coponents.CustomButtonColored
 import com.example.diyca.ui.coponents.CustomDialog
 import com.example.diyca.ui.coponents.CustomErrorBox
+import com.example.diyca.ui.coponents.CustomKeyboard
 import com.example.diyca.ui.coponents.CustomProgressBar
 import com.example.diyca.ui.coponents.CustomTaskButton
 import com.example.diyca.ui.coponents.CustomTextButtonColored
@@ -379,33 +380,16 @@ fun BuildWordTaskScreen(
             }
         )
         Spacer(modifier = Modifier.height(Dimens.Padding_36))
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(162.dp)
-                .clip(RoundedCornerShape(Dimens.RoundedCorner_16))
-                .background(MaterialTheme.colorScheme.surface)
-                .defaultMinSize(minHeight = 162.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            buildWordTask.letters.forEach { letter ->
-                CustomTaskButton(
-                    letter,
-                    onClick = {
-                        if (answer == null)
-                            viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters + letter))
-                    }
-                )
+        CustomKeyboard(
+            onLetterClick = { letter ->
+                if (answer == null)
+                    viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters + letter))
+            },
+            onSpaceClick = {
+                if (answer == null)
+                    viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters + " "))
             }
-            CustomTaskButton(
-                text = "␣",
-                onClick = {
-                    if (answer == null)
-                        viewModel.dispatch(TasksMsg.SelectedLettersChanged(selectedLetters + " "))
-                },
-            )
-        }
+        )
     }
 }
 

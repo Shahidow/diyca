@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 class ActivityCalendarViewModel(private val activityInteractor: ActivityInteractor) : ViewModel() {
     private val _state = MutableStateFlow(ActivityCalendarState())
@@ -56,10 +55,7 @@ class ActivityCalendarViewModel(private val activityInteractor: ActivityInteract
 
     private fun updateDate() {
         val now = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern(
-            DATE_FORMAT,
-            Locale("ru")
-        )
+        val formatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
         val dateString = now.format(formatter)
         _state.update { it.copy(todayDateString = dateString, today = now) }
     }

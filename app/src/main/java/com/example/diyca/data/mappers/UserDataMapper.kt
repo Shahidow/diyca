@@ -8,7 +8,7 @@ import com.example.diyca.data.dto.user_data.SetProgressDataDto
 import com.example.diyca.data.dto.user_data.SetProgressRequest
 import com.example.diyca.data.dto.user_data.SetProgressResponse
 import com.example.diyca.domain.home.models.DailyActivity
-import com.example.diyca.domain.home.models.Reward
+import com.example.diyca.domain.rewards.models.Reward
 import com.example.diyca.domain.startup.models.RewardsData
 import com.example.diyca.domain.learning.models.UserProgress
 import java.util.TimeZone
@@ -75,6 +75,7 @@ class UserDataMapper {
                     category = itemDto.category,
                     name = itemDto.rewardName,
                     image = itemDto.imageUrl,
+                    threshold = itemDto.meta.threshold,
                     isOpen = false
                 )
             }
